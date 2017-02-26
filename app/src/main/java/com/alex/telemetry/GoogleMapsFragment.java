@@ -128,6 +128,10 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    public ArrayList<Location> getLocations() {
+        return mLocations;
+    }
+
     public interface OnFragmentInteractionListener {
         // void onFragmentInteraction(Uri uri);
     }
