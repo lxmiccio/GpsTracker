@@ -128,6 +128,11 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    public void clear() {
+        mLocations.clear();
+        mMap.clear();
+    }
+
     public ArrayList<Location> getLocations() {
         return mLocations;
     }

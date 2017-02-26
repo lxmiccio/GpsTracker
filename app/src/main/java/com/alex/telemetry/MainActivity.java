@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -20,13 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -34,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     GoogleMapsFragment googleMapsFragment;
     FloatingActionButton startRecording;
     FloatingActionButton endRecording;
+    EditText txtTrackName;
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -71,29 +65,40 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             @Override
             public void onClick(View view) {
                 // Use the Builder class for convenient dialog construction
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage(R.string.track_save_message)
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(R.string.track_save_message)
                         .setPositiveButton(R.string.track_save_yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                // Save the track and delete the route on the map
-                                GpxHandler.saveGpx(getFilesDir(), "Mugello", googleMapsFragment.getLocations());
+                                txtTrackName = new EditText(MainActivity.this);
+                                txtTrackName.setHint("Track");
 
-//                                Gpx read = null;
-//                                try {
-//                                    read = GpxHandler.loadGpx(getFilesDir(), "Mugello");
-//                                } catch (Exception e) {
-//                                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-//                                }
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setMessage(R.string.track_name_message)
+                                        .setView(txtTrackName)
+                                        .setPositiveButton(R.string.track_name_yes, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                // Save the track
+                                                GpxHandler.saveGpx(getFilesDir(), txtTrackName.getText().toString(), googleMapsFragment.getLocations());
+                                                // Delete the route on the map
+                                                googleMapsFragment.clear();
+                                            }
+                                        })
+                                        .setNegativeButton(R.string.track_name_no, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int id) {
+                                                // Delete the route on the map
+                                                googleMapsFragment.clear();
+                                            }
+                                        })
+                                        .show();
                             }
                         })
                         .setNegativeButton(R.string.track_save_no, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // Delete the route on the map
+                                googleMapsFragment.clear();
                             }
-                        });
-                // Create the AlertDialog object and return it
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                        })
+                        .show();
 
                 startRecording.show();
                 endRecording.hide();
