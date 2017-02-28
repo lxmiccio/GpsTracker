@@ -47,7 +47,10 @@ public class GpxHandler {
         if(files != null) {
             for(File iFile : files) {
                 if(iFile.getAbsolutePath().endsWith(".gpx")) {
-                    tracksList.add(iFile.getAbsolutePath());
+                    String name = iFile.getAbsolutePath();
+                    name = name.substring(name.lastIndexOf("/") + 1);
+                    name = name.substring(0, name.length() - 4);
+                    tracksList.add(name);
                 }
             }
         }

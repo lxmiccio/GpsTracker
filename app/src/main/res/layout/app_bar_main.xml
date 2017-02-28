@@ -29,6 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@android:color/holo_blue_bright"
         app:srcCompat="@drawable/ic_play_arrow" />
 
     <android.support.design.widget.FloatingActionButton
@@ -37,6 +38,25 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@android:color/holo_blue_bright"
         app:srcCompat="@drawable/ic_stop" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/load_track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@android:color/holo_blue_bright"
+        app:srcCompat="@drawable/ic_file_upload" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/change_map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@android:color/holo_blue_bright"
+        app:srcCompat="@drawable/ic_map" />
 
 </android.support.design.widget.CoordinatorLayout>

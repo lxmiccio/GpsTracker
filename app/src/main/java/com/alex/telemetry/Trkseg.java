@@ -13,17 +13,17 @@ import java.util.List;
 public class Trkseg {
 
     @ElementList(inline = true, name = "trkseg")
-    private List<Trkpt> mTrkpts;
+    private ArrayList<Trkpt> mTrkpts;
 
     public Trkseg() {
         mTrkpts = new ArrayList<>();
     }
 
-    public Trkseg(List<Trkpt> trkpts) {
+    public Trkseg(ArrayList<Trkpt> trkpts) {
         mTrkpts = trkpts;
     }
 
-    public List<Trkpt> getTrkpts() {
+    public ArrayList<Trkpt> getTrkpts() {
         return mTrkpts;
     }
 

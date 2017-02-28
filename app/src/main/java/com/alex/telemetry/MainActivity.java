@@ -21,13 +21,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     GoogleMapsFragment googleMapsFragment;
     FloatingActionButton startRecording;
     FloatingActionButton endRecording;
+    FloatingActionButton loadTrack;
     EditText txtTrackName;
+    CharSequence tracks[];
+    FloatingActionButton changeMap;
+    EditText txtChangeMap;
+    CharSequence maps[];
 
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
@@ -48,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        startRecording = (FloatingActionButton) findViewById(R.id.fab);
+        startRecording = (FloatingActionButton) findViewById(R.id.start_recording);
         startRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -59,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             }
         });
 
-        endRecording = (FloatingActionButton) findViewById(R.id.fab1);
+        endRecording = (FloatingActionButton) findViewById(R.id.stop_recording);
         endRecording.hide();
         endRecording.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +109,65 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
                 startRecording.show();
                 endRecording.hide();
+            }
+        });
+
+        loadTrack = (FloatingActionButton) findViewById(R.id.load_track);
+        loadTrack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ArrayList<String> tracksList = GpxHandler.getTracksList(getFilesDir());
+                if(tracksList != null && tracksList.size() > 0) {
+                    tracks = tracksList.toArray(new CharSequence[tracksList.size()]);
+                    // TODO set gpx png left to track
+
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Pick a track")
+                            .setItems(tracks, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    String track = tracks[id].toString();
+
+                                    try {
+                                        Gpx gpx = GpxHandler.loadGpx(getFilesDir(), track);
+                                        googleMapsFragment.loadGpx(gpx);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialogg, int idd) {
+                                    dialogg.dismiss();
+                                }
+                            }).show();
+                }
+            }
+        });
+
+        changeMap = (FloatingActionButton) findViewById(R.id.change_map);
+        changeMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                maps = new CharSequence[3];
+                maps[0] = "Normal";
+                maps[1] = "Satellite";
+                maps[2] = "Terrain";
+                // TODO set image left to type name
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Select map type")
+                        .setItems(maps, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                googleMapsFragment.setMapType(maps[id].toString());
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogg, int idd) {
+                                dialogg.dismiss();
+                            }
+                        }).show();
             }
         });
 

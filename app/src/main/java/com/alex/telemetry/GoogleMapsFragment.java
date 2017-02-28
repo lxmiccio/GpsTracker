@@ -25,6 +25,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     private OnFragmentInteractionListener mListener;
 
     private ArrayList<Location> mLocations;
+    private ArrayList<LatLng> mLatLngs;
     private Polyline mRoute;
     private PolylineOptions mRouteOptions;
     private GoogleMap mMap;
@@ -34,6 +35,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
     public GoogleMapsFragment() {
         mLocations = new ArrayList<>();
+        mLatLngs = new ArrayList<>();
     }
 
     public static GoogleMapsFragment newInstance() {
@@ -125,6 +127,68 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
             // Move camera to user location
             mMap.moveCamera(CameraUpdateFactory.newLatLng(lLatLng));
+        }
+    }
+
+    public void loadGpx(Gpx gpx) {
+        if (gpx != null) {
+            ArrayList<Trkpt> trkpts = gpx.getTrk().getTrkseg().getTrkpts();
+
+            for (Trkpt iTrkpt : trkpts) {
+                LatLng lLatLng = new LatLng(iTrkpt.getLatitude(), iTrkpt.getLongitude());
+                mLatLngs.add(lLatLng);
+
+                if (mLatLngs.size() == 1) {
+                    // Draw new location
+                    mRouteOptions = new PolylineOptions();
+                    mRouteOptions.color(Color.BLACK);
+                    mRouteOptions.visible(true);
+                    mRouteOptions.width(8);
+
+                    mRouteOptions.add(lLatLng);
+                    mRoute = mMap.addPolyline(mRouteOptions);
+
+                    // Draw marker at beginning
+                    mMap.addMarker(new MarkerOptions().position(lLatLng).title("Marker at beginning"));
+                } else {
+                    // Compute distance between previous location
+                    Location currentLocation = new Location("");
+                    currentLocation.setLatitude(iTrkpt.getLatitude());
+                    currentLocation.setLongitude(iTrkpt.getLongitude());
+
+                    Location previousLocation = new Location("");
+                    previousLocation.setLatitude(trkpts.get(trkpts.indexOf(iTrkpt) - 1).getLatitude());
+                    previousLocation.setLongitude(trkpts.get(trkpts.indexOf(iTrkpt) - 1).getLongitude());
+
+                    double distance = currentLocation.distanceTo(previousLocation);
+
+                    // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
+                    if (distance >= MINIMUM_LOCATIONS_DISTANCE) {
+                        mRoute.setPoints(mLatLngs);
+                    }
+
+                    if(trkpts.indexOf(iTrkpt) == trkpts.size() - 1) {
+                        mMap.addMarker(new MarkerOptions().position(lLatLng).title("Marker at ending"));
+                    }
+                }
+
+                // Move camera to user location
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(mLatLngs.get(mLatLngs.size() - 1)));
+            }
+        }
+    }
+
+    public void setMapType(String type) {
+        switch(type) {
+            case "Normal":
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                break;
+            case "Satellite":
+                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                break;
+            case "Terrain":
+                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                break;
         }
     }
 

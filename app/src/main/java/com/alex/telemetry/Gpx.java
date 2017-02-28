@@ -42,6 +42,10 @@ public class Gpx {
         mTrk = trk;
     }
 
+    public Trk getTrk() {
+        return mTrk;
+    }
+
     @Override
     public String toString() {
         return "Gpx {" + mTrk + '}';
