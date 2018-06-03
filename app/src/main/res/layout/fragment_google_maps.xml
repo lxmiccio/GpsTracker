@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.alex.telemetry.GoogleMapsFragment">
+    tools:context="com.example.alex.gpstracker.GoogleMapsFragment">
 
     <fragment
         android:id="@+id/map"
