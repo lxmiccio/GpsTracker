@@ -9,20 +9,25 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class CoordinatesList extends AppCompatActivity {
+import com.DatabaseHelper;
 
-    String[] mobileArray = {"Android","IPhone","WindowsMobile","Blackberry",
-            "WebOS","Ubuntu","Windows7","Max OS X"};
+import java.util.ArrayList;
+
+public class CoordinatesList extends AppCompatActivity {
+    private CoordinateAdapter mCoordinateAdapter;
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_coordinates_list);
 
-        ArrayAdapter adapter = new ArrayAdapter<String>(this,
-                R.layout.activity_coordinates_list, mobileArray);
+        DatabaseHelper db = new DatabaseHelper(this);
+        ArrayList<TrackPoint> points = db.getAllCoordinates();
 
-        ListView listView = (ListView) findViewById(R.id.coordinates_list);
-        listView.setAdapter(adapter);
+        mCoordinateAdapter = new CoordinateAdapter(points, getApplicationContext());
+
+        mListView = findViewById(R.id.coordinates_list);
+        mListView.setAdapter(mCoordinateAdapter);
     }
 }

@@ -106,17 +106,9 @@ public class GpsService
                 Location location = locationList.get(locationList.size() - 1);
                 Log.d("MapsActivity", "Latitude is" + location.getLatitude() + ", longitude is " + location.getLongitude());
 
-                if(mLocationListener != null) {
+                if (mLocationListener != null) {
                     mLocationListener.onLocationReceived(location);
                 }
-                // Send location to MainActivity
-//                Bundle bundle = new Bundle();
-//                bundle.putParcelable("location", location);
-//
-//                Intent intent = new Intent("GPSLocationUpdates");
-//                intent.putExtra("Location", bundle);
-//
-//                LocalBroadcastManager.getInstance(MainActivity.getContext()).sendBroadcast(intent);
             }
         }
     };
