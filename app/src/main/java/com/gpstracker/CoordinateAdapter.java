@@ -36,8 +36,8 @@ public class CoordinateAdapter extends ArrayAdapter<TrackPoint> {
             convertView = inflater.inflate(R.layout.coordinate_row, null);
 
             viewHolder = new ViewHolder();
-            viewHolder.latitude = (TextView) convertView.findViewById(R.id.latitude);
-            viewHolder.longitude = (TextView) convertView.findViewById(R.id.longitude);
+            viewHolder.latitude = convertView.findViewById(R.id.latitude);
+            viewHolder.longitude = convertView.findViewById(R.id.longitude);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();

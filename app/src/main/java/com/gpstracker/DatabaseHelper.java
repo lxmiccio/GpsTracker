@@ -1,4 +1,4 @@
-package com;
+package com.gpstracker;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,14 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.gpstracker.TrackPoint;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+
+    private static DatabaseHelper mInstance = null;
+
     // Database Version
     private static final int DATABASE_VERSION = 1;
 
@@ -43,8 +44,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_SPEED + " FLOAT,"
             + KEY_CREATED_AT + " DATETIME" + ")";
 
-    public DatabaseHelper(Context context) {
+    protected DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static DatabaseHelper getInstance() {
+        if(mInstance == null) {
+            mInstance = new DatabaseHelper(MainActivity.getContext());
+        }
+        return mInstance;
     }
 
     @Override

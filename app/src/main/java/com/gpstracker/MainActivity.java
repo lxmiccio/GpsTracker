@@ -27,10 +27,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import com.DatabaseHelper;
 
 import java.util.ArrayList;
 
@@ -141,8 +138,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             requestAccessCoarseLocationPermission();
         }
 
-        mDb = new DatabaseHelper(this);
-        mDb.getAllCoordinates();
+        mDb = DatabaseHelper.getInstance();
 
 //        Log.d("MainActivity", "readPhoneStatePermission is " + isReadPhoneStatePermissionGranted());
 //        if(!isReadPhoneStatePermissionGranted()) {
