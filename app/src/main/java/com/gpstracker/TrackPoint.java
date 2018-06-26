@@ -1,4 +1,4 @@
-package com.example.alex.gpstracker;
+package com.gpstracker;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;

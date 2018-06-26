@@ -1,4 +1,4 @@
-package com.example.alex.gpstracker;
+package com.gpstracker;
 
 import java.util.ArrayList;
 import org.simpleframework.xml.ElementList;

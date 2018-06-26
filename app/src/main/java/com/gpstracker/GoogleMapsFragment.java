@@ -1,4 +1,4 @@
-package com.example.alex.gpstracker;
+package com.gpstracker;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.DatabaseHelper;
+import com.gpstracker.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -93,12 +95,12 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         setZoomControls(true);
     }
 
-    public void startRecording(String name)
+    public void mStartRecording(String name)
     {
         mCurrentGpx = new Gpx(name);
     }
 
-    public void stopRecording(boolean save)
+    public void mStopRecording(boolean save)
     {
         if(save) {
 
@@ -142,7 +144,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
             }
 
             // Move camera to user location
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(lLatLng));
+            // mMap.moveCamera(CameraUpdateFactory.newLatLng(lLatLng));
         }
     }
 

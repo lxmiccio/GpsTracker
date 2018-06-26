@@ -1,7 +1,6 @@
-package com.example.alex.gpstracker;
+package com.gpstracker;
 
 import android.location.Location;
-import android.util.Log;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -66,6 +65,9 @@ public class Gpx {
         {
             //length += points.get(i).
         }
+
+        //TO COMPLETE
+        return length;
     }
 
     public void save(File path, String name)

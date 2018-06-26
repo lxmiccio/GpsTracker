@@ -1,12 +1,12 @@
-package com.example.alex.gpstracker;
+package com.gpstracker;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+
+import com.gpstracker.R;
 
 public class SettingsActivity extends AppCompatActivity {
     Switch mSettings;

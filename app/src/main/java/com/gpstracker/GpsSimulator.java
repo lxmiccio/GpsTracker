@@ -1,4 +1,4 @@
-package com.example.alex.gpstracker;
+package com.gpstracker;
 
 import android.app.Application;
 import android.content.Context;
@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.widget.Toast;
 
 public class GpsSimulator extends Application {
     private GpsSimulatorThread mRunnable;
