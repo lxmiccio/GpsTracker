@@ -1,6 +1,9 @@
 package com.gpstracker;
 
 import android.Manifest;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Telephony;
 import android.support.design.widget.FloatingActionButton;
@@ -31,11 +35,14 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener
-        , NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener,
+        NavigationView.OnNavigationItemSelectedListener,
+        CoordinateList.OnFragmentInteractionListener{
 
     private GoogleMapsFragment googleMapsFragment;
     private GpsService mGpsService;
+
+    private CoordinateList mCoordinatesList;
 
     FloatingActionButton mStartRecording;
     FloatingActionButton mStopRecording;
@@ -71,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view_0);
         navigationView.setNavigationItemSelectedListener(this);
 
         //Store context
@@ -140,23 +147,27 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
         mDb = DatabaseHelper.getInstance();
 
-//        Log.d("MainActivity", "readPhoneStatePermission is " + isReadPhoneStatePermissionGranted());
-//        if(!isReadPhoneStatePermissionGranted()) {
-//            Log.d("MainActivity", "readPhoneStatePermission denied, requesting it");
-//            requestReadPhoneStatePermission();
-//        }
-//        else {
-//            Log.d("MainActivity", "readPhoneStatePermission granted");
-//            smsBroadcastReceiver.getNumber();
-//        }
+        Log.d("MainActivity", "readPhoneStatePermission is " + isReadPhoneStatePermissionGranted());
+        if(!isReadPhoneStatePermissionGranted()) {
+            Log.d("MainActivity", "readPhoneStatePermission denied, requesting it");
+            requestReadPhoneStatePermission();
+        }
+        else {
+            Log.d("MainActivity", "readPhoneStatePermission granted");
+            smsBroadcastReceiver.getNumber();
+        }
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else if (getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        }
+        else {
             super.onBackPressed();
         }
     }
@@ -213,14 +224,23 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
+            if(mCoordinatesList == null) {
+                mCoordinatesList = new CoordinateList();
+            }
+
+            getSupportFragmentManager().beginTransaction().hide(googleMapsFragment).commit();
+            fragmentTransaction.replace(R.id.google_maps_fragment_container, (Fragment) mCoordinatesList)
+                    .addToBackStack(null)
+                    .commit();
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(MainActivity.this, CoordinatesList.class);
-            startActivity(intent);
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -521,5 +541,10 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                 }
             }
         });
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

@@ -22,7 +22,7 @@ public class CoordinateAdapter extends ArrayAdapter<TrackPoint> {
     public CoordinateAdapter(ArrayList<TrackPoint> data, Context context) {
         super(context, R.layout.coordinate_row, data);
         this.mDataSet = data;
-        this.mContext=context;
+        this.mContext = context;
 
     }
 
