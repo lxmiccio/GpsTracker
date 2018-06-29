@@ -160,15 +160,24 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
     @Override
     public void onBackPressed() {
+        Log.d("BK", "getFragmentManager().getBackStackEntryCount() is " + getFragmentManager().getBackStackEntryCount());
+        Log.d("BK", "getSupportFragmentManager().getBackStackEntryCount() is " + getSupportFragmentManager().getBackStackEntryCount());
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+            Log.d("BK", "drawer.closeDrawer(GravityCompat.START)");
             drawer.closeDrawer(GravityCompat.START);
         }
         else if (getFragmentManager().getBackStackEntryCount() > 0) {
-            getFragmentManager().popBackStack();
+            getFragmentManager().popBackStackImmediate();
+        }
+        else if(getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStackImmediate();
+            getSupportFragmentManager().beginTransaction().show(googleMapsFragment).commit();
         }
         else {
-            super.onBackPressed();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.google_maps_fragment_container, googleMapsFragment).commit();
+            //super.onBackPressed();
         }
     }
 
@@ -227,6 +236,9 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
+        android.support.v4.app.FragmentManager supportFragmentManager = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -235,11 +247,12 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                 mCoordinatesList = new CoordinateList();
             }
 
-            getSupportFragmentManager().beginTransaction().hide(googleMapsFragment).commit();
-            fragmentTransaction.replace(R.id.google_maps_fragment_container, (Fragment) mCoordinatesList)
-                    .addToBackStack(null)
+            supportFragmentTransaction.remove(googleMapsFragment)
+                    .addToBackStack(GoogleMapsFragment.TAG)
                     .commit();
-            // Handle the camera action
+
+            fragmentTransaction.replace(R.id.google_maps_fragment_container, mCoordinatesList)
+                    .commit();
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {

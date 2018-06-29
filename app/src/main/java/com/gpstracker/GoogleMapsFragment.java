@@ -23,6 +23,8 @@ import java.util.ArrayList;
 
 public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
+    public final static String TAG = "GoogleMapsFragment";
+
     private OnFragmentInteractionListener mListener;
 
     private ArrayList<Location> mLocations;

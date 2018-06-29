@@ -13,6 +13,8 @@ import java.util.ArrayList;
 
 public class CoordinateList extends Fragment {
 
+    public final static String TAG = "CoordinateList";
+
     private OnFragmentInteractionListener mListener;
     private CoordinateAdapter mCoordinateAdapter;
     private ListView mListView;
