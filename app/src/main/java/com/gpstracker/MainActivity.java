@@ -44,12 +44,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
     private CoordinateList mCoordinatesList;
 
-    FloatingActionButton mStartRecording;
-    FloatingActionButton mStopRecording;
-    FloatingActionButton loadGpx;
-    FloatingActionButton changeMap;
-    EditText txtTrackName;
-    CharSequence tracks[];
     CharSequence maps[];
 
     private boolean mSimulation;
@@ -62,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     static final int PHONE_ACCESS_FINE_LOCATION = 4;
     static final int PHONE_ACCESS_COARSE_LOCATION = 5;
     private SmsBroadcastReceiver smsBroadcastReceiver;
-
-    private DatabaseHelper mDb;
 
 
     @Override
@@ -84,21 +76,8 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         //Store context
         mContext = this;
 
-        mSimulation = true;
+        mSimulation = false;
         mGpsSimulator = new GpsSimulator();
-
-        mStartRecording = findViewById(R.id.start_recording);
-        mStartRecording.setOnClickListener(mStartRecordingClickListener);
-
-        mStopRecording = findViewById(R.id.stop_recording);
-        mStopRecording.setOnClickListener(mStopRecordingClickListener);
-        mStopRecording.hide();
-
-//        loadGpx = findViewById(R.id.load_track);
-//        loadGpx.setOnClickListener(loadGpxClickListener);
-//
-//        changeMap = findViewById(R.id.change_map);
-//        changeMap.setOnClickListener(changeMapTypeClickListener);
 
         if (findViewById(R.id.google_maps_fragment_container) != null) {
             if (savedInstanceState == null) {
@@ -108,10 +87,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                         .add(R.id.google_maps_fragment_container, googleMapsFragment).commit();
             }
         }
-
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-        mSimulation = prefs.getBoolean("Simulation", false);
-        Toast.makeText(MainActivity.this, "--->Simulation"+mSimulation, Toast.LENGTH_SHORT).show();
 
         Log.d("MainActivity", "smsPermission is " + isSmsPermissionGranted());
         if(!isSmsPermissionGranted()) {
@@ -145,8 +120,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             requestAccessCoarseLocationPermission();
         }
 
-        mDb = DatabaseHelper.getInstance();
-
         Log.d("MainActivity", "readPhoneStatePermission is " + isReadPhoneStatePermissionGranted());
         if(!isReadPhoneStatePermissionGranted()) {
             Log.d("MainActivity", "readPhoneStatePermission denied, requesting it");
@@ -177,7 +150,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         else {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.google_maps_fragment_container, googleMapsFragment).commit();
-            //super.onBackPressed();
         }
     }
 
@@ -190,43 +162,43 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.toolbar_load_gpx) {
-            ArrayList<String> tracksList = GpxHandler.getTracksList(getFilesDir());
-            if (tracksList != null && tracksList.size() > 0) {
-                tracks = tracksList.toArray(new CharSequence[tracksList.size()]);
-                // TODO set gpx png left to track
-
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Pick a track")
-                        .setItems(tracks, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                String track = tracks[id].toString();
-
-                                try {
-                                    Gpx gpx = GpxHandler.loadGpx(getFilesDir(), track);
-                                    googleMapsFragment.loadGpx(gpx);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int idd) {
-                                dialog.dismiss();
-                            }
-                        }).show();
-            }
-
-            return true;
-        }
-
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.toolbar_load_gpx) {
+//            ArrayList<String> tracksList = GpxHandler.getTracksList(getFilesDir());
+//            if (tracksList != null && tracksList.size() > 0) {
+//                tracks = tracksList.toArray(new CharSequence[tracksList.size()]);
+//                // TODO set gpx png left to track
+//
+//                new AlertDialog.Builder(MainActivity.this)
+//                        .setTitle("Pick a track")
+//                        .setItems(tracks, new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                String track = tracks[id].toString();
+//
+//                                try {
+//                                    Gpx gpx = GpxHandler.loadGpx(getFilesDir(), track);
+//                                    googleMapsFragment.loadGpx(gpx);
+//                                } catch (Exception e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        })
+//                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int idd) {
+//                                dialog.dismiss();
+//                            }
+//                        }).show();
+//            }
+//
+//            return true;
+//        }
+//
         return super.onOptionsItemSelected(item);
     }
 
@@ -277,52 +249,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         return mContext;
     }
 
-    private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            startRecording();
-        }
-    };
-
-    private View.OnClickListener mStopRecordingClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            stopRecording();
-        }
-    };
-
-    private View.OnClickListener loadGpxClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            ArrayList<String> tracksList = GpxHandler.getTracksList(getFilesDir());
-            if (tracksList != null && tracksList.size() > 0) {
-                tracks = tracksList.toArray(new CharSequence[tracksList.size()]);
-                // TODO set gpx png left to track
-
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Pick a track")
-                        .setItems(tracks, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                String track = tracks[id].toString();
-
-                                try {
-                                    Gpx gpx = GpxHandler.loadGpx(getFilesDir(), track);
-                                    googleMapsFragment.loadGpx(gpx);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogg, int idd) {
-                                dialogg.dismiss();
-                            }
-                        }).show();
-            }
-        }
-    };
-
     private View.OnClickListener changeMapTypeClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -358,38 +284,37 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 //    }
 
     private void startRecording() {
-        if (mSimulation) {
-            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    // Retrieve data from the intent
-                    Location location = intent.getBundleExtra("Location").getParcelable("location");
-                    if (location != null && googleMapsFragment != null) {
-                        googleMapsFragment.addLocation(location);
-                    }
-                }
-            }, new IntentFilter("GPSSimulatorLocation"));
 
-            mGpsSimulator.startSimulation(getApplicationContext());
+        Log.d("MainActivity", "startRecording");
+        if (mSimulation) {
+//            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
+//                @Override
+//                public void onReceive(Context context, Intent intent) {
+//                    // Retrieve data from the intent
+//                    Location location = intent.getBundleExtra("Location").getParcelable("location");
+//                    if (location != null && googleMapsFragment != null) {
+//                        googleMapsFragment.addLocation(location);
+//                    }
+//                }
+//            }, new IntentFilter("GPSSimulatorLocation"));
+//
+//            mGpsSimulator.startSimulation(getApplicationContext());
         } else {
+            Log.d("MainActivity", "startRecording");
             mGpsService = new GpsService(new LocationListener() {
                 @Override
                 public void onLocationReceived(Location location) {
                     Log.d("MainActivity", "Latitude " + location.getLatitude() + ", longitude " + location.getLongitude());
 
-                    TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(),
-                            location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
-                    mDb.createCoordinate(point);
+                    TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
+                    DatabaseHelper.getInstance().createCoordinate(point);
 
                     if (location != null && googleMapsFragment != null) {
-                        googleMapsFragment.addLocation(location);
+                        googleMapsFragment.drawPoint(point);
                     }
                 }
             });
         }
-
-        mStartRecording.hide();
-        mStopRecording.show();
     }
 
     private void stopRecording() {
@@ -399,45 +324,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         } else {
             stopService(new Intent(getBaseContext(), GpsService.class));
         }
-
-        // Use the Builder class for convenient dialog construction
-        new AlertDialog.Builder(MainActivity.this)
-                .setMessage(R.string.track_save_message)
-                .setPositiveButton(R.string.track_save_yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        txtTrackName = new EditText(MainActivity.this);
-                        txtTrackName.setHint("Track");
-
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setMessage(R.string.track_name_message)
-                                .setView(txtTrackName)
-                                .setPositiveButton(R.string.track_name_yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // Save the track
-                                        GpxHandler.saveGpx(getFilesDir(), txtTrackName.getText().toString(), googleMapsFragment.getLocations());
-                                        // Delete the route on the map
-                                        googleMapsFragment.clear();
-                                    }
-                                })
-                                .setNegativeButton(R.string.track_name_no, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // Delete the route on the map
-                                        googleMapsFragment.clear();
-                                    }
-                                })
-                                .show();
-                    }
-                })
-                .setNegativeButton(R.string.track_save_no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Delete the route on the map
-                        googleMapsFragment.clear();
-                    }
-                })
-                .show();
-
-        mStartRecording.show();
-        mStopRecording.hide();
     }
 
     private boolean isSmsPermissionGranted() {
@@ -545,9 +431,9 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             @Override
             public void onSmsReceived(String sender, String text) {
                 Log.d("MainActivity", "sender is " + sender + ", message is " + text);
-                if(text.equals("Enable")) {
+                if(text.equals("enable")) {
                     startRecording();
-                } else if(text.equals("Disable")) {
+                } else if(text.equals("disable")) {
                     stopRecording();
                 } else {
                     Log.d("MainActivity", "Message text ignored");

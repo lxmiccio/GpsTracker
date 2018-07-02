@@ -94,7 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Get all coordinates
      */
     public ArrayList<TrackPoint> getAllCoordinates() {
-        ArrayList<TrackPoint> coordinates = new ArrayList<TrackPoint>();
+        ArrayList<TrackPoint> coordinates = new ArrayList();
 
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT  * FROM " + TABLE_COORDINATE;

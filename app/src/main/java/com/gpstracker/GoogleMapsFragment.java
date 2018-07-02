@@ -1,11 +1,15 @@
 package com.gpstracker;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +18,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -27,19 +33,14 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
     private OnFragmentInteractionListener mListener;
 
-    private ArrayList<Location> mLocations;
-    private ArrayList<LatLng> mLatLngs;
     private Polyline mRoute;
     private PolylineOptions mRouteOptions;
+    private ArrayList<LatLng> mLatLngs;
+
     private GoogleMap mMap;
     private SupportMapFragment mMapFragment;
 
-    private Gpx mCurrentGpx;
-
-    private static final double MINIMUM_LOCATIONS_DISTANCE = 0;
-
     public GoogleMapsFragment() {
-        mLocations = new ArrayList<>();
         mLatLngs = new ArrayList<>();
     }
 
@@ -93,107 +94,83 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         setZoomControls(true);
+
+        DatabaseHelper db = DatabaseHelper.getInstance();
+        drawPoints(db.getAllCoordinates());
     }
 
-    public void mStartRecording(String name)
-    {
-        mCurrentGpx = new Gpx(name);
-    }
+    public void drawPoint(TrackPoint point) {
 
-    public void mStopRecording(boolean save)
-    {
-        if(save) {
+        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
 
-        }
-    }
+        if (mLatLngs.size() == 0) {
+            mLatLngs.add(latLng);
 
-    public void addLocation(Location location) {
-        if (location != null) {
-            LatLng lLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+            // Draw new location
+            mRouteOptions = new PolylineOptions();
+            mRouteOptions.color(Color.BLACK);
+            mRouteOptions.visible(true);
+            mRouteOptions.width(8);
 
-            if (mLocations.size() == 0) {
-                // Add new location
-                mLocations.add(location);
+            mRouteOptions.add(latLng);
+            mRoute = mMap.addPolyline(mRouteOptions);
 
-                // Draw new location
-                mRouteOptions = new PolylineOptions();
-                mRouteOptions.color(Color.BLACK);
-                mRouteOptions.visible(true);
-                mRouteOptions.width(8);
+            // Draw marker at beginning
+            Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_stat_name);
+            circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
-                mRouteOptions.add(lLatLng);
-                mRoute = mMap.addPolyline(mRouteOptions);
+            Canvas canvas = new Canvas();
+            Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+            canvas.setBitmap(bitmap);
+            circleDrawable.setBounds(0, 0, 30, 30);
+            circleDrawable.draw(canvas);
 
-                // Draw marker at beginning
-                mMap.addMarker(new MarkerOptions().position(lLatLng).title("Marker at beginning"));
-            } else {
-                // Compute distance between previous location
-                double distance = location.distanceTo(mLocations.get(mLocations.size() - 1));
+            mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+        } else {
+            // Compute distance between previous location
+            Location currentLocation = new Location("");
+            currentLocation.setLatitude(point.getLatitude());
+            currentLocation.setLongitude(point.getLongitude());
 
-                // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
-                if (distance >= MINIMUM_LOCATIONS_DISTANCE) {
-                    mLocations.add(location);
+            Location previousLocation = new Location("");
+            previousLocation.setLatitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
+            previousLocation.setLongitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
 
-                    ArrayList<LatLng> lLatLngs = new ArrayList<>();
-                    for (Location lLocation : mLocations) {
-                        lLatLngs.add(new LatLng(lLocation.getLatitude(), lLocation.getLongitude()));
-                    }
+            double distance = currentLocation.distanceTo(previousLocation);
 
-                    mRoute.setPoints(lLatLngs);
-                }
+            // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
+            if (distance >= 0) {
+                mLatLngs.add(latLng);
+
+                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_stat_name);
+                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+
+                Canvas canvas = new Canvas();
+                Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+                canvas.setBitmap(bitmap);
+                circleDrawable.setBounds(0, 0, 30, 30);
+                circleDrawable.draw(canvas);
+
+                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
             }
-
-            // Move camera to user location
-            // mMap.moveCamera(CameraUpdateFactory.newLatLng(lLatLng));
         }
+
+        // Move camera to user location
+        // mMap.moveCamera(CameraUpdateFactory.newLatLng(lLatLng));
     }
 
-    public void loadGpx(Gpx gpx) {
-        if (gpx != null) {
-            ArrayList<TrackPoint> trackPoints = gpx.getTrack().getTrackSegment().getTrackPoints();
+    private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
 
-            for (TrackPoint iPoint : trackPoints) {
-                Log.d("LOAD", iPoint.getLatitude() + " " + iPoint.getLongitude());
-                LatLng lLatLng = new LatLng(iPoint.getLatitude(), iPoint.getLongitude());
-                mLatLngs.add(lLatLng);
-
-                if (mLatLngs.size() == 1) {
-                    // Draw new location
-                    mRouteOptions = new PolylineOptions();
-                    mRouteOptions.color(Color.BLACK);
-                    mRouteOptions.visible(true);
-                    mRouteOptions.width(8);
-
-                    mRouteOptions.add(lLatLng);
-                    mRoute = mMap.addPolyline(mRouteOptions);
-
-                    // Draw marker at beginning
-                    mMap.addMarker(new MarkerOptions().position(lLatLng).title("Marker at beginning"));
-                } else {
-                    // Compute distance between previous location
-                    Location currentLocation = new Location("");
-                    currentLocation.setLatitude(iPoint.getLatitude());
-                    currentLocation.setLongitude(iPoint.getLongitude());
-
-                    Location previousLocation = new Location("");
-                    previousLocation.setLatitude(trackPoints.get(trackPoints.indexOf(iPoint) - 1).getLatitude());
-                    previousLocation.setLongitude(trackPoints.get(trackPoints.indexOf(iPoint) - 1).getLongitude());
-
-                    double distance = currentLocation.distanceTo(previousLocation);
-
-                    // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
-                    if (distance >= MINIMUM_LOCATIONS_DISTANCE) {
-                        mRoute.setPoints(mLatLngs);
-                    }
-
-                    if(trackPoints.indexOf(iPoint) == trackPoints.size() - 1) {
-                        mMap.addMarker(new MarkerOptions().position(lLatLng).title("Marker at ending"));
-                    }
-                }
-
-                // Move camera to user location
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(mLatLngs.get(mLatLngs.size() - 1)));
-            }
+    public void drawPoints(ArrayList<TrackPoint> points) {
+        for (TrackPoint iPoint : points) {
+            drawPoint(iPoint);
         }
     }
 
@@ -216,15 +193,9 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void clear() {
-        mLocations.clear();
         mMap.clear();
     }
 
-    public ArrayList<Location> getLocations() {
-        return mLocations;
-    }
-
     public interface OnFragmentInteractionListener {
-        // void onFragmentInteraction(Uri uri);
     }
 }

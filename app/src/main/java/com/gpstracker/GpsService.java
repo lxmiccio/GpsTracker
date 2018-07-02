@@ -33,7 +33,7 @@ public class GpsService
     private LocationListener mLocationListener;
 
     public GpsService(LocationListener locationListener) {
-        Toast.makeText(MainActivity.getContext(), "GpsService", Toast.LENGTH_SHORT).show();
+        Log.d("GpsService", "GpsService");
 
         mLocationListener = locationListener;
 
@@ -49,18 +49,18 @@ public class GpsService
             if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted
 
-                Toast.makeText(MainActivity.getContext(), "requestLocationUpdates", Toast.LENGTH_SHORT).show();
+                Log.d("GpsService", "requestLocationUpdates");
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             } else {
                 //Request Location Permission
 
-                Toast.makeText(MainActivity.getContext(), "checkLocationPermission", Toast.LENGTH_SHORT).show();
+                Log.d("GpsService", "checkLocationPermission");
                 checkLocationPermission();
             }
         }
         else {
             //Request Location Permission
-            Toast.makeText(MainActivity.getContext(), "requestLocationUpdates", Toast.LENGTH_SHORT).show();
+            Log.d("GpsService", "requestLocationUpdates");
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         }
     }
@@ -101,10 +101,11 @@ public class GpsService
         @Override
         public void onLocationResult(LocationResult locationResult) {
             List<Location> locationList = locationResult.getLocations();
+            Log.d("GpsService", "locationList.size() is" + locationList.size());
             if (locationList.size() > 0) {
                 //The last location in the list is the newest
                 Location location = locationList.get(locationList.size() - 1);
-                Log.d("MapsActivity", "Latitude is" + location.getLatitude() + ", longitude is " + location.getLongitude());
+                Log.d("GpsService", "Latitude is" + location.getLatitude() + ", longitude is " + location.getLongitude());
 
                 if (mLocationListener != null) {
                     mLocationListener.onLocationReceived(location);
