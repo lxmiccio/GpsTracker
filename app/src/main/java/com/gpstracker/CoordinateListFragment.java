@@ -11,15 +11,14 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class CoordinateList extends Fragment {
-
-    public final static String TAG = "CoordinateList";
+public class CoordinateListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
+
     private CoordinateAdapter mCoordinateAdapter;
     private ListView mListView;
 
-    public CoordinateList() {
+    public CoordinateListFragment() {
         // Required empty public constructor
     }
 
@@ -27,11 +26,11 @@ public class CoordinateList extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment CoordinateList.
+     * @return A new instance of fragment CoordinateListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CoordinateList newInstance() {
-        CoordinateList fragment = new CoordinateList();
+    public static CoordinateListFragment newInstance() {
+        CoordinateListFragment fragment = new CoordinateListFragment();
         return fragment;
     }
 
@@ -47,7 +46,6 @@ public class CoordinateList extends Fragment {
 
         ArrayList<TrackPoint> points = DatabaseHelper.getInstance().getAllCoordinates();
         mCoordinateAdapter = new CoordinateAdapter(points, MainActivity.getContext());
-
         mListView = view.findViewById(R.id.coordinates_list);
         mListView.setAdapter(mCoordinateAdapter);
 

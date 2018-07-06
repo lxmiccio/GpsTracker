@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class CoordinateAdapter extends ArrayAdapter<TrackPoint> {
 
     private ArrayList<TrackPoint> mDataSet;
-    Context mContext;
+    private Context mContext;
 
     private class ViewHolder {
         public TextView latitude;
@@ -21,9 +21,9 @@ public class CoordinateAdapter extends ArrayAdapter<TrackPoint> {
 
     public CoordinateAdapter(ArrayList<TrackPoint> data, Context context) {
         super(context, R.layout.coordinate_row, data);
-        this.mDataSet = data;
-        this.mContext = context;
 
+        mDataSet = data;
+        mContext = context;
     }
 
     @Override

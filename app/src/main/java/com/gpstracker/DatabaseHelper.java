@@ -137,6 +137,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /*
+     * Delete all coordinates
+     */
+    public void deleteAllCoordinates() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_COORDINATE);
+        db.close();
+    }
+
+    /*
      * Get current datetime
      */
     private String getDateTime() {

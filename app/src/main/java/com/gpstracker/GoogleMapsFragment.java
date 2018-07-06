@@ -141,19 +141,20 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
             // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
             if (distance >= 0) {
                 mLatLngs.add(latLng);
-
-                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_stat_name);
-                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-
-                Canvas canvas = new Canvas();
-                Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
-                canvas.setBitmap(bitmap);
-                circleDrawable.setBounds(0, 0, 30, 30);
-                circleDrawable.draw(canvas);
-
-                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
             }
         }
+
+        // Draw marker at current point
+        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_stat_name);
+        circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        circleDrawable.setBounds(0, 0, 30, 30);
+        circleDrawable.draw(canvas);
+
+        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
 
         // Move camera to user location
         // mMap.moveCamera(CameraUpdateFactory.newLatLng(lLatLng));

@@ -1,24 +1,19 @@
 package com.gpstracker;
 
 import android.Manifest;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Telephony;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -30,23 +25,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.Toast;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener,
-        CoordinateList.OnFragmentInteractionListener{
+        CoordinateListFragment.OnFragmentInteractionListener,
+        SettingsFragment.OnFragmentInteractionListener {
 
     private GoogleMapsFragment googleMapsFragment;
     private GpsService mGpsService;
 
-    private CoordinateList mCoordinatesList;
+    private CoordinateListFragment mCoordinatesListFragment;
+    private SettingsFragment mSettingsFragment;
 
     CharSequence maps[];
 
-    private boolean mSimulation;
     GpsSimulator mGpsSimulator;
     static Context mContext;
 
@@ -73,10 +66,11 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         NavigationView navigationView = findViewById(R.id.nav_view_0);
         navigationView.setNavigationItemSelectedListener(this);
 
+//        mSettingsFragment = SettingsFragment.newInstance();
+
         //Store context
         mContext = this;
 
-        mSimulation = false;
         mGpsSimulator = new GpsSimulator();
 
         if (findViewById(R.id.google_maps_fragment_container) != null) {
@@ -213,17 +207,19 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        Log.d("NIS", "onNavigationItemSelected");
 
         if (id == R.id.nav_camera) {
-            if(mCoordinatesList == null) {
-                mCoordinatesList = new CoordinateList();
+            Log.d("NIS", "nav_camera selected");
+            if(mCoordinatesListFragment == null) {
+                mCoordinatesListFragment = CoordinateListFragment.newInstance();
             }
 
             supportFragmentTransaction.remove(googleMapsFragment)
                     .addToBackStack(GoogleMapsFragment.TAG)
                     .commit();
 
-            fragmentTransaction.replace(R.id.google_maps_fragment_container, mCoordinatesList)
+            fragmentTransaction.replace(R.id.google_maps_fragment_container, mCoordinatesListFragment)
                     .commit();
         } else if (id == R.id.nav_gallery) {
 
@@ -236,8 +232,17 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
+            Log.d("NIS", "nav_settings selected");
+            if(mSettingsFragment == null) {
+                mSettingsFragment = SettingsFragment.newInstance();
+            }
+
+            supportFragmentTransaction.remove(googleMapsFragment)
+                    .addToBackStack(GoogleMapsFragment.TAG)
+                    .commit();
+
+            fragmentTransaction.replace(R.id.google_maps_fragment_container, mSettingsFragment)
+                    .commit();
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -286,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     private void startRecording() {
 
         Log.d("MainActivity", "startRecording");
-        if (mSimulation) {
+        if (mSettingsFragment.isSimulationEnabled()) {
 //            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
 //                @Override
 //                public void onReceive(Context context, Intent intent) {
@@ -318,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     }
 
     private void stopRecording() {
-        if (mSimulation) {
+        if (mSettingsFragment.isSimulationEnabled()) {
             Toast.makeText(MainActivity.this, "--->", Toast.LENGTH_SHORT).show();
             mGpsSimulator.stopSimulation();
         } else {
