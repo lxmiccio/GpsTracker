@@ -15,6 +15,15 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
+        <Switch
+            android:id="@+id/simulation_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:height="50dp"
+            android:text="Simulazione"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+
         <TextView
             android:id="@+id/delete_coordinates"
             android:layout_width="match_parent"
@@ -25,14 +34,32 @@
             android:textColor="@android:color/black"
             android:textSize="20sp" />
 
-        <Switch
-            android:id="@+id/simulation_switch"
+        <LinearLayout
+            android:id="@+id/map_type"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:height="50dp"
-            android:text="Simulazione"
-            android:textColor="@android:color/black"
-            android:textSize="20sp" />
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Tipo di mappa"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/selected_map_type"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:gravity="right|center_vertical"
+                android:text="Normale"
+                android:textColor="@android:color/black"
+                android:textSize="20sp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

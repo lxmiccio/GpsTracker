@@ -27,6 +27,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
     public final static String TAG = "GoogleMapsFragment";
@@ -97,6 +99,9 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
         DatabaseHelper db = DatabaseHelper.getInstance();
         drawPoints(db.getAllCoordinates());
+
+        setMapType(MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal"));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(4.5f));
     }
 
     public void drawPoint(TrackPoint point) {
@@ -157,16 +162,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
 
         // Move camera to user location
-        // mMap.moveCamera(CameraUpdateFactory.newLatLng(lLatLng));
-    }
-
-    private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
-        Canvas canvas = new Canvas();
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        canvas.setBitmap(bitmap);
-        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-        drawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     public void drawPoints(ArrayList<TrackPoint> points) {
@@ -189,6 +185,9 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
                 break;
             case "Terrain":
                 mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                break;
+            case "Hybrid":
+                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 break;
         }
     }

@@ -19,5 +19,4 @@
         android:text="longitude"
         android:textSize="18sp"
         app:fontFamily="monospace" />
-
 </LinearLayout>

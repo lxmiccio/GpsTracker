@@ -26,24 +26,28 @@ public class GpsSimulator extends Application {
     }
 
     public void stopSimulation() {
-        mRunnable.finished = true;
+        mRunnable.setFinished(true);
         mThread.interrupt();
     }
 }
 
 class GpsSimulatorThread implements Runnable {
-public volatile boolean finished;
-    Context mContext;
+    private volatile boolean mFinished;
+    private Context mContext;
 
     public GpsSimulatorThread(Context context) {
-        finished = false;
+        mFinished = false;
         mContext = context;
+    }
+
+    public void setFinished(boolean finished) {
+        mFinished = finished;
     }
 
     @Override
     public void run() {
         double i = 20.0000;
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && !mFinished) {
             Location location = new Location("Simulator");
             location.setLatitude(i);
             location.setLongitude(i);
@@ -62,11 +66,6 @@ public volatile boolean finished;
                 Thread.sleep(20);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-
-            if(finished)
-            {
-                return;
             }
         }
         return;

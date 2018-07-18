@@ -45,6 +45,10 @@ public class GpsService
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.getContext());
 
+        startLocationUpdates();
+    }
+
+    void startLocationUpdates() {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted
@@ -63,6 +67,11 @@ public class GpsService
             Log.d("GpsService", "requestLocationUpdates");
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         }
+    }
+
+    void stopLocationUpdates() {
+        Log.d("GpsService", "stopLocationUpdates");
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
     private void checkLocationPermission() {

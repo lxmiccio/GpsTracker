@@ -3,6 +3,7 @@ package com.gpstracker;
 import android.Manifest;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -37,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
     private CoordinateListFragment mCoordinatesListFragment;
     private SettingsFragment mSettingsFragment;
-
-    CharSequence maps[];
 
     GpsSimulator mGpsSimulator;
     static Context mContext;
@@ -66,8 +66,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         NavigationView navigationView = findViewById(R.id.nav_view_0);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        mSettingsFragment = SettingsFragment.newInstance();
-
         //Store context
         mContext = this;
 
@@ -79,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                 googleMapsFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.google_maps_fragment_container, googleMapsFragment).commit();
+
+//                Log.d("MainActivity", "getMapType() is " + getMapType());
+//                googleMapsFragment.setMapType(getMapType());
             }
         }
 
@@ -140,6 +141,9 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         else if(getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
             getSupportFragmentManager().beginTransaction().show(googleMapsFragment).commit();
+
+            Log.d("MainActivity", "getMapType() is " + getMapType());
+            googleMapsFragment.setMapType(getMapType());
         }
         else {
             getSupportFragmentManager().beginTransaction()
@@ -254,31 +258,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         return mContext;
     }
 
-    private View.OnClickListener changeMapTypeClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            maps = new CharSequence[3];
-            maps[0] = "Normal";
-            maps[1] = "Satellite";
-            maps[2] = "Terrain";
-            // TODO set image left to type name
-
-            new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Select map type")
-                    .setItems(maps, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            googleMapsFragment.setMapType(maps[id].toString());
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialogg, int idd) {
-                            dialogg.dismiss();
-                        }
-                    }).show();
-        }
-    };
-
     //Other method
 //    awesomeButton.setOnClickListener(new AwesomeButtonClick());
 //    class AwesomeButtonClick implements View.OnClickListener {
@@ -289,46 +268,54 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 //    }
 
     private void startRecording() {
-
-        Log.d("MainActivity", "startRecording");
-        if (mSettingsFragment.isSimulationEnabled()) {
-//            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
-//                @Override
-//                public void onReceive(Context context, Intent intent) {
-//                    // Retrieve data from the intent
-//                    Location location = intent.getBundleExtra("Location").getParcelable("location");
-//                    if (location != null && googleMapsFragment != null) {
-//                        googleMapsFragment.addLocation(location);
-//                    }
-//                }
-//            }, new IntentFilter("GPSSimulatorLocation"));
-//
-//            mGpsSimulator.startSimulation(getApplicationContext());
-        } else {
-            Log.d("MainActivity", "startRecording");
-            mGpsService = new GpsService(new LocationListener() {
+        if (isSimulationEnabled()) {
+            Log.d("MainActivity", "Starting simulation");
+            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
                 @Override
-                public void onLocationReceived(Location location) {
-                    Log.d("MainActivity", "Latitude " + location.getLatitude() + ", longitude " + location.getLongitude());
-
-                    TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
-                    DatabaseHelper.getInstance().createCoordinate(point);
-
+                public void onReceive(Context context, Intent intent) {
+                    // Retrieve data from the intent
+                    Location location = intent.getBundleExtra("Location").getParcelable("location");
                     if (location != null && googleMapsFragment != null) {
-                        googleMapsFragment.drawPoint(point);
+                        //googleMapsFragment.drawPoint(location);
                     }
                 }
-            });
+            }, new IntentFilter("GPSSimulatorLocation"));
+
+            mGpsSimulator.startSimulation(getApplicationContext());
+        } else {
+            long trackId = DatabaseHelper.getInstance().createTrack();
+            Log.d("MainActivity", "Starting recording, trackId is " + trackId);
+
+            if(mGpsService == null) {
+                mGpsService = new GpsService(new LocationListener() {
+                    @Override
+                    public void onLocationReceived(Location location) {
+                        Log.d("MainActivity", "Latitude " + location.getLatitude() + ", longitude " + location.getLongitude());
+
+                        TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
+                        DatabaseHelper.getInstance().createCoordinate(point, DatabaseHelper.getInstance().getCurrentTrackId());
+
+                        if (location != null && googleMapsFragment != null) {
+                            googleMapsFragment.drawPoint(point);
+                        }
+                    }
+                });
+            }
+            else {
+                mGpsService.startLocationUpdates();
+            }
         }
     }
 
     private void stopRecording() {
-        if (mSettingsFragment.isSimulationEnabled()) {
-            Toast.makeText(MainActivity.this, "--->", Toast.LENGTH_SHORT).show();
+        if (isSimulationEnabled()) {
+            Log.d("MainActivity", "Stopping simulation");
             mGpsSimulator.stopSimulation();
         } else {
-            stopService(new Intent(getBaseContext(), GpsService.class));
+            Log.d("MainActivity", "Stopping recording");
+            mGpsService.stopLocationUpdates();
         }
+        DatabaseHelper.getInstance().updateTrack();
     }
 
     private boolean isSmsPermissionGranted() {
@@ -450,5 +437,13 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    private boolean isSimulationEnabled() {
+        return getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE).getBoolean("Simulation", false);
+    }
+
+    private String getMapType() {
+        return getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal");
     }
 }
