@@ -174,7 +174,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /*
-     * Get all coordinates
+     * Get all tracks
+     */
+    public ArrayList<Track> getAllTracks() {
+        ArrayList<Track> tracks = new ArrayList();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_TRACK;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if(cursor.moveToFirst()) {
+            do {
+                Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
+                Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
+
+                Track track = new Track(startingDate, endingDate);
+                tracks.add(track);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return tracks;
+    }
+
+    /*
+     * Get current track id
      */
     public long getCurrentTrackId() {
         SQLiteDatabase db = this.getReadableDatabase();

@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CoordinateListFragment">
+    tools:context=".TrackListFragment">
 
     <ListView
-        android:id="@+id/coordinates_list"
+        android:id="@+id/track_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="10dp"

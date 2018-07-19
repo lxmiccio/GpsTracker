@@ -32,12 +32,14 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener,
         CoordinateListFragment.OnFragmentInteractionListener,
+        TrackListFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
 
     private GoogleMapsFragment googleMapsFragment;
     private GpsService mGpsService;
 
     private CoordinateListFragment mCoordinatesListFragment;
+    private TrackListFragment mTrackListFragment;
     private SettingsFragment mSettingsFragment;
 
     GpsSimulator mGpsSimulator;
@@ -130,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     public void onBackPressed() {
         Log.d("BK", "getFragmentManager().getBackStackEntryCount() is " + getFragmentManager().getBackStackEntryCount());
         Log.d("BK", "getSupportFragmentManager().getBackStackEntryCount() is " + getSupportFragmentManager().getBackStackEntryCount());
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             Log.d("BK", "drawer.closeDrawer(GravityCompat.START)");
@@ -146,8 +149,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             googleMapsFragment.setMapType(getMapType());
         }
         else {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.google_maps_fragment_container, googleMapsFragment).commit();
+            //Already in main page
         }
     }
 
@@ -226,6 +228,17 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             fragmentTransaction.replace(R.id.google_maps_fragment_container, mCoordinatesListFragment)
                     .commit();
         } else if (id == R.id.nav_gallery) {
+            Log.d("NIS", "nav_gallery selected");
+            if(mTrackListFragment == null) {
+                mTrackListFragment = TrackListFragment.newInstance();
+            }
+
+            supportFragmentTransaction.remove(googleMapsFragment)
+                    .addToBackStack(GoogleMapsFragment.TAG)
+                    .commit();
+
+            fragmentTransaction.replace(R.id.google_maps_fragment_container, mTrackListFragment)
+                    .commit();
 
         } else if (id == R.id.nav_slideshow) {
 

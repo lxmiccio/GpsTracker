@@ -2,6 +2,8 @@ package com.gpstracker;
 
 import org.simpleframework.xml.Element;
 
+import java.util.Date;
+
 public class Track {
 
     @Element(name = "name")
@@ -10,8 +12,17 @@ public class Track {
     @Element(name = "trkseg")
     private TrackSegment mTrackSegment;
 
+    private Date mStartingDate;
+    private Date mEndingDate;
+
     public Track() {
         mTrackSegment = new TrackSegment();
+    }
+
+    public Track(Date startingDate, Date endingDate) {
+        mTrackSegment = new TrackSegment();
+        mStartingDate = startingDate;
+        mEndingDate = endingDate;
     }
 
     public Track(String name) {
@@ -40,6 +51,14 @@ public class Track {
 
     public TrackSegment getTrackSegment() {
         return mTrackSegment;
+    }
+
+    public Date getStartingDate() {
+        return mStartingDate;
+    }
+
+    public Date getEndingDate() {
+        return mEndingDate;
     }
 
     @Override

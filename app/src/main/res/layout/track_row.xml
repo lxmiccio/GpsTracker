@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@style/AppTheme.SelectedListItem"
+    android:background="?android:attr/activatedBackgroundIndicator">
+
+    <TextView
+        android:id="@+id/started_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="started at"
+        android:textSize="18sp"
+        app:fontFamily="monospace" />
+
+    <TextView
+        android:id="@+id/finished_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="finished at"
+        android:textSize="18sp"
+        app:fontFamily="monospace" />
+</LinearLayout>
