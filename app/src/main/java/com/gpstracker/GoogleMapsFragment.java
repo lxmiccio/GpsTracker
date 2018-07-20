@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -121,7 +119,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
             mRoute = mMap.addPolyline(mRouteOptions);
 
             // Draw marker at beginning
-            Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_stat_name);
+            Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
             circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
             Canvas canvas = new Canvas();
@@ -150,7 +148,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         }
 
         // Draw marker at current point
-        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_stat_name);
+        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
         circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
         Canvas canvas = new Canvas();
