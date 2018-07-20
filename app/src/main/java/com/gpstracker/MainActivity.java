@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
 
-        NavigationView navigationView = findViewById(R.id.nav_view_0);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         //Store context
@@ -153,55 +153,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.drawer_layout, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.toolbar_load_gpx) {
-//            ArrayList<String> tracksList = GpxHandler.getTracksList(getFilesDir());
-//            if (tracksList != null && tracksList.size() > 0) {
-//                tracks = tracksList.toArray(new CharSequence[tracksList.size()]);
-//                // TODO set gpx png left to track
-//
-//                new AlertDialog.Builder(MainActivity.this)
-//                        .setTitle("Pick a track")
-//                        .setItems(tracks, new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                String track = tracks[id].toString();
-//
-//                                try {
-//                                    Gpx gpx = GpxHandler.loadGpx(getFilesDir(), track);
-//                                    googleMapsFragment.loadGpx(gpx);
-//                                } catch (Exception e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//                        })
-//                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int idd) {
-//                                dialog.dismiss();
-//                            }
-//                        }).show();
-//            }
-//
-//            return true;
-//        }
-//
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -221,9 +172,11 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                 mCoordinatesListFragment = CoordinateListFragment.newInstance();
             }
 
-            supportFragmentTransaction.remove(googleMapsFragment)
-                    .addToBackStack(GoogleMapsFragment.TAG)
-                    .commit();
+            if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                supportFragmentTransaction.remove(googleMapsFragment)
+                        .addToBackStack(GoogleMapsFragment.TAG)
+                        .commit();
+            }
 
             fragmentTransaction.replace(R.id.google_maps_fragment_container, mCoordinatesListFragment)
                     .commit();
@@ -233,20 +186,14 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                 mTrackListFragment = TrackListFragment.newInstance();
             }
 
-            supportFragmentTransaction.remove(googleMapsFragment)
-                    .addToBackStack(GoogleMapsFragment.TAG)
-                    .commit();
+            if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                supportFragmentTransaction.remove(googleMapsFragment)
+                        .addToBackStack(GoogleMapsFragment.TAG)
+                        .commit();
+            }
 
             fragmentTransaction.replace(R.id.google_maps_fragment_container, mTrackListFragment)
                     .commit();
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.nav_settings) {
             Log.d("NIS", "nav_settings selected");
@@ -254,9 +201,11 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                 mSettingsFragment = SettingsFragment.newInstance();
             }
 
-            supportFragmentTransaction.remove(googleMapsFragment)
-                    .addToBackStack(GoogleMapsFragment.TAG)
-                    .commit();
+            if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                supportFragmentTransaction.remove(googleMapsFragment)
+                        .addToBackStack(GoogleMapsFragment.TAG)
+                        .commit();
+            }
 
             fragmentTransaction.replace(R.id.google_maps_fragment_container, mSettingsFragment)
                     .commit();
@@ -270,15 +219,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     public static Context getContext() {
         return mContext;
     }
-
-    //Other method
-//    awesomeButton.setOnClickListener(new AwesomeButtonClick());
-//    class AwesomeButtonClick implements View.OnClickListener {
-//        @Override
-//        public void onClick(View v) {
-//            awesomeButtonClicked();
-//        }
-//    }
 
     private void startRecording() {
         if (isSimulationEnabled()) {

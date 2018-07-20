@@ -4,11 +4,9 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.view.ActionMode;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +59,7 @@ public class TrackListFragment extends Fragment {
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
             @Override
             public boolean onCreateActionMode(android.view.ActionMode mode, Menu menu) {
-                mode.getMenuInflater().inflate(R.menu.track_list_menu, menu);
+                mode.getMenuInflater().inflate(R.menu.list_multiselection_menu, menu);
                 return true;
             }
 
