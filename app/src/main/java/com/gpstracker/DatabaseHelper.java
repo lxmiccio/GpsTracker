@@ -18,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper mInstance = null;
 
     // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise db won't update
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 11;
 
     // Database Name
     private static final String DATABASE_NAME = "GpsTracker";
@@ -105,6 +105,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    /*
+     * Delete track
+     */
+    public void deleteTrack(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_COORDINATE + " WHERE " + KEY_TRACK_ID + " = " + id);
+        db.execSQL("DELETE FROM " + TABLE_TRACK + " WHERE " + KEY_ID + " = " + id);
+        db.close();
+    }
+
     public void updateTrack() {
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT  * FROM " + TABLE_TRACK;
@@ -186,10 +196,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if(cursor.moveToFirst()) {
             do {
+                long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
                 Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
                 Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
 
-                Track track = new Track(startingDate, endingDate);
+                Track track = new Track(id, startingDate, endingDate);
                 tracks.add(track);
 
             } while (cursor.moveToNext());

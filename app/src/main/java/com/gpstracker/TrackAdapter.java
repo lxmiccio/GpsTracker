@@ -53,10 +53,13 @@ public class TrackAdapter extends ArrayAdapter<Track> {
         viewHolder.finished_at.setText(track.getEndingDate().toString());
         return convertView;
     }
+
     @Override
     public void remove(Track track) {
         mDataSet.remove(track);
         notifyDataSetChanged();
+
+        DatabaseHelper.getInstance().deleteTrack(track.getId());
     }
 
     public void toggleSelection(int position) {

@@ -10,7 +10,6 @@
         android:id="@+id/started_at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="started at"
         android:textSize="18sp"
         app:fontFamily="monospace" />
 
@@ -18,7 +17,6 @@
         android:id="@+id/finished_at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="finished at"
         android:textSize="18sp"
         app:fontFamily="monospace" />
 </LinearLayout>

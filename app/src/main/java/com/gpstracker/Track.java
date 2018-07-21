@@ -1,56 +1,31 @@
 package com.gpstracker;
 
-import org.simpleframework.xml.Element;
-
 import java.util.Date;
 
 public class Track {
 
-    @Element(name = "name")
-    private String mName;
-    
-    @Element(name = "trkseg")
-    private TrackSegment mTrackSegment;
-
+    private long mId;
     private Date mStartingDate;
     private Date mEndingDate;
 
-    public Track() {
-        mTrackSegment = new TrackSegment();
-    }
-
     public Track(Date startingDate, Date endingDate) {
-        mTrackSegment = new TrackSegment();
+        mId = -1;
         mStartingDate = startingDate;
         mEndingDate = endingDate;
     }
 
-    public Track(String name) {
-        mName = name;
-        mTrackSegment = new TrackSegment();
+    public Track(long id, Date startingDate, Date endingDate) {
+        mId = id;
+        mStartingDate = startingDate;
+        mEndingDate = endingDate;
     }
 
-    public Track(String name, TrackSegment trackSegment) {
-        mName = name;
-        mTrackSegment = trackSegment;
+    public long getId() {
+        return mId;
     }
 
-    public void appendPoint(TrackPoint point)
-    {
-        mTrackSegment.appendPoint(point);
-    }
-
-//    public void appendPoint(double latitude, double longitude)
-//    {
-//        mTrackSegment.appendPoint(latitude, longitude);
-//    }
-
-    public String getName() {
-        return mName;
-    }
-
-    public TrackSegment getTrackSegment() {
-        return mTrackSegment;
+    public void setId(long id) {
+        mId = id;
     }
 
     public Date getStartingDate() {
@@ -63,6 +38,6 @@ public class Track {
 
     @Override
     public String toString() {
-        return "Track {" + '\'' + mName + '\'' + ", " + mTrackSegment + '}';
+        return "Track {" + '\'' + mStartingDate + '\'' + '\'' + mEndingDate + '\'' + '}';
     }
 }

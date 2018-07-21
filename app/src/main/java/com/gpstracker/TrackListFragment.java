@@ -78,10 +78,10 @@ public class TrackListFragment extends Fragment {
                         // Captures all selected ids with a loop
                         for (int i = (selected.size() - 1); i >= 0; i--) {
                             if (selected.valueAt(i)) {
-                                Track selecteditem = mTrackAdapter.getItem(selected.keyAt(i));
+                                Track selectedItem = mTrackAdapter.getItem(selected.keyAt(i));
 
                                 // Remove selected items following the ids
-                                mTrackAdapter.remove(selecteditem);
+                                mTrackAdapter.remove(selectedItem);
                             }
                         }
                         // Close CAB
@@ -110,6 +110,12 @@ public class TrackListFragment extends Fragment {
         });
 
         return view;
+    }
+
+    public void refresh() {
+        ArrayList<Track> tracks = DatabaseHelper.getInstance().getAllTracks();
+        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
+        mListView.setAdapter(mTrackAdapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

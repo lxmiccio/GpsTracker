@@ -73,15 +73,12 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
         mGpsSimulator = new GpsSimulator();
 
-        if (findViewById(R.id.google_maps_fragment_container) != null) {
+        if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState == null) {
                 googleMapsFragment = GoogleMapsFragment.newInstance();
                 googleMapsFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.google_maps_fragment_container, googleMapsFragment).commit();
-
-//                Log.d("MainActivity", "getMapType() is " + getMapType());
-//                googleMapsFragment.setMapType(getMapType());
+                        .add(R.id.fragment_container, googleMapsFragment).commit();
             }
         }
 
@@ -130,12 +127,8 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
     @Override
     public void onBackPressed() {
-        Log.d("BK", "getFragmentManager().getBackStackEntryCount() is " + getFragmentManager().getBackStackEntryCount());
-        Log.d("BK", "getSupportFragmentManager().getBackStackEntryCount() is " + getSupportFragmentManager().getBackStackEntryCount());
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
-            Log.d("BK", "drawer.closeDrawer(GravityCompat.START)");
             drawer.closeDrawer(GravityCompat.START);
         }
         else if (getFragmentManager().getBackStackEntryCount() > 0) {
@@ -145,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             getSupportFragmentManager().popBackStackImmediate();
             getSupportFragmentManager().beginTransaction().show(googleMapsFragment).commit();
 
-            Log.d("MainActivity", "getMapType() is " + getMapType());
             googleMapsFragment.setMapType(getMapType());
         }
         else {
@@ -164,50 +156,50 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        Log.d("NIS", "onNavigationItemSelected");
 
         if (id == R.id.nav_camera) {
-            Log.d("NIS", "nav_camera selected");
             if(mCoordinatesListFragment == null) {
                 mCoordinatesListFragment = CoordinateListFragment.newInstance();
+            } else {
+                mCoordinatesListFragment.refresh();
             }
 
-            if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            if(supportFragmentManager.getBackStackEntryCount() == 0) {
                 supportFragmentTransaction.remove(googleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
             }
 
-            fragmentTransaction.replace(R.id.google_maps_fragment_container, mCoordinatesListFragment)
+            fragmentTransaction.replace(R.id.fragment_container, mCoordinatesListFragment)
                     .commit();
         } else if (id == R.id.nav_gallery) {
-            Log.d("NIS", "nav_gallery selected");
             if(mTrackListFragment == null) {
                 mTrackListFragment = TrackListFragment.newInstance();
+            } else {
+                mTrackListFragment.refresh();
             }
 
-            if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            if(supportFragmentManager.getBackStackEntryCount() == 0) {
                 supportFragmentTransaction.remove(googleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
             }
 
-            fragmentTransaction.replace(R.id.google_maps_fragment_container, mTrackListFragment)
+            fragmentTransaction.replace(R.id.fragment_container, mTrackListFragment)
                     .commit();
 
         } else if (id == R.id.nav_settings) {
-            Log.d("NIS", "nav_settings selected");
             if(mSettingsFragment == null) {
                 mSettingsFragment = SettingsFragment.newInstance();
             }
 
-            if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            if(supportFragmentManager.getBackStackEntryCount() == 0) {
                 supportFragmentTransaction.remove(googleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
             }
 
-            fragmentTransaction.replace(R.id.google_maps_fragment_container, mSettingsFragment)
+            fragmentTransaction.replace(R.id.fragment_container, mSettingsFragment)
                     .commit();
         }
 

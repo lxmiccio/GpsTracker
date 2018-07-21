@@ -15,7 +15,7 @@ public class CoordinateListFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    private CoordinateAdapter mTrackAdapter;
+    private CoordinateAdapter mCoordinateAdapter;
     private ListView mListView;
 
     public CoordinateListFragment() {
@@ -45,11 +45,17 @@ public class CoordinateListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_coordinate_list, container, false);
 
         ArrayList<TrackPoint> points = DatabaseHelper.getInstance().getAllCoordinates();
-        mTrackAdapter = new CoordinateAdapter(points, MainActivity.getContext());
+        mCoordinateAdapter = new CoordinateAdapter(points, MainActivity.getContext());
         mListView = view.findViewById(R.id.coordinates_list);
-        mListView.setAdapter(mTrackAdapter);
+        mListView.setAdapter(mCoordinateAdapter);
 
         return view;
+    }
+
+    public void refresh() {
+        ArrayList<TrackPoint> points = DatabaseHelper.getInstance().getAllCoordinates();
+        mCoordinateAdapter = new CoordinateAdapter(points, MainActivity.getContext());
+        mListView.setAdapter(mCoordinateAdapter);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
