@@ -19,6 +19,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -145,7 +146,16 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case android.R.id.home:
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.openDrawer(Gravity.START);
+        }
+        return (super.onOptionsItemSelected(menuItem));
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         FragmentManager fragmentManager = getFragmentManager();
@@ -360,8 +370,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         }
     }
 
-    private void registerSmsBroadcastReceiver()
-    {
+    private void registerSmsBroadcastReceiver() {
         smsBroadcastReceiver = new SmsBroadcastReceiver();
         registerReceiver(smsBroadcastReceiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));
         smsBroadcastReceiver.setSmsListener(new SmsListener() {

@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class TrackAdapter extends ArrayAdapter<Track> {
 
@@ -49,8 +51,11 @@ public class TrackAdapter extends ArrayAdapter<Track> {
         }
 
         Track track = getItem(position);
-        viewHolder.started_at.setText(track.getStartingDate().toString());
-        viewHolder.finished_at.setText(track.getEndingDate().toString());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        viewHolder.started_at.setText(dateFormat.format(track.getStartingDate()));
+        viewHolder.finished_at.setText(dateFormat.format(track.getEndingDate()));
+
         return convertView;
     }
 
