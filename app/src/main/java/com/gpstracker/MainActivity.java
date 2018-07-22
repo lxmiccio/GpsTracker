@@ -93,16 +93,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             registerSmsBroadcastReceiver();
         }
 
-        Log.d("MainActivity", "readPhoneNumberPermission is " + isReadPhoneNumberPermissionGranted());
-        if(!isReadPhoneNumberPermissionGranted()) {
-            Log.d("MainActivity", "readPhoneNumberPermission denied, requesting it");
-            requestReadPhoneNumberPermission();
-        }
-        else {
-            Log.d("MainActivity", "readPhoneNumberPermission granted");
-            smsBroadcastReceiver.getNumber();
-        }
-
         Log.d("MainActivity", "accessFineLocationPermission is " + isAccessFineLocationPermissionGranted());
         if(!isAccessFineLocationPermissionGranted()) {
             Log.d("MainActivity", "accessFineLocationPermission denied, requesting it");
@@ -113,16 +103,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         if(!isAccessCoarseLocationPermissionGranted()) {
             Log.d("MainActivity", "accessCoarseLocationPermission denied, requesting it");
             requestAccessCoarseLocationPermission();
-        }
-
-        Log.d("MainActivity", "readPhoneStatePermission is " + isReadPhoneStatePermissionGranted());
-        if(!isReadPhoneStatePermissionGranted()) {
-            Log.d("MainActivity", "readPhoneStatePermission denied, requesting it");
-            requestReadPhoneStatePermission();
-        }
-        else {
-            Log.d("MainActivity", "readPhoneStatePermission granted");
-            smsBroadcastReceiver.getNumber();
         }
     }
 
@@ -283,30 +263,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             // https://developer.android.com/training/permissions/requesting.html
         }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_SMS}, SMS_PERMISSION_CODE);
-    }
-
-    private boolean isReadPhoneNumberPermissionGranted() {
-        return ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestReadPhoneNumberPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_NUMBERS)) {
-            // You may display a non-blocking explanation here, read more in the documentation:
-            // https://developer.android.com/training/permissions/requesting.html
-        }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_NUMBERS}, PHONE_NUMBERS_PERMISSION_CODE);
-    }
-
-    private boolean isReadPhoneStatePermissionGranted() {
-        return ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestReadPhoneStatePermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
-            // You may display a non-blocking explanation here, read more in the documentation:
-            // https://developer.android.com/training/permissions/requesting.html
-        }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, PHONE_STATE_PERMISSION_CODE);
     }
 
     private boolean isAccessFineLocationPermissionGranted() {

@@ -100,8 +100,20 @@ public class SettingsFragment extends Fragment {
     private TextView.OnClickListener deleteCoordinatesClickListener = new TextView.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Log.d("SET", "deleteCoordinatesClickListener");
-            DatabaseHelper.getInstance().deleteAllCoordinates();
+            new AlertDialog.Builder(MainActivity.getContext())
+                    .setTitle("Cancellare tutti i dati?")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            DatabaseHelper.getInstance().deleteAllTracks();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    }).show();
         }
     };
 
@@ -127,6 +139,7 @@ public class SettingsFragment extends Fragment {
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.dismiss();
                         }

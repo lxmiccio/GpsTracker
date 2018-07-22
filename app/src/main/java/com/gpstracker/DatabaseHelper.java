@@ -88,9 +88,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /*
-     * Create a coordinate
-     */
     public long createTrack() {
         SQLiteDatabase db = getWritableDatabase();
 
@@ -105,13 +102,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    /*
-     * Delete track
-     */
     public void deleteTrack(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM " + TABLE_COORDINATE + " WHERE " + KEY_TRACK_ID + " = " + id);
         db.execSQL("DELETE FROM " + TABLE_TRACK + " WHERE " + KEY_ID + " = " + id);
+        db.close();
+    }
+
+    public void deleteAllTracks() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_COORDINATE);
+        db.execSQL("DELETE FROM " + TABLE_TRACK);
         db.close();
     }
 
@@ -121,20 +122,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         long trackId = -1;
-        // looping through all rows and adding to list
-        if(cursor.moveToFirst()) {
-            do {
-                trackId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
-            } while (cursor.moveToNext());
+        if(cursor.moveToLast()) {
+            trackId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
         }
         cursor.close();
 
         db.execSQL("UPDATE " + TABLE_TRACK + " SET " + KEY_FINISHED_AT + " = '" + getCurrentDateTime() + "' WHERE id = " + trackId);
     }
 
-    /*
-     * Create a coordinate
-     */
+    public ArrayList<Track> getAllTracks() {
+        ArrayList<Track> tracks = new ArrayList();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_TRACK;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if(cursor.moveToFirst()) {
+            do {
+                long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
+                Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
+                Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
+
+                Track track = new Track(id, startingDate, endingDate);
+                tracks.add(track);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return tracks;
+    }
+
+    public long getCurrentTrackId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_TRACK;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        long trackId = -1;
+        // looping through all rows and adding to list
+        if(cursor.moveToLast()) {
+            trackId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+        }
+        cursor.close();
+
+        return trackId;
+    }
+
     public long createCoordinate(TrackPoint point, long trackId) {
         SQLiteDatabase db = getWritableDatabase();
 
@@ -153,9 +187,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    /*
-     * Get all coordinates
-     */
     public ArrayList<TrackPoint> getAllCoordinates() {
         ArrayList<TrackPoint> coordinates = new ArrayList();
 
@@ -183,88 +214,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return coordinates;
     }
 
-    /*
-     * Get all tracks
-     */
-    public ArrayList<Track> getAllTracks() {
-        ArrayList<Track> tracks = new ArrayList();
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT  * FROM " + TABLE_TRACK;
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        // looping through all rows and adding to list
-        if(cursor.moveToFirst()) {
-            do {
-                long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
-                Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
-                Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
-
-                Track track = new Track(id, startingDate, endingDate);
-                tracks.add(track);
-
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-
-        return tracks;
-    }
-
-    /*
-     * Get current track id
-     */
-    public long getCurrentTrackId() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT  * FROM " + TABLE_TRACK;
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        long trackId = -1;
-        // looping through all rows and adding to list
-        if(cursor.moveToFirst()) {
-            do {
-                trackId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-
-        return trackId;
-    }
-
-    /*
-     * Get coordinates count
-     */
-    public int getCoordinatesCount() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String countQuery = "SELECT  * FROM " + TABLE_COORDINATE;
-        Cursor cursor = db.rawQuery(countQuery, null);
-
-        int count = cursor.getCount();
-        cursor.close();
-
-        return count;
-    }
-
-    /*
-     * Delete all coordinates
-     */
-    public void deleteAllCoordinates() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_COORDINATE);
-        db.close();
-    }
-
-    /*
-     * Get current datetime in String
-     */
     private String getCurrentDateTime() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         Date date = new Date();
         return dateFormat.format(date);
     }
 
-    /*
-     * Get current datetime in Date
-     */
     private Date getDateTime(String dateTime) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {

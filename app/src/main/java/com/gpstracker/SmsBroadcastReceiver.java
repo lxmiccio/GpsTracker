@@ -59,30 +59,4 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
     public void setSmsListener(SmsListener listener) {
         mSmsListener = listener;
     }
-
-    public String getNumber() {
-        TelephonyManager tMgr = (TelephonyManager) MainActivity.getContext().getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.READ_PHONE_NUMBERS) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            Log.e("SmsBroadcastReceiver", "Not enough permissions");
-            Toast.makeText(MainActivity.getContext(), "---> Not enough permissions", Toast.LENGTH_LONG).show();
-            return "";
-        }
-        String mPhoneNumber = tMgr.getLine1Number();
-        Toast.makeText(MainActivity.getContext(), "---> phoneNumber is" + mPhoneNumber, Toast.LENGTH_LONG).show();
-        Log.e("SmsBroadcastReceiver", "mPhoneNumber is " + mPhoneNumber);
-        return mPhoneNumber;
-    }
-
-    public void sendMessage(String number, String body) {
-        SmsManager.getDefault().sendTextMessage(number, null, body, null, null);
-    }
 }

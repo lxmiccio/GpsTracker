@@ -7,12 +7,12 @@
         <menu>
             <item
                 android:id="@+id/nav_camera"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="Import" />
+                android:icon="@drawable/ic_coordinates_list"
+                android:title="Coordinates" />
             <item
                 android:id="@+id/nav_gallery"
-                android:icon="@drawable/ic_menu_gallery"
-                android:title="Gallery" />
+                android:icon="@drawable/ic_tracks_list"
+                android:title="Tracks" />
         </menu>
     </item>
 
