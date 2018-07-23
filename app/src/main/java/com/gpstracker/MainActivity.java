@@ -5,7 +5,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -13,22 +12,18 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Telephony;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener,
@@ -37,7 +32,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         SettingsFragment.OnFragmentInteractionListener {
 
     private GoogleMapsFragment googleMapsFragment;
-    private GpsService mGpsService;
 
     private CoordinateListFragment mCoordinatesListFragment;
     private TrackListFragment mTrackListFragment;
@@ -76,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState == null) {
-                googleMapsFragment = GoogleMapsFragment.newInstance();
+                googleMapsFragment = GoogleMapsFragment.getInstance();
                 googleMapsFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.fragment_container, googleMapsFragment).commit();
@@ -149,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
         if (id == R.id.nav_camera) {
             if(mCoordinatesListFragment == null) {
-                mCoordinatesListFragment = CoordinateListFragment.newInstance();
+                mCoordinatesListFragment = CoordinateListFragment.getInstance();
             } else {
                 mCoordinatesListFragment.refresh();
             }
@@ -164,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                     .commit();
         } else if (id == R.id.nav_gallery) {
             if(mTrackListFragment == null) {
-                mTrackListFragment = TrackListFragment.newInstance();
+                mTrackListFragment = TrackListFragment.getInstance();
             } else {
                 mTrackListFragment.refresh();
             }
@@ -180,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
         } else if (id == R.id.nav_settings) {
             if(mSettingsFragment == null) {
-                mSettingsFragment = SettingsFragment.newInstance();
+                mSettingsFragment = SettingsFragment.getInstance();
             }
 
             if(supportFragmentManager.getBackStackEntryCount() == 0) {
@@ -218,27 +212,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
 
             mGpsSimulator.startSimulation(getApplicationContext());
         } else {
-            long trackId = DatabaseHelper.getInstance().createTrack();
-            Log.d("MainActivity", "Starting recording, trackId is " + trackId);
-
-            if(mGpsService == null) {
-                mGpsService = new GpsService(new LocationListener() {
-                    @Override
-                    public void onLocationReceived(Location location) {
-                        Log.d("MainActivity", "Latitude " + location.getLatitude() + ", longitude " + location.getLongitude());
-
-                        TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
-                        DatabaseHelper.getInstance().createCoordinate(point, DatabaseHelper.getInstance().getCurrentTrackId());
-
-                        if (location != null && googleMapsFragment != null) {
-                            googleMapsFragment.drawPoint(point);
-                        }
-                    }
-                });
-            }
-            else {
-                mGpsService.startLocationUpdates();
-            }
+            GpsService.getInstance().startLocationUpdates();
         }
     }
 
@@ -247,10 +221,8 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             Log.d("MainActivity", "Stopping simulation");
             mGpsSimulator.stopSimulation();
         } else {
-            Log.d("MainActivity", "Stopping recording");
-            mGpsService.stopLocationUpdates();
+            GpsService.getInstance().stopLocationUpdates();
         }
-        DatabaseHelper.getInstance().updateTrack();
     }
 
     private boolean isSmsPermissionGranted() {

@@ -30,6 +30,7 @@ import static android.content.Context.MODE_PRIVATE;
 public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
     public final static String TAG = "GoogleMapsFragment";
+    private static GoogleMapsFragment mInstance = null;
 
     private OnFragmentInteractionListener mListener;
 
@@ -44,9 +45,11 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         mLatLngs = new ArrayList<>();
     }
 
-    public static GoogleMapsFragment newInstance() {
-        GoogleMapsFragment fragment = new GoogleMapsFragment();
-        return fragment;
+    public static GoogleMapsFragment getInstance() {
+        if(mInstance == null) {
+            mInstance = new GoogleMapsFragment();
+        }
+        return mInstance;
     }
 
     @Override

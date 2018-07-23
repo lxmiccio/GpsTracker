@@ -29,7 +29,7 @@ public class CoordinateListFragment extends Fragment {
      * @return A new instance of fragment CoordinateListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static CoordinateListFragment newInstance() {
+    public static CoordinateListFragment getInstance() {
         CoordinateListFragment fragment = new CoordinateListFragment();
         return fragment;
     }

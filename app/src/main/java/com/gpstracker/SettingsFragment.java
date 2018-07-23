@@ -23,6 +23,7 @@ public class SettingsFragment extends Fragment {
 
     private SharedPreferences mSharedPreference;
 
+    private TextView mStartStopTracking;
     private Switch mSimulation;
     private TextView mDeleteCoordinates;
 
@@ -40,7 +41,7 @@ public class SettingsFragment extends Fragment {
      * @return A new instance of fragment SettingsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SettingsFragment newInstance() {
+    public static SettingsFragment getInstance() {
         SettingsFragment fragment = new SettingsFragment();
         return fragment;
     }
@@ -56,6 +57,9 @@ public class SettingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         mSharedPreference = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE);
+
+        mStartStopTracking = view.findViewById(R.id.start_stop_tracking);
+        mStartStopTracking.setOnClickListener(startStopTrackingClickListener);
 
         mSimulation = view.findViewById(R.id.simulation_switch);
         mSimulation.setOnCheckedChangeListener(simulationCheckListener);
@@ -96,6 +100,17 @@ public class SettingsFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    private TextView.OnClickListener startStopTrackingClickListener = new TextView.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(GpsService.getInstance().isTracking()) {
+                GpsService.getInstance().stopLocationUpdates();
+            } else {
+                GpsService.getInstance().startLocationUpdates();
+            }
+        }
+    };
 
     private TextView.OnClickListener deleteCoordinatesClickListener = new TextView.OnClickListener() {
         @Override

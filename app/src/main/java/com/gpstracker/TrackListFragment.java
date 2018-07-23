@@ -33,7 +33,7 @@ public class TrackListFragment extends Fragment {
      * @return A new instance of fragment CoordinateListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TrackListFragment newInstance() {
+    public static TrackListFragment getInstance() {
         TrackListFragment fragment = new TrackListFragment();
         return fragment;
     }
