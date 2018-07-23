@@ -11,7 +11,6 @@ import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -21,13 +20,12 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 
-public class GpsService
-{
+public class GpsService {
+
     private static GpsService mInstance = null;
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
-
     private boolean mTracking;
 
     public GpsService() {
@@ -43,18 +41,17 @@ public class GpsService
     }
 
     public static GpsService getInstance() {
-        if(mInstance == null) {
+        if (mInstance == null) {
             mInstance = new GpsService();
         }
         return mInstance;
     }
 
     void startLocationUpdates() {
-        Log.d("GpsService", "startLocationUpdates");
-
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted
+                mTracking = true;
                 long trackId = DatabaseHelper.getInstance().createTrack();
                 Log.d("GpsService", "Starting recording, trackId is " + trackId);
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
@@ -64,9 +61,9 @@ public class GpsService
                 Log.d("GpsService", "checkLocationPermission");
                 checkLocationPermission();
             }
-        }
-        else {
+        } else {
             //Request Location Permission
+            mTracking = true;
             long trackId = DatabaseHelper.getInstance().createTrack();
             Log.d("GpsService", "Starting recording, trackId is " + trackId);
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
@@ -74,7 +71,7 @@ public class GpsService
     }
 
     void stopLocationUpdates() {
-        Log.d("GpsService", "stopLocationUpdates");
+        mTracking = false;
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
         DatabaseHelper.getInstance().updateTrack();
@@ -96,7 +93,7 @@ public class GpsService
                                 //Prompt the user once explanation has been shown
                                 ActivityCompat.requestPermissions((Activity) MainActivity.getContext(),
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MainActivity.PHONE_ACCESS_FINE_LOCATION );
+                                        MainActivity.PHONE_ACCESS_FINE_LOCATION);
                             }
                         })
                         .create()
@@ -107,7 +104,7 @@ public class GpsService
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions((Activity) MainActivity.getContext(),
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MainActivity.PHONE_ACCESS_FINE_LOCATION );
+                        MainActivity.PHONE_ACCESS_FINE_LOCATION);
             }
         }
     }

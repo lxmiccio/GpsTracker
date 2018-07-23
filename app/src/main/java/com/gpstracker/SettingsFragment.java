@@ -7,25 +7,22 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import static android.content.Context.MODE_PRIVATE;
 
 public class SettingsFragment extends Fragment {
+
     private OnFragmentInteractionListener mListener;
 
     private SharedPreferences mSharedPreference;
 
     private TextView mStartStopTracking;
-    private Switch mSimulation;
-    private TextView mDeleteCoordinates;
+    private TextView mDeleteData;
 
     private LinearLayout mMapType;
     private TextView mSelectedMapType;
@@ -34,13 +31,6 @@ public class SettingsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment SettingsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static SettingsFragment getInstance() {
         SettingsFragment fragment = new SettingsFragment();
         return fragment;
@@ -61,12 +51,8 @@ public class SettingsFragment extends Fragment {
         mStartStopTracking = view.findViewById(R.id.start_stop_tracking);
         mStartStopTracking.setOnClickListener(startStopTrackingClickListener);
 
-        mSimulation = view.findViewById(R.id.simulation_switch);
-        mSimulation.setOnCheckedChangeListener(simulationCheckListener);
-        mSimulation.setChecked(mSharedPreference.getBoolean("Simulation", false));
-
-        mDeleteCoordinates = view.findViewById(R.id.delete_coordinates);
-        mDeleteCoordinates.setOnClickListener(deleteCoordinatesClickListener);
+        mDeleteData = view.findViewById(R.id.delete_data);
+        mDeleteData.setOnClickListener(deleteCoordinatesClickListener);
 
         mMapType = view.findViewById(R.id.map_type);
         mMapType.setOnClickListener(mapTypeClickListener);
@@ -75,13 +61,6 @@ public class SettingsFragment extends Fragment {
         mSelectedMapType.setText(mSharedPreference.getString("MapType", "Normal"));
 
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -101,10 +80,14 @@ public class SettingsFragment extends Fragment {
         mListener = null;
     }
 
+    public interface OnFragmentInteractionListener {
+        void onFragmentInteraction(Uri uri);
+    }
+
     private TextView.OnClickListener startStopTrackingClickListener = new TextView.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(GpsService.getInstance().isTracking()) {
+            if (GpsService.getInstance().isTracking()) {
                 GpsService.getInstance().stopLocationUpdates();
             } else {
                 GpsService.getInstance().startLocationUpdates();
@@ -161,29 +144,4 @@ public class SettingsFragment extends Fragment {
                     }).show();
         }
     };
-
-    private CompoundButton.OnCheckedChangeListener simulationCheckListener = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            Log.d("SET", "simulationCheckListener");
-            SharedPreferences.Editor editor = mSharedPreference.edit();
-            editor.putBoolean("Simulation", isChecked);
-            editor.apply();
-        }
-    };
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 }

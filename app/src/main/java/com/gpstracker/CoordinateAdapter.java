@@ -12,18 +12,11 @@ import java.util.ArrayList;
 public class CoordinateAdapter extends ArrayAdapter<TrackPoint> {
 
     private ArrayList<TrackPoint> mDataSet;
-    private Context mContext;
-
-    private class ViewHolder {
-        public TextView latitude;
-        public TextView longitude;
-    }
 
     public CoordinateAdapter(ArrayList<TrackPoint> data, Context context) {
         super(context, R.layout.coordinate_row, data);
 
         mDataSet = data;
-        mContext = context;
     }
 
     @Override
@@ -47,5 +40,10 @@ public class CoordinateAdapter extends ArrayAdapter<TrackPoint> {
         viewHolder.latitude.setText(String.valueOf(point.getLatitude()));
         viewHolder.longitude.setText(String.valueOf(point.getLongitude()));
         return convertView;
+    }
+
+    private class ViewHolder {
+        public TextView latitude;
+        public TextView longitude;
     }
 }

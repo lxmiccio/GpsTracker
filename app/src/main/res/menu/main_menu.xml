@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
@@ -8,11 +9,13 @@
             <item
                 android:id="@+id/nav_camera"
                 android:icon="@drawable/ic_coordinates_list"
-                android:title="Coordinates" />
+                android:title="Coordinates"
+                app:fontFamily="@font/sniglet" />
             <item
                 android:id="@+id/nav_gallery"
                 android:icon="@drawable/ic_tracks_list"
-                android:title="Tracks" />
+                android:title="Tracks"
+                app:fontFamily="@font/sniglet" />
         </menu>
     </item>
 
@@ -20,8 +23,9 @@
         <menu>
             <item
                 android:id="@+id/nav_settings"
-                android:icon="@drawable/ic_menu_manage"
-                android:title="Settings" />
+                android:icon="@drawable/ic_settings"
+                android:title="Settings"
+                app:fontFamily="@font/sniglet" />
         </menu>
     </item>
 

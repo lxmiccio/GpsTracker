@@ -3,19 +3,15 @@ package com.gpstracker;
 import android.Manifest;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Telephony;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -31,22 +27,18 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         TrackListFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
 
-    private GoogleMapsFragment googleMapsFragment;
-
-    private CoordinateListFragment mCoordinatesListFragment;
-    private TrackListFragment mTrackListFragment;
-    private SettingsFragment mSettingsFragment;
-
-    GpsSimulator mGpsSimulator;
-    static Context mContext;
-
     static final int SMS_PERMISSION_CODE = 1;
     static final int PHONE_NUMBERS_PERMISSION_CODE = 2;
     static final int PHONE_STATE_PERMISSION_CODE = 3;
     static final int PHONE_ACCESS_FINE_LOCATION = 4;
     static final int PHONE_ACCESS_COARSE_LOCATION = 5;
-    private SmsBroadcastReceiver smsBroadcastReceiver;
 
+    static Context mContext;
+    private GoogleMapsFragment googleMapsFragment;
+    private CoordinateListFragment mCoordinatesListFragment;
+    private TrackListFragment mTrackListFragment;
+    private SettingsFragment mSettingsFragment;
+    private SmsBroadcastReceiver smsBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +58,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         //Store context
         mContext = this;
 
-        mGpsSimulator = new GpsSimulator();
-
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState == null) {
                 googleMapsFragment = GoogleMapsFragment.getInstance();
@@ -78,23 +68,22 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         }
 
         Log.d("MainActivity", "smsPermission is " + isSmsPermissionGranted());
-        if(!isSmsPermissionGranted()) {
+        if (!isSmsPermissionGranted()) {
             Log.d("MainActivity", "smsPermission denied, requesting it");
             requestReadAndSendSmsPermission();
-        }
-        else {
+        } else {
             Log.d("MainActivity", "smsPermission granted, registering SmsBroadcastReceiver");
             registerSmsBroadcastReceiver();
         }
 
         Log.d("MainActivity", "accessFineLocationPermission is " + isAccessFineLocationPermissionGranted());
-        if(!isAccessFineLocationPermissionGranted()) {
+        if (!isAccessFineLocationPermissionGranted()) {
             Log.d("MainActivity", "accessFineLocationPermission denied, requesting it");
             requestAccessFineLocationPermission();
         }
 
         Log.d("MainActivity", "accessCoarseLocationPermission is " + isAccessCoarseLocationPermissionGranted());
-        if(!isAccessCoarseLocationPermissionGranted()) {
+        if (!isAccessCoarseLocationPermissionGranted()) {
             Log.d("MainActivity", "accessCoarseLocationPermission denied, requesting it");
             requestAccessCoarseLocationPermission();
         }
@@ -105,17 +94,15 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        }
-        else if (getFragmentManager().getBackStackEntryCount() > 0) {
+        } else if (getFragmentManager().getBackStackEntryCount() > 0) {
             getFragmentManager().popBackStackImmediate();
-        }
-        else if(getSupportFragmentManager().getBackStackEntryCount() > 0) {
+        } else if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
             getSupportFragmentManager().beginTransaction().show(googleMapsFragment).commit();
 
             googleMapsFragment.setMapType(getMapType());
-        }
-        else {
+            googleMapsFragment.refresh();
+        } else {
             //Already in main page
         }
     }
@@ -142,13 +129,13 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            if(mCoordinatesListFragment == null) {
+            if (mCoordinatesListFragment == null) {
                 mCoordinatesListFragment = CoordinateListFragment.getInstance();
             } else {
                 mCoordinatesListFragment.refresh();
             }
 
-            if(supportFragmentManager.getBackStackEntryCount() == 0) {
+            if (supportFragmentManager.getBackStackEntryCount() == 0) {
                 supportFragmentTransaction.remove(googleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
@@ -157,13 +144,13 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             fragmentTransaction.replace(R.id.fragment_container, mCoordinatesListFragment)
                     .commit();
         } else if (id == R.id.nav_gallery) {
-            if(mTrackListFragment == null) {
+            if (mTrackListFragment == null) {
                 mTrackListFragment = TrackListFragment.getInstance();
             } else {
                 mTrackListFragment.refresh();
             }
 
-            if(supportFragmentManager.getBackStackEntryCount() == 0) {
+            if (supportFragmentManager.getBackStackEntryCount() == 0) {
                 supportFragmentTransaction.remove(googleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
@@ -173,11 +160,11 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                     .commit();
 
         } else if (id == R.id.nav_settings) {
-            if(mSettingsFragment == null) {
+            if (mSettingsFragment == null) {
                 mSettingsFragment = SettingsFragment.getInstance();
             }
 
-            if(supportFragmentManager.getBackStackEntryCount() == 0) {
+            if (supportFragmentManager.getBackStackEntryCount() == 0) {
                 supportFragmentTransaction.remove(googleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
@@ -192,37 +179,12 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         return true;
     }
 
-    public static Context getContext() {
-        return mContext;
-    }
-
     private void startRecording() {
-        if (isSimulationEnabled()) {
-            Log.d("MainActivity", "Starting simulation");
-            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    // Retrieve data from the intent
-                    Location location = intent.getBundleExtra("Location").getParcelable("location");
-                    if (location != null && googleMapsFragment != null) {
-                        //googleMapsFragment.drawPoint(location);
-                    }
-                }
-            }, new IntentFilter("GPSSimulatorLocation"));
-
-            mGpsSimulator.startSimulation(getApplicationContext());
-        } else {
-            GpsService.getInstance().startLocationUpdates();
-        }
+        GpsService.getInstance().startLocationUpdates();
     }
 
     private void stopRecording() {
-        if (isSimulationEnabled()) {
-            Log.d("MainActivity", "Stopping simulation");
-            mGpsSimulator.stopSimulation();
-        } else {
-            GpsService.getInstance().stopLocationUpdates();
-        }
+        GpsService.getInstance().stopLocationUpdates();
     }
 
     private boolean isSmsPermissionGranted() {
@@ -305,15 +267,19 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             @Override
             public void onSmsReceived(String sender, String text) {
                 Log.d("MainActivity", "sender is " + sender + ", message is " + text);
-                if(text.equals("enable")) {
+                if (text.equals("enable")) {
                     startRecording();
-                } else if(text.equals("disable")) {
+                } else if (text.equals("disable")) {
                     stopRecording();
                 } else {
                     Log.d("MainActivity", "Message text ignored");
                 }
             }
         });
+    }
+
+    public static Context getContext() {
+        return mContext;
     }
 
     @Override

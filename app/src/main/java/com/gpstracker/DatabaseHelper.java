@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,8 +13,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-
-    private static DatabaseHelper mInstance = null;
 
     // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise db won't update
     private static final int DATABASE_VERSION = 11;
@@ -30,11 +27,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Column names
     private static final String KEY_ID = "id";
     private static final String KEY_CREATED_AT = "created_at";
-
     private static final String KEY_STARTED_AT = "started_at";
     private static final String KEY_FINISHED_AT = "finished_at";
     private static final String KEY_TRACK_ID = "track_id";
-
     private static final String KEY_ALTITUDE = "altitude";
     private static final String KEY_BEARING = "bearing";
     private static final String KEY_LATITUDE = "latitude";
@@ -60,12 +55,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_TRACK_ID + " INTEGER,"
             + " FOREIGN KEY (" + KEY_TRACK_ID + ") REFERENCES " + TABLE_TRACK + " (" + KEY_ID + "))";
 
+    private static DatabaseHelper mInstance = null;
+
     protected DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     public static DatabaseHelper getInstance() {
-        if(mInstance == null) {
+        if (mInstance == null) {
             mInstance = new DatabaseHelper(MainActivity.getContext());
         }
         return mInstance;
@@ -122,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         long trackId = -1;
-        if(cursor.moveToLast()) {
+        if (cursor.moveToLast()) {
             trackId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
         }
         cursor.close();
@@ -138,7 +135,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
                 Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
@@ -161,7 +158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         long trackId = -1;
         // looping through all rows and adding to list
-        if(cursor.moveToLast()) {
+        if (cursor.moveToLast()) {
             trackId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
         }
         cursor.close();
@@ -195,7 +192,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 double altitude = cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE));
                 float bearing = cursor.getFloat(cursor.getColumnIndex(KEY_BEARING));

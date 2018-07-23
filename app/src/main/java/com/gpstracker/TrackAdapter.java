@@ -15,21 +15,12 @@ import java.util.Locale;
 public class TrackAdapter extends ArrayAdapter<Track> {
 
     private ArrayList<Track> mDataSet;
-    private Context mContext;
-
     private SparseBooleanArray mSelectedItemsIds;
 
-    private class ViewHolder {
-        public TextView started_at;
-        public TextView finished_at;
-    }
-
     public TrackAdapter(ArrayList<Track> data, Context context) {
-            super(context, R.layout.track_row, data);
+        super(context, R.layout.track_row, data);
 
         mDataSet = data;
-        mContext = context;
-
         mSelectedItemsIds = new SparseBooleanArray();
     }
 
@@ -90,5 +81,10 @@ public class TrackAdapter extends ArrayAdapter<Track> {
 
     public SparseBooleanArray getSelectedIds() {
         return mSelectedItemsIds;
+    }
+
+    private class ViewHolder {
+        public TextView started_at;
+        public TextView finished_at;
     }
 }

@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".SettingsFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_margin="15dp"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
@@ -20,28 +20,21 @@
             android:layout_height="wrap_content"
             android:height="50dp"
             android:gravity="center_vertical"
-            android:text="Simula enable/disable"
+            android:text="Simula messaggio enable/disable"
             android:textColor="@android:color/black"
-            android:textSize="20sp" />
-
-        <Switch
-            android:id="@+id/simulation_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:height="50dp"
-            android:text="Simulazione"
-            android:textColor="@android:color/black"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            app:fontFamily="@font/sniglet" />
 
         <TextView
-            android:id="@+id/delete_coordinates"
+            android:id="@+id/delete_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:height="50dp"
             android:gravity="center_vertical"
-            android:text="Elimina coordinate"
+            android:text="Elimina dati"
             android:textColor="@android:color/black"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            app:fontFamily="@font/sniglet" />
 
         <LinearLayout
             android:id="@+id/map_type"
@@ -56,7 +49,8 @@
                 android:gravity="center_vertical"
                 android:text="Tipo di mappa"
                 android:textColor="@android:color/black"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                app:fontFamily="@font/sniglet" />
 
             <TextView
                 android:id="@+id/selected_map_type"
@@ -66,7 +60,8 @@
                 android:gravity="right|center_vertical"
                 android:text="Normale"
                 android:textColor="@android:color/black"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                app:fontFamily="@font/sniglet" />
 
         </LinearLayout>
 

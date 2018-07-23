@@ -46,7 +46,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public static GoogleMapsFragment getInstance() {
-        if(mInstance == null) {
+        if (mInstance == null) {
             mInstance = new GoogleMapsFragment();
         }
         return mInstance;
@@ -103,6 +103,15 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
         setMapType(MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal"));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(4.5f));
+    }
+
+    public void refresh() {
+        if (mMap != null) {
+            clear();
+
+            DatabaseHelper db = DatabaseHelper.getInstance();
+            drawPoints(db.getAllCoordinates());
+        }
     }
 
     public void drawPoint(TrackPoint point) {
@@ -177,7 +186,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void setMapType(String type) {
-        switch(type) {
+        switch (type) {
             case "Normal":
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 break;

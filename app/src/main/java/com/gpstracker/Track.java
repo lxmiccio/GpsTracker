@@ -8,12 +8,6 @@ public class Track {
     private Date mStartingDate;
     private Date mEndingDate;
 
-    public Track(Date startingDate, Date endingDate) {
-        mId = -1;
-        mStartingDate = startingDate;
-        mEndingDate = endingDate;
-    }
-
     public Track(long id, Date startingDate, Date endingDate) {
         mId = id;
         mStartingDate = startingDate;
