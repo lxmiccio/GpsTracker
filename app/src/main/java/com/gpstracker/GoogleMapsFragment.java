@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,7 +100,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         setZoomControls(true);
 
         DatabaseHelper db = DatabaseHelper.getInstance();
-        drawPoints(db.getAllCoordinates());
+        drawTracks(db.getAllTracks());
 
         setMapType(MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal"));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(4.5f));
@@ -110,13 +111,15 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
             clear();
 
             DatabaseHelper db = DatabaseHelper.getInstance();
-            drawPoints(db.getAllCoordinates());
+            drawTracks(db.getAllTracks());
         }
     }
 
     public void drawPoint(TrackPoint point) {
 
         LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+
+        boolean ignore = false;
 
         if (mLatLngs.size() == 0) {
             mLatLngs.add(latLng);
@@ -129,18 +132,6 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
             mRouteOptions.add(latLng);
             mRoute = mMap.addPolyline(mRouteOptions);
-
-            // Draw marker at beginning
-            Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
-            circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-
-            Canvas canvas = new Canvas();
-            Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
-            canvas.setBitmap(bitmap);
-            circleDrawable.setBounds(0, 0, 30, 30);
-            circleDrawable.draw(canvas);
-
-            mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
         } else {
             // Compute distance between previous location
             Location currentLocation = new Location("");
@@ -152,32 +143,77 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
             previousLocation.setLongitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
 
             double distance = currentLocation.distanceTo(previousLocation);
+//            ignore = shouldIgnoreLocationChange(currentLocation, previousLocation);
 
             // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
-            if (distance >= 0) {
+            if (distance >= 0/* && !ignore*/) {
                 mLatLngs.add(latLng);
             }
         }
 
-        // Draw marker at current point
-        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
-        circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+//        if (!ignore) {
+            // Draw marker at current point
+            Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
+            circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
-        Canvas canvas = new Canvas();
-        Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
-        canvas.setBitmap(bitmap);
-        circleDrawable.setBounds(0, 0, 30, 30);
-        circleDrawable.draw(canvas);
+            Canvas canvas = new Canvas();
+            Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+            canvas.setBitmap(bitmap);
+            circleDrawable.setBounds(0, 0, 30, 30);
+            circleDrawable.draw(canvas);
 
-        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+            mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
 
-        // Move camera to user location
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            // Move camera to user location
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//        } else {
+//            Log.d("GoogleMaps", "Location ignored");
+//        }
     }
 
     public void drawPoints(ArrayList<TrackPoint> points) {
         for (TrackPoint iPoint : points) {
             drawPoint(iPoint);
+        }
+    }
+
+    public void drawTrack(Track track) {
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.color(Color.BLACK);
+        polylineOptions.visible(true);
+        polylineOptions.width(8);
+
+        ArrayList<TrackPoint> points = track.getPoints();
+        for (int i = 0; i < points.size(); ++i) {
+            LatLng latLng = new LatLng(points.get(i).getLatitude(), points.get(i).getLongitude());
+            polylineOptions.add(latLng);
+
+            if (i == 0) {
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at beginning"));
+            } else if (i == points.size() - 1) {
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at end"));
+            } else {
+                // Draw marker at current point
+                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
+                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+
+                Canvas canvas = new Canvas();
+                Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+                canvas.setBitmap(bitmap);
+                circleDrawable.setBounds(0, 0, 30, 30);
+                circleDrawable.draw(canvas);
+
+                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+            }
+        }
+
+        mMap.addPolyline(polylineOptions);
+    }
+
+    public void drawTracks(ArrayList<Track> tracks) {
+        for (Track iTrack : tracks) {
+            drawTrack(iTrack);
         }
     }
 
@@ -205,6 +241,22 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     public void clear() {
         mMap.clear();
     }
+
+//    private boolean shouldIgnoreLocationChange(Location oldLocation, Location newLocation) {
+//        if (oldLocation == null) {
+//            // didn't have any location before, so accept new
+//            return false;
+//        } else if (null == newLocation || !newLocation.hasAccuracy() || newLocation.getAccuracy() > 150) {
+//            // new location got invalid or too vague accuracy so ignore it
+//            return true;
+//        }
+//
+//        // ignore change if change is smaller then 3 meters and
+//        if (oldLocation.distanceTo(newLocation) < 3f && newLocation.getAccuracy() >= oldLocation.getAccuracy()) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     public interface OnFragmentInteractionListener {
     }

@@ -140,8 +140,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
                 Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
                 Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
+                ArrayList<TrackPoint> points = getCoordinatesByTrackId(id);
 
                 Track track = new Track(id, startingDate, endingDate);
+                track.setPoints(points);
                 tracks.add(track);
 
             } while (cursor.moveToNext());
@@ -193,6 +195,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
+            do {
+                double altitude = cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE));
+                float bearing = cursor.getFloat(cursor.getColumnIndex(KEY_BEARING));
+                double latitude = cursor.getDouble(cursor.getColumnIndex(KEY_LATITUDE));
+                double longitude = cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE));
+                float speed = cursor.getFloat(cursor.getColumnIndex(KEY_SPEED));
+                Date date = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_CREATED_AT)));
+
+                TrackPoint coordinate = new TrackPoint(altitude, bearing, latitude, longitude, speed, date.getTime());
+                coordinates.add(coordinate);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return coordinates;
+    }
+
+    public ArrayList<TrackPoint> getCoordinatesByTrackId(long id) {
+        ArrayList<TrackPoint> coordinates = new ArrayList();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_COORDINATE + " WHERE " + KEY_TRACK_ID + " = " + id;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if(cursor.moveToFirst()) {
             do {
                 double altitude = cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE));
                 float bearing = cursor.getFloat(cursor.getColumnIndex(KEY_BEARING));
