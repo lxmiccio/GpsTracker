@@ -82,6 +82,7 @@ public class GpsService {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
         mDb.updateTrack();
+        mMapsFragment.refresh();
     }
 
     public boolean isTracking() {
