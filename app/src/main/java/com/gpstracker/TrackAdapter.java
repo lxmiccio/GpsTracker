@@ -15,13 +15,17 @@ import java.util.Locale;
 public class TrackAdapter extends ArrayAdapter<Track> {
 
     private ArrayList<Track> mDataSet;
-    private SparseBooleanArray mSelectedItemsIds;
+    private SparseBooleanArray mSelectedItems;
+
+    private DatabaseHelper mDb;
 
     public TrackAdapter(ArrayList<Track> data, Context context) {
         super(context, R.layout.track_row, data);
 
         mDataSet = data;
-        mSelectedItemsIds = new SparseBooleanArray();
+        mSelectedItems = new SparseBooleanArray();
+
+        mDb = DatabaseHelper.getInstance();
     }
 
     @Override
@@ -55,32 +59,32 @@ public class TrackAdapter extends ArrayAdapter<Track> {
         mDataSet.remove(track);
         notifyDataSetChanged();
 
-        DatabaseHelper.getInstance().deleteTrack(track.getId());
+        mDb.deleteTrack(track.getId());
     }
 
     public void toggleSelection(int position) {
-        selectView(position, !mSelectedItemsIds.get(position));
+        selectView(position, !mSelectedItems.get(position));
     }
 
     public void removeSelection() {
-        mSelectedItemsIds = new SparseBooleanArray();
+        mSelectedItems = new SparseBooleanArray();
         notifyDataSetChanged();
     }
 
     public void selectView(int position, boolean value) {
         if (value)
-            mSelectedItemsIds.put(position, value);
+            mSelectedItems.put(position, value);
         else
-            mSelectedItemsIds.delete(position);
+            mSelectedItems.delete(position);
         notifyDataSetChanged();
     }
 
     public int getSelectedCount() {
-        return mSelectedItemsIds.size();
+        return mSelectedItems.size();
     }
 
     public SparseBooleanArray getSelectedIds() {
-        return mSelectedItemsIds;
+        return mSelectedItems;
     }
 
     private class ViewHolder {

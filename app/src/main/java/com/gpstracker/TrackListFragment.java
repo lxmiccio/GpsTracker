@@ -22,8 +22,11 @@ public class TrackListFragment extends Fragment {
     private TrackAdapter mTrackAdapter;
     private ListView mListView;
 
+    private DatabaseHelper mDb;
+
     public TrackListFragment() {
         // Required empty public constructor
+        mDb = DatabaseHelper.getInstance();
     }
 
     public static TrackListFragment getInstance() {
@@ -41,7 +44,7 @@ public class TrackListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
 
-        ArrayList<Track> tracks = DatabaseHelper.getInstance().getAllTracks();
+        ArrayList<Track> tracks = mDb.getAllTracks();
         mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
         mListView = view.findViewById(R.id.track_list);
         mListView.setAdapter(mTrackAdapter);
@@ -106,7 +109,7 @@ public class TrackListFragment extends Fragment {
     }
 
     public void refresh() {
-        ArrayList<Track> tracks = DatabaseHelper.getInstance().getAllTracks();
+        ArrayList<Track> tracks = mDb.getAllTracks();
         mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
         mListView.setAdapter(mTrackAdapter);
     }

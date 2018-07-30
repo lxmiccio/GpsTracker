@@ -6,9 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -20,9 +17,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAzl-hkmr20O_PCkq_781UukgObx1DL6AM" />
-        <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
 
         <activity
             android:name=".MainActivity"
@@ -35,11 +29,6 @@
             </intent-filter>
         </activity>
 
-        <!-- <receiver android:name="com.gpstracker.SmsBroadcastReceiver"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.provider.Telephony.SMS_RECEIVED" /> -->
-        <!-- </intent-filter> -->
-        <!-- </receiver> -->
     </application>
 
 </manifest>

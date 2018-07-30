@@ -27,8 +27,13 @@ public class SettingsFragment extends Fragment {
     private LinearLayout mMapType;
     private TextView mSelectedMapType;
 
+    private DatabaseHelper mDb;
+    private GpsService mGpsService;
+
     public SettingsFragment() {
         // Required empty public constructor
+        mDb = DatabaseHelper.getInstance();
+        mGpsService = GpsService.getInstance();
     }
 
     public static SettingsFragment getInstance() {
@@ -87,10 +92,10 @@ public class SettingsFragment extends Fragment {
     private TextView.OnClickListener startStopTrackingClickListener = new TextView.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (GpsService.getInstance().isTracking()) {
-                GpsService.getInstance().stopLocationUpdates();
+            if (mGpsService.isTracking()) {
+                mGpsService.stopLocationUpdates();
             } else {
-                GpsService.getInstance().startLocationUpdates();
+                mGpsService.startLocationUpdates();
             }
         }
     };
@@ -103,7 +108,7 @@ public class SettingsFragment extends Fragment {
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            DatabaseHelper.getInstance().deleteAllTracks();
+                            mDb.deleteAllTracks();
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

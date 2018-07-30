@@ -18,8 +18,11 @@ public class CoordinateListFragment extends Fragment {
     private CoordinateAdapter mCoordinateAdapter;
     private ListView mListView;
 
+    private DatabaseHelper mDb;
+
     public CoordinateListFragment() {
         // Required empty public constructor
+        mDb = DatabaseHelper.getInstance();
     }
 
     public static CoordinateListFragment getInstance() {
@@ -37,7 +40,7 @@ public class CoordinateListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_coordinate_list, container, false);
 
-        ArrayList<TrackPoint> points = DatabaseHelper.getInstance().getAllCoordinates();
+        ArrayList<TrackPoint> points = mDb.getAllCoordinates();
         mCoordinateAdapter = new CoordinateAdapter(points, MainActivity.getContext());
         mListView = view.findViewById(R.id.coordinates_list);
         mListView.setAdapter(mCoordinateAdapter);
@@ -46,7 +49,7 @@ public class CoordinateListFragment extends Fragment {
     }
 
     public void refresh() {
-        ArrayList<TrackPoint> points = DatabaseHelper.getInstance().getAllCoordinates();
+        ArrayList<TrackPoint> points = mDb.getAllCoordinates();
         mCoordinateAdapter = new CoordinateAdapter(points, MainActivity.getContext());
         mListView.setAdapter(mCoordinateAdapter);
     }

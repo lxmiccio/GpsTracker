@@ -11,14 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="20sp"
-        app:fontFamily="@font/sniglet" />
+        android:paddingLeft="10dp"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/finished_at"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="20sp"
-        app:fontFamily="@font/sniglet" />
+        android:paddingRight="10dp"
+        android:textSize="20sp" />
 </LinearLayout>

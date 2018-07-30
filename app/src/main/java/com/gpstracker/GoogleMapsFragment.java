@@ -42,8 +42,11 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     private SupportMapFragment mMapFragment;
 
+    private DatabaseHelper mDb;
+
     public GoogleMapsFragment() {
         mLatLngs = new ArrayList<>();
+        mDb = DatabaseHelper.getInstance();
     }
 
     public static GoogleMapsFragment getInstance() {
@@ -99,8 +102,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
         setZoomControls(true);
 
-        DatabaseHelper db = DatabaseHelper.getInstance();
-        drawTracks(db.getAllTracks());
+        drawTracks(mDb.getAllTracks());
 
         setMapType(MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal"));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(4.5f));
@@ -109,9 +111,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     public void refresh() {
         if (mMap != null) {
             clear();
-
-            DatabaseHelper db = DatabaseHelper.getInstance();
-            drawTracks(db.getAllTracks());
+            drawTracks(mDb.getAllTracks());
         }
     }
 
@@ -212,9 +212,22 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void drawTracks(ArrayList<Track> tracks) {
-        for (Track iTrack : tracks) {
-            drawTrack(iTrack);
+        for (int i = 0;i < tracks.size(); ++i) {
+            Track track = tracks.get(i);
+            drawTrack(track);
+
+            if(i == tracks.size() - 1) {
+                ArrayList<TrackPoint> points = track.getPoints();
+                if(points.size() > 0) {
+                    centerCamera(points.get(points.size() - 1));
+                }
+            }
         }
+    }
+
+    public void centerCamera(TrackPoint point) {
+        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     public void setZoomControls(boolean status) {

@@ -22,8 +22,7 @@
             android:gravity="center_vertical"
             android:text="Simula messaggio enable/disable"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
-            app:fontFamily="@font/sniglet" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/delete_data"
@@ -33,8 +32,7 @@
             android:gravity="center_vertical"
             android:text="Elimina dati"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
-            app:fontFamily="@font/sniglet" />
+            android:textSize="20sp" />
 
         <LinearLayout
             android:id="@+id/map_type"
@@ -49,8 +47,7 @@
                 android:gravity="center_vertical"
                 android:text="Tipo di mappa"
                 android:textColor="@android:color/black"
-                android:textSize="20sp"
-                app:fontFamily="@font/sniglet" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/selected_map_type"
@@ -60,8 +57,7 @@
                 android:gravity="right|center_vertical"
                 android:text="Normale"
                 android:textColor="@android:color/black"
-                android:textSize="20sp"
-                app:fontFamily="@font/sniglet" />
+                android:textSize="20sp" />
 
         </LinearLayout>
 

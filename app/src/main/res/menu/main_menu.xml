@@ -9,13 +9,11 @@
             <item
                 android:id="@+id/nav_camera"
                 android:icon="@drawable/ic_coordinates_list"
-                android:title="Coordinates"
-                app:fontFamily="@font/sniglet" />
+                android:title="Coordinates" />
             <item
                 android:id="@+id/nav_gallery"
                 android:icon="@drawable/ic_tracks_list"
-                android:title="Tracks"
-                app:fontFamily="@font/sniglet" />
+                android:title="Tracks" />
         </menu>
     </item>
 
@@ -24,8 +22,7 @@
             <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings"
-                android:title="Settings"
-                app:fontFamily="@font/sniglet" />
+                android:title="Settings" />
         </menu>
     </item>
 

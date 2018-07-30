@@ -30,9 +30,13 @@ public class GpsService {
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
 
+    private DatabaseHelper mDb;
+
     public GpsService() {
         mMapsFragment = GoogleMapsFragment.getInstance();
         mTracking = false;
+
+        mDb = DatabaseHelper.getInstance();
 
         // Request location updates
         mLocationRequest = LocationRequest.create()
@@ -55,7 +59,7 @@ public class GpsService {
             if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted
                 mTracking = true;
-                long trackId = DatabaseHelper.getInstance().createTrack();
+                long trackId = mDb.createTrack();
                 Log.d("GpsService", "Starting recording, trackId is " + trackId);
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             } else {
@@ -67,7 +71,7 @@ public class GpsService {
         } else {
             //Request Location Permission
             mTracking = true;
-            long trackId = DatabaseHelper.getInstance().createTrack();
+            long trackId = mDb.createTrack();
             Log.d("GpsService", "Starting recording, trackId is " + trackId);
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         }
@@ -77,7 +81,7 @@ public class GpsService {
         mTracking = false;
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
-        DatabaseHelper.getInstance().updateTrack();
+        mDb.updateTrack();
     }
 
     public boolean isTracking() {
@@ -125,7 +129,7 @@ public class GpsService {
                 Location location = locationList.get(locationList.size() - 1);
 
                 TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
-                DatabaseHelper.getInstance().createCoordinate(point, DatabaseHelper.getInstance().getCurrentTrackId());
+                mDb.createCoordinate(point, mDb.getCurrentTrackId());
 
                 mMapsFragment.drawPoint(point);
             }

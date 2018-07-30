@@ -21,24 +21,24 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements GoogleMapsFragment.OnFragmentInteractionListener,
-        NavigationView.OnNavigationItemSelectedListener,
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         CoordinateListFragment.OnFragmentInteractionListener,
-        TrackListFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener {
+        GoogleMapsFragment.OnFragmentInteractionListener,
+        SettingsFragment.OnFragmentInteractionListener,
+        TrackListFragment.OnFragmentInteractionListener {
 
     static final int SMS_PERMISSION_CODE = 1;
-    static final int PHONE_NUMBERS_PERMISSION_CODE = 2;
-    static final int PHONE_STATE_PERMISSION_CODE = 3;
     static final int PHONE_ACCESS_FINE_LOCATION = 4;
     static final int PHONE_ACCESS_COARSE_LOCATION = 5;
 
     static Context mContext;
-    private GoogleMapsFragment googleMapsFragment;
+    private GoogleMapsFragment mGoogleMapsFragment;
     private CoordinateListFragment mCoordinatesListFragment;
     private TrackListFragment mTrackListFragment;
     private SettingsFragment mSettingsFragment;
     private SmsBroadcastReceiver smsBroadcastReceiver;
+
+    private GpsService mGpsService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +58,14 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
         //Store context
         mContext = this;
 
+        mGpsService = GpsService.getInstance();
+
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState == null) {
-                googleMapsFragment = GoogleMapsFragment.getInstance();
-                googleMapsFragment.setArguments(getIntent().getExtras());
+                mGoogleMapsFragment = GoogleMapsFragment.getInstance();
+                mGoogleMapsFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, googleMapsFragment).commit();
+                        .add(R.id.fragment_container, mGoogleMapsFragment).commit();
             }
         }
 
@@ -98,10 +100,10 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             getFragmentManager().popBackStackImmediate();
         } else if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
-            getSupportFragmentManager().beginTransaction().show(googleMapsFragment).commit();
+            getSupportFragmentManager().beginTransaction().show(mGoogleMapsFragment).commit();
 
-            googleMapsFragment.setMapType(getMapType());
-            googleMapsFragment.refresh();
+            mGoogleMapsFragment.setMapType(getMapType());
+            mGoogleMapsFragment.refresh();
         } else {
             //Already in main page
         }
@@ -136,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             }
 
             if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(googleMapsFragment)
+                supportFragmentTransaction.remove(mGoogleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
             }
@@ -151,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             }
 
             if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(googleMapsFragment)
+                supportFragmentTransaction.remove(mGoogleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
             }
@@ -165,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
             }
 
             if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(googleMapsFragment)
+                supportFragmentTransaction.remove(mGoogleMapsFragment)
                         .addToBackStack(GoogleMapsFragment.TAG)
                         .commit();
             }
@@ -180,11 +182,11 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
     }
 
     private void startRecording() {
-        GpsService.getInstance().startLocationUpdates();
+        mGpsService.startLocationUpdates();
     }
 
     private void stopRecording() {
-        GpsService.getInstance().stopLocationUpdates();
+        mGpsService.stopLocationUpdates();
     }
 
     private boolean isSmsPermissionGranted() {
@@ -233,30 +235,6 @@ public class MainActivity extends AppCompatActivity implements GoogleMapsFragmen
                 }
                 return;
             }
-            case PHONE_NUMBERS_PERMISSION_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("MainActivity", "PHONE_NUMBERS_PERMISSION_CODE granted");
-                    // Permission granted
-                } else {
-                    Log.d("MainActivity", "PHONE_NUMBERS_PERMISSION_CODE denied");
-                    // Permission denied
-                }
-                return;
-            }
-            case PHONE_STATE_PERMISSION_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    Log.d("MainActivity", "PHONE_STATE_PERMISSION_CODE granted");
-                } else {
-                    // Permission denied
-                    Log.d("MainActivity", "PHONE_STATE_PERMISSION_CODE denied");
-                }
-                return;
-            }
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
