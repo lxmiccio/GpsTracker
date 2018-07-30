@@ -5,11 +5,41 @@
     android:layout_height="match_parent"
     tools:context=".TrackListFragment">
 
-    <ListView
-        android:id="@+id/track_list"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp" />
+        android:orientation="vertical">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/started_at"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:text="Iniziata il"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/finished_at"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingRight="10dp"
+                android:text="Finita il"
+                android:textSize="20sp" />
+    </LinearLayout>
+
+        <ListView
+            android:id="@+id/track_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp" />
+    </LinearLayout>
 
 </FrameLayout>
