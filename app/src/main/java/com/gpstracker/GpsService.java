@@ -64,7 +64,6 @@ public class GpsService {
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             } else {
                 //Request Location Permission
-
                 Log.d("GpsService", "checkLocationPermission");
                 checkLocationPermission();
             }
@@ -110,8 +109,6 @@ public class GpsService {
                         })
                         .create()
                         .show();
-
-
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions((Activity) MainActivity.getContext(),

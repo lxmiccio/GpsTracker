@@ -235,6 +235,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 return;
             }
+            case PHONE_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    mGpsService.startLocationUpdates();
+                }
+                return;
+            }
         }
     }
 
@@ -260,16 +268,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return mContext;
     }
 
+    private String getMapType() {
+        return getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal");
+    }
+
     @Override
     public void onFragmentInteraction(Uri uri) {
 
-    }
-
-    private boolean isSimulationEnabled() {
-        return getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE).getBoolean("Simulation", false);
-    }
-
-    private String getMapType() {
-        return getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal");
     }
 }
