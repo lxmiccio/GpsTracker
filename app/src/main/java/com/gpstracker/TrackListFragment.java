@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -23,6 +25,8 @@ public class TrackListFragment extends Fragment {
     private ListView mListView;
 
     private DatabaseHelper mDb;
+
+    private TrackFragment mTrackFragment;
 
     public TrackListFragment() {
         // Required empty public constructor
@@ -48,6 +52,22 @@ public class TrackListFragment extends Fragment {
         mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
         mListView = view.findViewById(R.id.track_list);
         mListView.setAdapter(mTrackAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ArrayList<Track> tracks = mTrackAdapter.getTracks();
+                Track track = tracks.get(position);
+
+                mTrackFragment = TrackFragment.getInstance();
+                mTrackFragment.setTrack(track);
+
+                // Add fragment to BackStack so that when the back button is pressed, the inner fragment is removed
+                FragmentActivity fragmentActivity = (FragmentActivity) getActivity();
+                fragmentActivity.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, mTrackFragment)
+                        .addToBackStack("TrackFragment").commit();
+            }
+        });
         //mListView.setBackgroundResource(R.drawable.list_selected_item);
 
 

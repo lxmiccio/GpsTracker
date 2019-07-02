@@ -1,13 +1,29 @@
 package com.gpstracker;
 
-public class TrackPoint {
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 
+public class TrackPoint {
+    @Attribute(name = "alt")
     private double mAltitude;
+
+    @Attribute(name = "bear")
     private float mBearing;
+
+    @Attribute(name = "lat")
     private double mLatitude;
+
+    @Attribute(name = "lon")
     private double mLongitude;
+
+    @Attribute(name = "speed")
     private float mSpeed;
+
+    @Attribute(name = "time")
     private long mTime;
+
+    @Element(name = "name", required = false)
+    private String mName;
 
     public TrackPoint(double altitude, float bearing, double latitude, double longitude, float speed, long time) {
         mAltitude = altitude;

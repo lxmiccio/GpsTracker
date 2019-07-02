@@ -26,6 +26,7 @@ public class GpsService {
 
     private GoogleMapsFragment mMapsFragment;
     private boolean mTracking;
+    private Track mTrack;
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -54,25 +55,31 @@ public class GpsService {
         return mInstance;
     }
 
+    public void createTrack(String name) {
+        mTrack = new Track(name);
+    }
+
     public void startLocationUpdates() {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                //Location Permission already granted
-                mTracking = true;
-                long trackId = mDb.createTrack();
-                Log.d("GpsService", "Starting recording, trackId is " + trackId);
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        if (mTrack != null) {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    //Location Permission already granted
+                    mTracking = true;
+                    long trackId = mDb.createTrack(mTrack.getName());
+                    Log.d("GpsService", "Starting recording, trackId is " + trackId);
+                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                } else {
+                    //Request Location Permission
+                    Log.d("GpsService", "checkLocationPermission");
+                    checkLocationPermission();
+                }
             } else {
                 //Request Location Permission
-                Log.d("GpsService", "checkLocationPermission");
-                checkLocationPermission();
+                mTracking = true;
+                long trackId = mDb.createTrack(mTrack.getName());
+                Log.d("GpsService", "Starting recording, trackId is " + trackId);
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             }
-        } else {
-            //Request Location Permission
-            mTracking = true;
-            long trackId = mDb.createTrack();
-            Log.d("GpsService", "Starting recording, trackId is " + trackId);
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         }
     }
 
@@ -80,12 +87,21 @@ public class GpsService {
         mTracking = false;
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
-        mDb.updateTrack();
+        double length = mTrack.getLength();
+        mDb.updateTrack(length);
         mMapsFragment.refresh();
+
+        GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
+
+        mTrack = null;
     }
 
     public boolean isTracking() {
         return mTracking;
+    }
+
+    public Track getTrack() {
+        return mTrack;
     }
 
     private void checkLocationPermission() {
@@ -127,6 +143,8 @@ public class GpsService {
                 Location location = locationList.get(locationList.size() - 1);
 
                 TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
+                mTrack.appendPoint(point);
+
                 mDb.createCoordinate(point, mDb.getCurrentTrackId());
 
                 mMapsFragment.drawPoint(point);

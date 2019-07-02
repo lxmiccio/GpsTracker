@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">Smart Tracker</string>
     <string name="nav_header_title">Smart Tracker</string>
+
+    <string name="track_name_message">Enter the track name</string>
+    <string name="track_name_yes">Yes</string>
+    <string name="track_name_no">Cancel</string>
+
+    <string name="track_save_message">Save the track?</string>
+    <string name="track_save_yes">Yes</string>
+    <string name="track_save_no">Cancel</string>
+
 </resources>

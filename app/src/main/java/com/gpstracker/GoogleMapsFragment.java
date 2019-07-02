@@ -1,6 +1,8 @@
 package com.gpstracker;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,11 +10,13 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,9 +47,12 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     private SupportMapFragment mMapFragment;
 
     private DatabaseHelper mDb;
+    private FloatingActionButton mStartRecording;
+    private FloatingActionButton mStopRecording;
 
     public GoogleMapsFragment() {
         mLatLngs = new ArrayList<>();
+
         mDb = DatabaseHelper.getInstance();
     }
 
@@ -79,6 +86,16 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_google_maps, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        mStartRecording = view.findViewById(R.id.start_recording);
+        mStartRecording.setOnClickListener(mStartRecordingClickListener);
+
+        mStopRecording = view.findViewById(R.id.stop_recording);
+        mStopRecording.setOnClickListener(mStopRecordingClickListener);
+        mStopRecording.hide();
     }
 
     @Override
@@ -152,20 +169,20 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         }
 
 //        if (!ignore) {
-            // Draw marker at current point
-            Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
-            circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+        // Draw marker at current point
+        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
+        circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
-            Canvas canvas = new Canvas();
-            Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
-            canvas.setBitmap(bitmap);
-            circleDrawable.setBounds(0, 0, 30, 30);
-            circleDrawable.draw(canvas);
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        circleDrawable.setBounds(0, 0, 30, 30);
+        circleDrawable.draw(canvas);
 
-            mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
 
-            // Move camera to user location
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        // Move camera to user location
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 //        } else {
 //            Log.d("GoogleMaps", "Location ignored");
 //        }
@@ -212,13 +229,13 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void drawTracks(ArrayList<Track> tracks) {
-        for (int i = 0;i < tracks.size(); ++i) {
+        for (int i = 0; i < tracks.size(); ++i) {
             Track track = tracks.get(i);
             drawTrack(track);
 
-            if(i == tracks.size() - 1) {
+            if (i == tracks.size() - 1) {
                 ArrayList<TrackPoint> points = track.getPoints();
-                if(points.size() > 0) {
+                if (points.size() > 0) {
                     centerCamera(points.get(points.size() - 1));
                 }
             }
@@ -270,6 +287,49 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 //        }
 //        return false;
 //    }
+
+    private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // Use the Builder class for convenient dialog construction
+            final EditText txtTrackName = new EditText(MainActivity.getContext());
+            txtTrackName.setHint("Track");
+
+            new AlertDialog.Builder(MainActivity.getContext())
+                    .setMessage(R.string.track_name_message)
+                    .setView(txtTrackName)
+                    .setPositiveButton(R.string.track_name_yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Delete the route on the map
+                            clear();
+
+                            // Show stop recording button
+                            mStartRecording.hide();
+                            mStopRecording.show();
+
+                            GpsService gpsService = GpsService.getInstance();
+                            gpsService.createTrack(txtTrackName.getText().toString());
+                            gpsService.startLocationUpdates();
+                        }
+                    })
+                    .setNegativeButton(R.string.track_name_no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Delete the route on the map
+                            clear();
+                        }
+                    })
+                    .show();
+        }
+    };
+
+    private View.OnClickListener mStopRecordingClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mStopRecording.hide();
+            mStartRecording.show();
+            GpsService.getInstance().stopLocationUpdates();
+        }
+    };
 
     public interface OnFragmentInteractionListener {
     }

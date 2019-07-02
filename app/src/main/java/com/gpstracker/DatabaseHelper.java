@@ -15,7 +15,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise db won't update
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
 
     // Database Name
     private static final String DATABASE_NAME = "GpsTracker";
@@ -30,6 +30,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_STARTED_AT = "started_at";
     private static final String KEY_FINISHED_AT = "finished_at";
     private static final String KEY_TRACK_ID = "track_id";
+    private static final String KEY_TRACK_NAME = "name";
+    private static final String KEY_TRACK_LENGTH = "length";
     private static final String KEY_ALTITUDE = "altitude";
     private static final String KEY_BEARING = "bearing";
     private static final String KEY_LATITUDE = "latitude";
@@ -39,6 +41,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Coordinates table create statement
     private static final String CREATE_TABLE_TRACK = "CREATE TABLE "
             + TABLE_TRACK + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_TRACK_NAME + " VARCHAR,"
+            + KEY_TRACK_LENGTH + " NUMBER,"
             + KEY_STARTED_AT + " DATETIME,"
             + KEY_FINISHED_AT + " DATETIME,"
             + KEY_CREATED_AT + " DATETIME)";
@@ -85,10 +89,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long createTrack() {
+    public long createTrack(String name) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
+        values.put(KEY_TRACK_NAME, name);
+        values.put(KEY_TRACK_LENGTH, 0);
         values.put(KEY_STARTED_AT, getCurrentDateTime());
         values.put(KEY_FINISHED_AT, getCurrentDateTime());
         values.put(KEY_CREATED_AT, getCurrentDateTime());
@@ -113,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void updateTrack() {
+    public void updateTrack(double length) {
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT  * FROM " + TABLE_TRACK;
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -124,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
 
-        db.execSQL("UPDATE " + TABLE_TRACK + " SET " + KEY_FINISHED_AT + " = '" + getCurrentDateTime() + "' WHERE id = " + trackId);
+        db.execSQL("UPDATE " + TABLE_TRACK + " SET " + KEY_TRACK_LENGTH + " = " + length + ", " + KEY_FINISHED_AT + " = '" + getCurrentDateTime() + "' WHERE id = " + trackId);
     }
 
     public ArrayList<Track> getAllTracks() {
@@ -221,7 +227,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
-        if(cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 double altitude = cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE));
                 float bearing = cursor.getFloat(cursor.getColumnIndex(KEY_BEARING));
