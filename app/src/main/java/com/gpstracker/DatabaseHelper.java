@@ -144,11 +144,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
+                String name = cursor.getString(cursor.getColumnIndex(KEY_TRACK_NAME));
                 Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
                 Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
                 ArrayList<TrackPoint> points = getCoordinatesByTrackId(id);
 
-                Track track = new Track(id, startingDate, endingDate);
+                Track track = new Track(id, name, startingDate, endingDate);
                 track.setPoints(points);
                 tracks.add(track);
 

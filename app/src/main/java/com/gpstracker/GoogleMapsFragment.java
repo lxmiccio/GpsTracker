@@ -309,6 +309,14 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
                             GpsService gpsService = GpsService.getInstance();
                             gpsService.createTrack(txtTrackName.getText().toString());
+
+                            gpsService.setGpsListener(new GpsListener() {
+                                @Override
+                                public void onLocationReceived(TrackPoint trackPoint) {
+                                    drawPoint(trackPoint);
+                                }
+                            });
+
                             gpsService.startLocationUpdates();
                         }
                     })
@@ -327,6 +335,9 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         public void onClick(View view) {
             mStopRecording.hide();
             mStartRecording.show();
+
+            refresh();
+
             GpsService.getInstance().stopLocationUpdates();
         }
     };

@@ -7,10 +7,20 @@
     android:theme="@style/AppTheme.SelectedListItem">
 
     <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:paddingRight="10dp"
+        android:textSize="20sp" />
+
+    <TextView
         android:id="@+id/length"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="center"
         android:paddingLeft="10dp"
         android:textSize="20sp" />
 
@@ -19,14 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="center"
         android:paddingLeft="10dp"
-        android:textSize="20sp" />
-
-    <TextView
-        android:id="@+id/finished_at"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingRight="10dp"
         android:textSize="20sp" />
 </LinearLayout>

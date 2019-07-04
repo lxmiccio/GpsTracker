@@ -18,13 +18,19 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.Date;
 import java.util.List;
+
+interface GpsListener {
+    void onLocationReceived(TrackPoint trackPoint);
+}
 
 public class GpsService {
 
     private static GpsService mInstance = null;
 
-    private GoogleMapsFragment mMapsFragment;
+    private GpsListener mGpsListener;
+
     private boolean mTracking;
     private Track mTrack;
 
@@ -34,7 +40,6 @@ public class GpsService {
     private DatabaseHelper mDb;
 
     public GpsService() {
-        mMapsFragment = GoogleMapsFragment.getInstance();
         mTracking = false;
 
         mDb = DatabaseHelper.getInstance();
@@ -57,6 +62,10 @@ public class GpsService {
 
     public void createTrack(String name) {
         mTrack = new Track(name);
+    }
+
+    public void setTrack(Track track) {
+        mTrack = track;
     }
 
     public void startLocationUpdates() {
@@ -89,7 +98,6 @@ public class GpsService {
 
         double length = mTrack.getLength();
         mDb.updateTrack(length);
-        mMapsFragment.refresh();
 
         GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
 
@@ -102,6 +110,10 @@ public class GpsService {
 
     public Track getTrack() {
         return mTrack;
+    }
+
+    public void setGpsListener(GpsListener listener) {
+        mGpsListener = listener;
     }
 
     private void checkLocationPermission() {
@@ -142,12 +154,22 @@ public class GpsService {
                 //The last location in the list is the newest
                 Location location = locationList.get(locationList.size() - 1);
 
-                TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
+                Date startingDate = mTrack.getStartingDate();
+                Date currentDate = new Date();
+                long diff =  currentDate.getTime() - startingDate.getTime();
+//                int numOfDays = (int) (diff / (1000 * 60 * 60 * 24));
+//                int hours = (int) (diff / (1000 * 60 * 60));
+//                int minutes = (int) (diff / (1000 * 60));
+//                int seconds = (int) (diff / (1000));
+
+                TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), diff);
                 mTrack.appendPoint(point);
 
                 mDb.createCoordinate(point, mDb.getCurrentTrackId());
 
-                mMapsFragment.drawPoint(point);
+                if (mGpsListener != null) {
+                    mGpsListener.onLocationReceived(point);
+                }
             }
         }
     };

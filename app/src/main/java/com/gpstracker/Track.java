@@ -50,8 +50,9 @@ public class Track {
         mTrackSegment = new TrackSegment();
     }
 
-    public Track(long id, Date startingDate, Date endingDate) {
+    public Track(long id, String name, Date startingDate, Date endingDate) {
         mId = id;
+        mName = name;
         mStartingDate = startingDate;
         mEndingDate = endingDate;
         mTrackSegment = new TrackSegment();
@@ -93,7 +94,7 @@ public class Track {
         return mTrackSegment.getTrackPoints();
     }
 
-    public double getLength() {
+    public int getLength() {
         ArrayList<TrackPoint> points = mTrackSegment.getTrackPoints();
         double length = 0;
 
@@ -113,9 +114,52 @@ public class Track {
             length += a.distanceTo(b);
         }
 
-        Log.d("GpsService", "Track length is " + length);
+        Log.d("Track", "Track length is " + length);
 
-        return length;
+        return (int) length;
+    }
+
+    public TrackPoint getClosestTrackPoint(long time) {
+        TrackPoint closestPoint = null;
+        long minTimeDiff = Long.MAX_VALUE;
+
+        ArrayList<TrackPoint> points = mTrackSegment.getTrackPoints();
+        for (int i = 0; i < points.size() - 1; ++i) {
+            long timeDiff = time - points.get(i).getTime();
+            timeDiff = Math.abs(timeDiff);
+            if (timeDiff < minTimeDiff) {
+                closestPoint = points.get(i);
+                minTimeDiff = timeDiff;
+                Log.d("Track", "Min time difference is " + minTimeDiff);
+            }
+        }
+
+        return closestPoint;
+    }
+
+    public TrackPoint getClosestTrackPoint(TrackPoint point) {
+        TrackPoint closestPoint = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        ArrayList<TrackPoint> points = mTrackSegment.getTrackPoints();
+        for (int i = 0; i < points.size() - 1; ++i) {
+            Location a = new Location("");
+            Location b = new Location("");
+
+            a.setLatitude(points.get(i).getLatitude());
+            a.setLongitude(points.get(i).getLongitude());
+
+            b.setLatitude(point.getLatitude());
+            b.setLongitude(point.getLongitude());
+
+            int distance = (int) a.distanceTo(b);
+            if (distance < minDistance) {
+                closestPoint = points.get(i);
+                minDistance = distance;
+            }
+        }
+
+        return closestPoint;
     }
 
     @Override

@@ -6,7 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +23,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
@@ -33,9 +37,22 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     private SupportMapFragment mMapFragment;
 
+    private Polyline mRoute;
+    private PolylineOptions mRouteOptions;
+    private ArrayList<LatLng> mLatLngs;
+
+    private Polyline mGhostRoute;
+    private PolylineOptions mGhostRouteOptions;
+    private ArrayList<LatLng> mGhostLatLngs;
+
     private Track mTrack;
 
+    private FloatingActionButton mStartRacing;
+    private FloatingActionButton mStopRacing;
+
     public TrackFragment() {
+        mLatLngs = new ArrayList<>();
+        mGhostLatLngs = new ArrayList<>();
     }
 
     public static TrackFragment getInstance() {
@@ -68,6 +85,16 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_track, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        mStartRacing = view.findViewById(R.id.start_racing);
+        mStartRacing.setOnClickListener(mStartRecordingClickListener);
+
+        mStopRacing = view.findViewById(R.id.stop_racing);
+        mStopRacing.setOnClickListener(mStopRecordingClickListener);
+        mStopRacing.hide();
     }
 
     @Override
@@ -139,6 +166,116 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    public void drawPoint(TrackPoint point) {
+
+        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+
+        boolean ignore = false;
+
+        if (mLatLngs.size() == 0) {
+            mLatLngs.add(latLng);
+
+            // Draw new location
+            mRouteOptions = new PolylineOptions();
+            mRouteOptions.color(Color.BLACK);
+            mRouteOptions.visible(true);
+            mRouteOptions.width(8);
+
+            mRouteOptions.add(latLng);
+            mRoute = mMap.addPolyline(mRouteOptions);
+        } else {
+            // Compute distance between previous location
+            Location currentLocation = new Location("");
+            currentLocation.setLatitude(point.getLatitude());
+            currentLocation.setLongitude(point.getLongitude());
+
+            Location previousLocation = new Location("");
+            previousLocation.setLatitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
+            previousLocation.setLongitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
+
+            double distance = currentLocation.distanceTo(previousLocation);
+//            ignore = shouldIgnoreLocationChange(currentLocation, previousLocation);
+
+            // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
+            if (distance >= 0/* && !ignore*/) {
+                mLatLngs.add(latLng);
+            }
+        }
+
+//        if (!ignore) {
+        // Draw marker at current point
+        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
+        circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        circleDrawable.setBounds(0, 0, 30, 30);
+        circleDrawable.draw(canvas);
+
+        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+
+        // Move camera to user location
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//        } else {
+//            Log.d("GoogleMaps", "Location ignored");
+//        }
+    }
+
+    public void drawGhostPoint(TrackPoint point) {
+
+        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+
+        boolean ignore = false;
+
+        if (mGhostLatLngs.size() == 0) {
+            mGhostLatLngs.add(latLng);
+
+            // Draw new location
+            mGhostRouteOptions = new PolylineOptions();
+            mGhostRouteOptions.color(Color.RED);
+            mGhostRouteOptions.visible(true);
+            mGhostRouteOptions.width(8);
+
+            mGhostRouteOptions.add(latLng);
+            mGhostRoute = mMap.addPolyline(mGhostRouteOptions);
+        } else {
+            // Compute distance between previous location
+            Location currentLocation = new Location("");
+            currentLocation.setLatitude(point.getLatitude());
+            currentLocation.setLongitude(point.getLongitude());
+
+            Location previousLocation = new Location("");
+            previousLocation.setLatitude(mGhostLatLngs.get(mGhostLatLngs.size() - 1).latitude);
+            previousLocation.setLongitude(mGhostLatLngs.get(mGhostLatLngs.size() - 1).latitude);
+
+            double distance = currentLocation.distanceTo(previousLocation);
+//            ignore = shouldIgnoreLocationChange(currentLocation, previousLocation);
+
+            // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
+            if (distance >= 0/* && !ignore*/) {
+                mGhostLatLngs.add(latLng);
+            }
+        }
+
+//        if (!ignore) {
+        // Draw marker at current point
+        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
+        circleDrawable.setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
+
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        circleDrawable.setBounds(0, 0, 30, 30);
+        circleDrawable.draw(canvas);
+
+        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+
+//        } else {
+//            Log.d("GoogleMaps", "Location ignored");
+//        }
+    }
+
     public void centerCamera(TrackPoint point) {
         LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -168,4 +305,39 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
     public void clear() {
         mMap.clear();
     }
+
+    private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // Show stop recording button
+            mStartRacing.hide();
+            mStopRacing.show();
+
+            GpsService gpsService = GpsService.getInstance();
+            gpsService.setTrack(mTrack);
+            //gpsService.createSession(mTrack.getName());
+
+            gpsService.setGpsListener(new GpsListener() {
+                @Override
+                public void onLocationReceived(TrackPoint trackPoint) {
+                    drawPoint(trackPoint);
+
+                    TrackPoint point = mTrack.getClosestTrackPoint(trackPoint.getTime());
+                    Log.d("TrackFragment", "Closest point is " + point.toString());
+                    drawGhostPoint(point);
+                }
+            });
+
+            gpsService.startLocationUpdates();
+        }
+    };
+
+    private View.OnClickListener mStopRecordingClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mStopRacing.hide();
+            mStartRacing.show();
+            GpsService.getInstance().stopLocationUpdates();
+        }
+    };
 }

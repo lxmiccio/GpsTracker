@@ -38,9 +38,9 @@ public class TrackAdapter extends ArrayAdapter<Track> {
             convertView = inflater.inflate(R.layout.track_row, null);
 
             viewHolder = new ViewHolder();
+            viewHolder.name = convertView.findViewById(R.id.name);
             viewHolder.length = convertView.findViewById(R.id.length);
             viewHolder.started_at = convertView.findViewById(R.id.started_at);
-            viewHolder.finished_at = convertView.findViewById(R.id.finished_at);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -49,9 +49,9 @@ public class TrackAdapter extends ArrayAdapter<Track> {
         Track track = getItem(position);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        viewHolder.length.setText(String.valueOf(track.getLength()));
+        viewHolder.name.setText(track.getName());
+        viewHolder.length.setText(String.valueOf(track.getLength()) + " m");
         viewHolder.started_at.setText(dateFormat.format(track.getStartingDate()));
-        viewHolder.finished_at.setText(dateFormat.format(track.getEndingDate()));
 
         return convertView;
     }
@@ -94,8 +94,8 @@ public class TrackAdapter extends ArrayAdapter<Track> {
     }
 
     private class ViewHolder {
+        public TextView name;
         public TextView length;
         public TextView started_at;
-        public TextView finished_at;
     }
 }

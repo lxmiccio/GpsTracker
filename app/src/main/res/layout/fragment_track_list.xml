@@ -16,31 +16,34 @@
         android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Nome"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/length"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingLeft="10dp"
+                android:gravity="center"
                 android:text="Lunghezza"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/started_at"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingLeft="10dp"
-                android:text="Iniziata il"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/finished_at"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingRight="10dp"
-                android:text="Finita il"
-                android:textSize="20sp" />
+                android:gravity="center"
+                android:text="Registrata il"
+                android:textSize="20sp"
+                android:textStyle="bold" />
     </LinearLayout>
 
         <ListView
