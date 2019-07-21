@@ -1,10 +1,9 @@
 package com.gpstracker;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,22 +16,23 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class TrackListFragment extends Fragment {
+public class SessionListFragment extends Fragment {
 
-    private TrackAdapter mTrackAdapter;
+    private SessionAdapter mSessionAdapter;
     private ListView mListView;
 
+    private Track mTrack;
     private DatabaseHelper mDb;
 
-    private SessionListFragment mSessionListFragment;
+    private TrackFragment mTrackFragment;
 
-    public TrackListFragment() {
+    public SessionListFragment() {
         // Required empty public constructor
         mDb = DatabaseHelper.getInstance();
     }
 
-    public static TrackListFragment getInstance() {
-        TrackListFragment fragment = new TrackListFragment();
+    public static SessionListFragment getInstance() {
+        SessionListFragment fragment = new SessionListFragment();
         return fragment;
     }
 
@@ -44,29 +44,28 @@ public class TrackListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_track_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_session_list, container, false);
 
-        ArrayList<Track> tracks = mDb.getAllTracks();
-        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
-        mListView = view.findViewById(R.id.track_list);
-        mListView.setAdapter(mTrackAdapter);
+        ArrayList<Session> sessions = mDb.getSessionsByTrack(mTrack.getId());
+        mSessionAdapter = new SessionAdapter(sessions, MainActivity.getContext());
+        mListView = view.findViewById(R.id.session_list);
+        mListView.setAdapter(mSessionAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ArrayList<Track> tracks = mTrackAdapter.getTracks();
-                Track track = tracks.get(position);
+                ArrayList<Session> sessions = mSessionAdapter.getSessions();
+                Session session = sessions.get(position);
 
-                mSessionListFragment = SessionListFragment.getInstance();
-                mSessionListFragment.setTrack(track);
+                mTrackFragment = TrackFragment.getInstance();
+                //mTrackFragment.setTrack(track);
 
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container, mSessionListFragment)
-                        .commit();
+                // Add fragment to BackStack so that when the back button is pressed, the inner fragment is removed
+                FragmentActivity fragmentActivity = (FragmentActivity) getActivity();
+                fragmentActivity.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, mTrackFragment)
+                        .addToBackStack("TrackFragment").commit();
             }
         });
-        //mListView.setBackgroundResource(R.drawable.list_selected_item);
-
 
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
@@ -86,15 +85,15 @@ public class TrackListFragment extends Fragment {
                 switch (item.getItemId()) {
                     case R.id.delete:
                         // Calls getSelectedIds method from ListViewAdapter Class
-                        SparseBooleanArray selected = mTrackAdapter.getSelectedIds();
+                        SparseBooleanArray selected = mSessionAdapter.getSelectedIds();
 
                         // Captures all selected ids with a loop
                         for (int i = (selected.size() - 1); i >= 0; i--) {
                             if (selected.valueAt(i)) {
-                                Track selectedItem = mTrackAdapter.getItem(selected.keyAt(i));
+                                Session selectedItem = mSessionAdapter.getItem(selected.keyAt(i));
 
                                 // Remove selected items following the ids
-                                mTrackAdapter.remove(selectedItem);
+                                mSessionAdapter.remove(selectedItem);
                             }
                         }
                         // Close CAB
@@ -107,7 +106,7 @@ public class TrackListFragment extends Fragment {
 
             @Override
             public void onDestroyActionMode(android.view.ActionMode mode) {
-                mTrackAdapter.removeSelection();
+                mSessionAdapter.removeSelection();
             }
 
             @Override
@@ -118,17 +117,15 @@ public class TrackListFragment extends Fragment {
                 // Set the CAB title according to total checked items
                 mode.setTitle(checkedCount + " Selected");
                 // Calls toggleSelection method from ListViewAdapter Class
-                mTrackAdapter.toggleSelection(position);
+                mSessionAdapter.toggleSelection(position);
             }
         });
 
         return view;
     }
 
-    public void refresh() {
-        ArrayList<Track> tracks = mDb.getAllTracks();
-        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
-        mListView.setAdapter(mTrackAdapter);
+    public void setTrack(Track track) {
+        mTrack = track;
     }
 
     @Override

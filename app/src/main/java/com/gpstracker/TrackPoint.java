@@ -1,5 +1,7 @@
 package com.gpstracker;
 
+import android.location.Location;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
@@ -34,6 +36,19 @@ public class TrackPoint {
         mTime = time;
     }
 
+    public float distanceTo(TrackPoint point) {
+        Location a = new Location("");
+        Location b = new Location("");
+
+        a.setLatitude(mLatitude);
+        a.setLongitude(mLongitude);
+
+        b.setLatitude(point.getLatitude());
+        b.setLongitude(point.getLongitude());
+
+        return a.distanceTo(b);
+    }
+
     public double getAltitude() {
         return mAltitude;
     }
@@ -52,6 +67,10 @@ public class TrackPoint {
 
     public float getSpeed() {
         return mSpeed;
+    }
+
+    public void setSpeed(float speed) {
+        mSpeed = speed;
     }
 
     public long getTime() {

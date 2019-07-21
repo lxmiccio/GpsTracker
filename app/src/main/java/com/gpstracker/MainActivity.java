@@ -23,16 +23,14 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         CoordinateListFragment.OnFragmentInteractionListener,
-        GoogleMapsFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener,
-        TrackListFragment.OnFragmentInteractionListener {
+        SettingsFragment.OnFragmentInteractionListener {
 
     static final int SMS_PERMISSION_CODE = 1;
     static final int PHONE_ACCESS_FINE_LOCATION = 4;
     static final int PHONE_ACCESS_COARSE_LOCATION = 5;
 
     static Context mContext;
-    private GoogleMapsFragment mGoogleMapsFragment;
+    private MapsFragment mMapsFragment;
     private CoordinateListFragment mCoordinatesListFragment;
     private TrackListFragment mTrackListFragment;
     private SettingsFragment mSettingsFragment;
@@ -62,10 +60,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState == null) {
-                mGoogleMapsFragment = GoogleMapsFragment.getInstance();
-                mGoogleMapsFragment.setArguments(getIntent().getExtras());
+                mMapsFragment = MapsFragment.getInstance();
+                mMapsFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, mGoogleMapsFragment).commit();
+                        .add(R.id.fragment_container, mMapsFragment).commit();
             }
         }
 
@@ -100,10 +98,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getFragmentManager().popBackStackImmediate();
         } else if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
-            getSupportFragmentManager().beginTransaction().show(mGoogleMapsFragment).commit();
+            getSupportFragmentManager().beginTransaction().show(mMapsFragment).commit();
 
-            mGoogleMapsFragment.setMapType(getMapType());
-            mGoogleMapsFragment.refresh();
+            mMapsFragment.setMapType(getMapType());
+            mMapsFragment.refresh();
         } else {
             //Already in main page
         }
@@ -138,8 +136,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(mGoogleMapsFragment)
-                        .addToBackStack(GoogleMapsFragment.TAG)
+                supportFragmentTransaction.remove(mMapsFragment)
+                        .addToBackStack(MapsFragment.TAG)
                         .commit();
             }
 
@@ -153,8 +151,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(mGoogleMapsFragment)
-                        .addToBackStack(GoogleMapsFragment.TAG)
+                supportFragmentTransaction.remove(mMapsFragment)
+                        .addToBackStack(MapsFragment.TAG)
                         .commit();
             }
 
@@ -167,8 +165,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(mGoogleMapsFragment)
-                        .addToBackStack(GoogleMapsFragment.TAG)
+                supportFragmentTransaction.remove(mMapsFragment)
+                        .addToBackStack(MapsFragment.TAG)
                         .commit();
             }
 

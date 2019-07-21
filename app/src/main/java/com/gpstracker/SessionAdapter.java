@@ -8,19 +8,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
-public class TrackAdapter extends ArrayAdapter<Track> {
+public class SessionAdapter extends ArrayAdapter<Session> {
 
-    private ArrayList<Track> mDataSet;
+    private ArrayList<Session> mDataSet;
     private SparseBooleanArray mSelectedItems;
 
     private DatabaseHelper mDb;
 
-    public TrackAdapter(ArrayList<Track> data, Context context) {
-        super(context, R.layout.track_row, data);
+    public SessionAdapter(ArrayList<Session> data, Context context) {
+        super(context, R.layout.session_row, data);
 
         mDataSet = data;
         mSelectedItems = new SparseBooleanArray();
@@ -35,33 +33,34 @@ public class TrackAdapter extends ArrayAdapter<Track> {
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.track_row, null);
+            convertView = inflater.inflate(R.layout.session_row, null);
 
             viewHolder = new ViewHolder();
             viewHolder.name = convertView.findViewById(R.id.name);
-            viewHolder.sessions = convertView.findViewById(R.id.sessions);
-            viewHolder.created_at = convertView.findViewById(R.id.created_at);
+            viewHolder.length = convertView.findViewById(R.id.length);
+            viewHolder.time = convertView.findViewById(R.id.time);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        Track track = getItem(position);
+        Session session = getItem(position);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        viewHolder.name.setText(track.getName());
-        viewHolder.sessions.setText(/*String.valueOf(track.getLength())*/ 50 + " m");
-        viewHolder.created_at.setText(dateFormat.format(track.getCreatedAt()));
+        viewHolder.name.setText("Name");
+        viewHolder.length.setText(String.valueOf(session.getLength()) + " m");
+        String minutes = String.valueOf(session.getDuration() / 60);
+        String seconds = String.valueOf(session.getDuration() % 60);
+        viewHolder.time.setText(minutes + ":" + seconds);
 
         return convertView;
     }
 
     @Override
-    public void remove(Track track) {
-        mDataSet.remove(track);
+    public void remove(Session session) {
+        mDataSet.remove(session);
         notifyDataSetChanged();
 
-        mDb.deleteTrack(track.getId());
+        mDb.deleteSession(session.getId());
     }
 
     public void toggleSelection(int position) {
@@ -89,13 +88,13 @@ public class TrackAdapter extends ArrayAdapter<Track> {
         return mSelectedItems;
     }
 
-    public ArrayList<Track> getTracks() {
+    public ArrayList<Session> getSessions() {
         return mDataSet;
     }
 
     private class ViewHolder {
         public TextView name;
-        public TextView sessions;
-        public TextView created_at;
+        public TextView length;
+        public TextView time;
     }
 }

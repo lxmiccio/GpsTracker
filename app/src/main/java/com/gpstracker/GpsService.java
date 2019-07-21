@@ -18,6 +18,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class GpsService {
 
     private boolean mTracking;
     private Track mTrack;
+    private Session mSession;
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -68,15 +70,18 @@ public class GpsService {
         mTrack = track;
     }
 
+    public void createSession(String name) {
+        mSession = new Session();
+    }
+
     public void startLocationUpdates() {
         if (mTrack != null) {
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     //Location Permission already granted
                     mTracking = true;
-                    long trackId = mDb.createTrack(mTrack.getName());
-                    Log.d("GpsService", "Starting recording, trackId is " + trackId);
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                    initSession();
                 } else {
                     //Request Location Permission
                     Log.d("GpsService", "checkLocationPermission");
@@ -85,9 +90,8 @@ public class GpsService {
             } else {
                 //Request Location Permission
                 mTracking = true;
-                long trackId = mDb.createTrack(mTrack.getName());
-                Log.d("GpsService", "Starting recording, trackId is " + trackId);
                 mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                initSession();
             }
         }
     }
@@ -96,12 +100,18 @@ public class GpsService {
         mTracking = false;
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
-        double length = mTrack.getLength();
-        mDb.updateTrack(length);
+        double length = mSession.getLength();
+        mDb.createTrack(mTrack.getName());
+        mDb.updateSession(length);
 
-        GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
+//        GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
 
         mTrack = null;
+        mSession = null;
+    }
+
+    private void initSession() {
+        mSession = new Session();
     }
 
     public boolean isTracking() {
@@ -110,6 +120,10 @@ public class GpsService {
 
     public Track getTrack() {
         return mTrack;
+    }
+
+    public Session getSession() {
+        return mSession;
     }
 
     public void setGpsListener(GpsListener listener) {
@@ -154,16 +168,34 @@ public class GpsService {
                 //The last location in the list is the newest
                 Location location = locationList.get(locationList.size() - 1);
 
-                Date startingDate = mTrack.getStartingDate();
-                Date currentDate = new Date();
-                long diff =  currentDate.getTime() - startingDate.getTime();
+//                Date startingDate = mTrack.getStartingDate();
+//                Date currentDate = new Date();
+//                long diff = currentDate.getTime() - startingDate.getTime();
 //                int numOfDays = (int) (diff / (1000 * 60 * 60 * 24));
 //                int hours = (int) (diff / (1000 * 60 * 60));
 //                int minutes = (int) (diff / (1000 * 60));
 //                int seconds = (int) (diff / (1000));
 
+                Date startingDate = mSession.getStartingDate();
+                Date currentDate = new Date();
+                long diff =  currentDate.getTime() - startingDate.getTime();
+
                 TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), diff);
-                mTrack.appendPoint(point);
+
+
+                float speed = 0;
+                ArrayList<TrackPoint> points = mSession.getPoints();
+                if(points.size() > 0) {
+                    TrackPoint previousPoint = points.get(points.size() - 1);
+                    float distance = point.distanceTo(previousPoint);
+                    float elapsedTime = point.getTime() - previousPoint.getTime();
+                    speed =  distance / (elapsedTime / 1000);
+                    // Convert speed from m/s to km/h
+                    speed *= 3.6;
+                    point.setSpeed(speed);
+                }
+
+                mSession.appendPoint(point);
 
                 mDb.createCoordinate(point, mDb.getCurrentTrackId());
 

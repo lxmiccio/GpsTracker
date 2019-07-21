@@ -1,6 +1,5 @@
 package com.gpstracker;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,15 +7,15 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -28,31 +27,25 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-import static android.content.Context.MODE_PRIVATE;
-
-public class TrackFragment extends Fragment implements OnMapReadyCallback {
+public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallback {
 
     private static TrackFragment mInstance = null;
-
-    private GoogleMap mMap;
-    private SupportMapFragment mMapFragment;
-
-    private Polyline mRoute;
-    private PolylineOptions mRouteOptions;
-    private ArrayList<LatLng> mLatLngs;
 
     private Polyline mGhostRoute;
     private PolylineOptions mGhostRouteOptions;
     private ArrayList<LatLng> mGhostLatLngs;
 
-    private Track mTrack;
+    private Session mSession;
+
+    private TextView mGhostDistance;
+    private TextView mDistance;
+    private TextView mDifference;
 
     private FloatingActionButton mStartRacing;
     private FloatingActionButton mStopRacing;
 
     public TrackFragment() {
-        mLatLngs = new ArrayList<>();
-        mGhostLatLngs = new ArrayList<>();
+        super();
     }
 
     public static TrackFragment getInstance() {
@@ -60,11 +53,6 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
             mInstance = new TrackFragment();
         }
         return mInstance;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -89,6 +77,16 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+
+        mGhostDistance = view.findViewById(R.id.ghost_distance);
+        mGhostDistance.setVisibility(View.INVISIBLE);
+
+        mDistance = view.findViewById(R.id.distance);
+        mDistance.setVisibility(View.INVISIBLE);
+
+        mDifference = view.findViewById(R.id.difference);
+        mDistance.setVisibility(View.INVISIBLE);
+
         mStartRacing = view.findViewById(R.id.start_racing);
         mStartRacing.setOnClickListener(mStartRecordingClickListener);
 
@@ -98,128 +96,18 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        setZoomControls(true);
-
+        super.onMapReady(googleMap);
         clear();
-        if (mTrack != null) {
-            drawTrack(mTrack);
+        if (mSession != null) {
+            drawSession(mSession);
         } else {
             Log.w("TrackFragment", "Track is null");
         }
-
-        setMapType(MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal"));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15f));
     }
 
-    public void setTrack(Track track) {
-        mTrack = track;
-    }
-
-    public void drawTrack(Track track) {
-        Log.d("TrackFragment", "Drawing track " + track.toString());
-
-        PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.BLACK);
-        polylineOptions.visible(true);
-        polylineOptions.width(8);
-
-        ArrayList<TrackPoint> points = track.getPoints();
-        for (int i = 0; i < points.size(); ++i) {
-            LatLng latLng = new LatLng(points.get(i).getLatitude(), points.get(i).getLongitude());
-            polylineOptions.add(latLng);
-
-            if (i == 0) {
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at beginning"));
-            } else if (i == points.size() - 1) {
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at end"));
-            } else {
-                // Draw marker at current point
-                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
-                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-
-                Canvas canvas = new Canvas();
-                Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
-                canvas.setBitmap(bitmap);
-                circleDrawable.setBounds(0, 0, 30, 30);
-                circleDrawable.draw(canvas);
-
-                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
-            }
-        }
-
-        mMap.addPolyline(polylineOptions);
-
-        if (points.size() > 0) {
-            centerCamera(points.get(0));
-        }
-    }
-
-    public void drawPoint(TrackPoint point) {
-
-        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
-
-        boolean ignore = false;
-
-        if (mLatLngs.size() == 0) {
-            mLatLngs.add(latLng);
-
-            // Draw new location
-            mRouteOptions = new PolylineOptions();
-            mRouteOptions.color(Color.BLACK);
-            mRouteOptions.visible(true);
-            mRouteOptions.width(8);
-
-            mRouteOptions.add(latLng);
-            mRoute = mMap.addPolyline(mRouteOptions);
-        } else {
-            // Compute distance between previous location
-            Location currentLocation = new Location("");
-            currentLocation.setLatitude(point.getLatitude());
-            currentLocation.setLongitude(point.getLongitude());
-
-            Location previousLocation = new Location("");
-            previousLocation.setLatitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
-            previousLocation.setLongitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
-
-            double distance = currentLocation.distanceTo(previousLocation);
-//            ignore = shouldIgnoreLocationChange(currentLocation, previousLocation);
-
-            // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
-            if (distance >= 0/* && !ignore*/) {
-                mLatLngs.add(latLng);
-            }
-        }
-
-//        if (!ignore) {
-        // Draw marker at current point
-        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
-        circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-
-        Canvas canvas = new Canvas();
-        Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
-        canvas.setBitmap(bitmap);
-        circleDrawable.setBounds(0, 0, 30, 30);
-        circleDrawable.draw(canvas);
-
-        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
-
-        // Move camera to user location
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//        } else {
-//            Log.d("GoogleMaps", "Location ignored");
-//        }
+    public void setSession(Session session) {
+        mSession = session;
     }
 
     public void drawGhostPoint(TrackPoint point) {
@@ -276,36 +164,6 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
 //        }
     }
 
-    public void centerCamera(TrackPoint point) {
-        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-    }
-
-    public void setZoomControls(boolean status) {
-        mMap.getUiSettings().setZoomControlsEnabled(status);
-    }
-
-    public void setMapType(String type) {
-        switch (type) {
-            case "Normal":
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                break;
-            case "Satellite":
-                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                break;
-            case "Terrain":
-                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                break;
-            case "Hybrid":
-                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                break;
-        }
-    }
-
-    public void clear() {
-        mMap.clear();
-    }
-
     private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -313,22 +171,48 @@ public class TrackFragment extends Fragment implements OnMapReadyCallback {
             mStartRacing.hide();
             mStopRacing.show();
 
-            GpsService gpsService = GpsService.getInstance();
-            gpsService.setTrack(mTrack);
-            //gpsService.createSession(mTrack.getName());
+//            ??????????
+//            GpsService gpsService = GpsService.getInstance();
+//            gpsService.setTrack(mTrack);
+//            gpsService.createSession(mTrack.getName());
 
+            GpsService gpsService = GpsService.getInstance();
             gpsService.setGpsListener(new GpsListener() {
                 @Override
                 public void onLocationReceived(TrackPoint trackPoint) {
                     drawPoint(trackPoint);
 
-                    TrackPoint point = mTrack.getClosestTrackPoint(trackPoint.getTime());
-                    Log.d("TrackFragment", "Closest point is " + point.toString());
-                    drawGhostPoint(point);
+                    TrackPoint closestPoint = mSession.getClosestTrackPoint(trackPoint.getTime());
+                    Log.d("TrackFragment", "Closest point is " + closestPoint.toString());
+                    drawGhostPoint(closestPoint);
+
+                    int ghostTraveledDistance = mSession.getTraveledDistance(trackPoint.getTime());
+                    mGhostDistance.setText(String.valueOf(ghostTraveledDistance) + " m");
+                    mGhostDistance.setVisibility(View.VISIBLE);
+
+                    int traveledDistance = mSession.getTraveledDistance(trackPoint.getTime());
+                    mDistance.setText(String.valueOf(traveledDistance) + " m");
+                    mDistance.setVisibility(View.VISIBLE);
+
+                    int difference = traveledDistance - ghostTraveledDistance;
+                    mDifference.setText(String.valueOf(difference) + " m");
+                    mDifference.setVisibility(View.VISIBLE);
+
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("TrackFragment", "Timer timed out");
+                            mGhostDistance.setVisibility(View.INVISIBLE);
+                            mDistance.setVisibility(View.INVISIBLE);
+                            mDifference.setVisibility(View.INVISIBLE);
+                        }
+                    }, 2500);  //the time is in milliseconds
                 }
             });
 
             gpsService.startLocationUpdates();
+            // handler.removeCallbacksAndMessages(null); To stop
         }
     };
 

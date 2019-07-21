@@ -41,12 +41,12 @@ public class Gpx {
     }
 
     public void appendPoint(TrackPoint point) {
-        mTrack.appendPoint(point);
+        //mTrack.appendPoint(point);
     }
 
     public void appendPoint(Location location) {
         TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
-        mTrack.appendPoint(point);
+        //mTrack.appendPoint(point);
     }
 
     public void save(File path, String name) {
