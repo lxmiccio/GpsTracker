@@ -16,7 +16,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise db won't update
-    private static final int DATABASE_VERSION = 30;
+    private static final int DATABASE_VERSION = 60;
 
     // Database Name
     private static final String DATABASE_NAME = "GpsTracker";
@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_FINISHED_AT + " DATETIME,"
             + KEY_CREATED_AT + " DATETIME,"
             + KEY_TRACK_ID + " INTEGER,"
-            + " FOREIGN KEY (" + KEY_TRACK_ID + ") REFERENCES " + TABLE_TRACK + " (" + KEY_TRACK_ID + "))";
+            + " FOREIGN KEY (" + KEY_TRACK_ID + ") REFERENCES " + TABLE_TRACK + " (" + KEY_ID + ") ON DELETE CASCADE)";
 
     // Coordinates table create statement
     private static final String CREATE_TABLE_COORDINATE = "CREATE TABLE "
@@ -69,7 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_TIME + " NUMBER,"
             + KEY_CREATED_AT + " DATETIME,"
             + KEY_SESSION_ID + " INTEGER,"
-            + " FOREIGN KEY (" + KEY_SESSION_ID + ") REFERENCES " + TABLE_SESSION + " (" + KEY_ID + "))";
+            + " FOREIGN KEY (" + KEY_SESSION_ID + ") REFERENCES " + TABLE_SESSION + " (" + KEY_ID + ") ON DELETE CASCADE)";
 
     private static DatabaseHelper mInstance = null;
 
@@ -90,6 +90,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_TRACK);
         db.execSQL(CREATE_TABLE_SESSION);
         db.execSQL(CREATE_TABLE_COORDINATE);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        db.execSQL("PRAGMA foreign_keys=ON");
     }
 
     @Override
@@ -128,8 +134,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteTrack(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_COORDINATE + " WHERE " + KEY_SESSION_ID + " = " + id);
-        db.execSQL("DELETE FROM " + TABLE_SESSION + " WHERE " + KEY_TRACK_ID + " = " + id);
         db.execSQL("DELETE FROM " + TABLE_TRACK + " WHERE " + KEY_ID + " = " + id);
         db.close();
     }
@@ -152,10 +156,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // looping through rows to retrieve the track id
         long trackId = -1;
         if (cursor.moveToFirst()) {
-            do {
-                trackId = cursor.getLong(cursor.getColumnIndex(KEY_TRACK_ID));
-                break;
-            } while (cursor.moveToNext());
+            trackId = cursor.getLong(cursor.getColumnIndex(KEY_TRACK_ID));
         }
 
         db.execSQL("DELETE FROM " + TABLE_SESSION + " WHERE " + KEY_ID + " = " + id);
@@ -163,7 +164,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_TRACK_ID + " = " + trackId;
         cursor = db.rawQuery(selectQuery, null);
 
-        int count = cursor.getCount();
         if (cursor.getCount() == 0) {
             db.execSQL("DELETE FROM " + TABLE_TRACK + " WHERE " + KEY_ID + " = " + trackId);
         }
@@ -172,17 +172,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void updateSession(double length) {
-        /* TO UPDATE */
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + TABLE_SESSION;
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        long sessionId = -1;
-        if (cursor.moveToLast()) {
-            sessionId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
-        }
-        cursor.close();
-
+        long sessionId =  getCurrentSessionId();
         db.execSQL("UPDATE " + TABLE_SESSION + " SET " + KEY_SESSION_LENGTH + " = " + length + ", " + KEY_FINISHED_AT + " = '" + getCurrentDateTime() + "' WHERE id = " + sessionId);
     }
 
@@ -276,6 +267,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
 
         return trackId;
+    }
+
+    public long getCurrentSessionId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT * FROM " + TABLE_SESSION;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        long sessionId = -1;
+        if (cursor.moveToLast()) {
+            sessionId = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+        }
+        cursor.close();
+
+        return sessionId;
     }
 
     public long createCoordinate(TrackPoint point, long sessionId) {

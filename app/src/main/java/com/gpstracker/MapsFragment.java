@@ -3,6 +3,7 @@ package com.gpstracker;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
@@ -20,15 +21,20 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     public final static String TAG = "MapsFragment";
     private static MapsFragment mInstance = null;
 
+    private long mStartingTime;
+    private Handler mTimerHandler;
+
     private TextView mLatitudeText;
     private TextView mLongitudeText;
     private TextView mSpeedText;
+    private TextView mChronometer;
 
     private FloatingActionButton mStartRecording;
     private FloatingActionButton mStopRecording;
 
     public MapsFragment() {
         super();
+        mTimerHandler = new Handler();
     }
 
     public static MapsFragment getInstance() {
@@ -63,6 +69,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         mLatitudeText = view.findViewById(R.id.latitude);
         mLongitudeText = view.findViewById(R.id.longitude);
         mSpeedText = view.findViewById(R.id.speed);
+        mChronometer = view.findViewById(R.id.chronometer);
 
         mStartRecording = view.findViewById(R.id.start_recording);
         mStartRecording.setOnClickListener(mStartRecordingClickListener);
@@ -109,7 +116,13 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
                             gpsService.setGpsListener(mGpsListener);
 
+                            // start location updates
                             gpsService.startLocationUpdates();
+
+                            // start session timer
+                            mStartingTime = System.currentTimeMillis();
+                            mTimerHandler.removeCallbacks(mTimerTask);
+                            mTimerHandler.postDelayed(mTimerTask, 1000);
                         }
                     })
                     .setNegativeButton(R.string.track_name_no, new DialogInterface.OnClickListener() {
@@ -128,11 +141,16 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             mLatitudeText.setVisibility(View.INVISIBLE);
             mLongitudeText.setVisibility(View.INVISIBLE);
             mSpeedText.setVisibility(View.INVISIBLE);
+            mChronometer.setVisibility(View.INVISIBLE);
 
             mStopRecording.hide();
             mStartRecording.show();
 
+            // stop location updates
             GpsService.getInstance().stopLocationUpdates();
+
+            // stop session timer
+            mTimerHandler.removeCallbacks(mTimerTask);
 
             refresh();
         }
@@ -152,6 +170,31 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             }
 
             drawPoint(trackPoint);
+        }
+    };
+
+
+    private Runnable mTimerTask = new Runnable() {
+        public void run() {
+            long unixTime = System.currentTimeMillis();
+            long difference = unixTime - mStartingTime;
+            difference /= 1000;
+
+
+            String minutes = String.valueOf(difference / 60);
+            minutes = String.format("%1$" + 2 + "s", minutes).replace(' ', '0');
+
+            String seconds = String.valueOf(difference % 60);
+            seconds = String.format("%1$" + 2 + "s", seconds).replace(' ', '0');
+
+            String time = minutes + ":" + seconds;
+            mChronometer.setText("Tempo: " + time);
+
+            if (mChronometer.getVisibility() == View.INVISIBLE) {
+                mChronometer.setVisibility(View.VISIBLE);
+            }
+
+            mTimerHandler.postDelayed(mTimerTask, 1000);
         }
     };
 }

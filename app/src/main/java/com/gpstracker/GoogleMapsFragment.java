@@ -128,7 +128,6 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void drawSession(Session session) {
-
         PolylineOptions polylineOptions = new PolylineOptions();
         polylineOptions.color(Color.BLACK);
         polylineOptions.visible(true);
@@ -159,6 +158,10 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         }
 
         mMap.addPolyline(polylineOptions);
+
+        if (points.size() > 0) {
+            centerCamera(points.get(points.size() - 1));
+        }
     }
 
     public void drawSessions(ArrayList<Session> sessions) {
@@ -178,6 +181,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     public void centerCamera(TrackPoint point) {
         LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(18f));
     }
 
     public void setZoomControls(boolean status) {

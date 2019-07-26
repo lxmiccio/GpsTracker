@@ -59,4 +59,13 @@
         android:visibility="invisible"
         android:text="Velocità: " />
 
+    <TextView
+        android:id="@+id/chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="12dp"
+        android:layout_marginTop="65dp"
+        android:visibility="invisible"
+        android:text="Tempo: " />
+
 </FrameLayout>

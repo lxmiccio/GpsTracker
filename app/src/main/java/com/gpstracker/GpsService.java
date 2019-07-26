@@ -64,6 +64,7 @@ public class GpsService {
 
     public void createTrack(String name) {
         mTrack = new Track(name);
+        mDb.createTrack(mTrack.getName());
     }
 
     public void setTrack(Track track) {
@@ -101,7 +102,6 @@ public class GpsService {
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
         double length = mSession.getLength();
-        mDb.createTrack(mTrack.getName());
         mDb.updateSession(length);
 
 //        GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
@@ -182,7 +182,6 @@ public class GpsService {
 
                 TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), diff);
 
-
                 float speed = 0;
                 ArrayList<TrackPoint> points = mSession.getPoints();
                 if(points.size() > 0) {
@@ -197,7 +196,7 @@ public class GpsService {
 
                 mSession.appendPoint(point);
 
-                mDb.createCoordinate(point, mDb.getCurrentTrackId());
+                mDb.createCoordinate(point, mDb.getCurrentSessionId());
 
                 if (mGpsListener != null) {
                     mGpsListener.onLocationReceived(point);
