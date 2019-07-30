@@ -62,11 +62,11 @@ public class TrackListFragment extends Fragment {
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.fragment_container, mSessionListFragment)
+                        .addToBackStack("SessionListFragment")
                         .commit();
             }
         });
         //mListView.setBackgroundResource(R.drawable.list_selected_item);
-
 
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {

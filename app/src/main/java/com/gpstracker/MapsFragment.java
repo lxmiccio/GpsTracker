@@ -21,20 +21,15 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     public final static String TAG = "MapsFragment";
     private static MapsFragment mInstance = null;
 
-    private long mStartingTime;
-    private Handler mTimerHandler;
-
     private TextView mLatitudeText;
     private TextView mLongitudeText;
     private TextView mSpeedText;
-    private TextView mChronometer;
 
     private FloatingActionButton mStartRecording;
     private FloatingActionButton mStopRecording;
 
     public MapsFragment() {
         super();
-        mTimerHandler = new Handler();
     }
 
     public static MapsFragment getInstance() {
@@ -170,31 +165,6 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             }
 
             drawPoint(trackPoint);
-        }
-    };
-
-
-    private Runnable mTimerTask = new Runnable() {
-        public void run() {
-            long unixTime = System.currentTimeMillis();
-            long difference = unixTime - mStartingTime;
-            difference /= 1000;
-
-
-            String minutes = String.valueOf(difference / 60);
-            minutes = String.format("%1$" + 2 + "s", minutes).replace(' ', '0');
-
-            String seconds = String.valueOf(difference % 60);
-            seconds = String.format("%1$" + 2 + "s", seconds).replace(' ', '0');
-
-            String time = minutes + ":" + seconds;
-            mChronometer.setText("Tempo: " + time);
-
-            if (mChronometer.getVisibility() == View.INVISIBLE) {
-                mChronometer.setVisibility(View.VISIBLE);
-            }
-
-            mTimerHandler.postDelayed(mTimerTask, 1000);
         }
     };
 }

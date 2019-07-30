@@ -14,6 +14,9 @@ public class Session {
     private Date mStartingDate;
     private Date mEndingDate;
 
+    @Element(name = "name")
+    private String mName;
+
     @Element(name = "trkseg")
     private TrackSegment mTrackSegment;
 
@@ -21,6 +24,7 @@ public class Session {
         mId = -1;
         mStartingDate = new Date();
         mEndingDate = new Date();
+        mName = "Prova";
         mTrackSegment = new TrackSegment();
     }
 
@@ -28,6 +32,7 @@ public class Session {
         mId = id;
         mStartingDate = startingDate;
         mEndingDate = endingDate;
+        mName = "Prova";
         mTrackSegment = new TrackSegment();
     }
 
@@ -149,6 +154,10 @@ public class Session {
 
     public TrackSegment getTrackSegment() {
         return mTrackSegment;
+    }
+
+    public String getName() {
+        return mName;
     }
 
     public ArrayList<TrackPoint> getPoints() {

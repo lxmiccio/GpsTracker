@@ -20,33 +20,27 @@ public class Gpx {
     private String creator;
 
     @Element(name = "trk")
-    private Track mTrack;
+    private Session mSession;
 
     public Gpx() {
         version = "1.1";
         creator = "FVDL";
-        mTrack = new Track();
+        mSession = new Session();
     }
 
-    public Gpx(String name) {
+    public Gpx(Session session) {
         version = "1.1";
         creator = "FVDL";
-        mTrack = new Track(name);
-    }
-
-    public Gpx(Track track) {
-        version = "1.1";
-        creator = "FVDL";
-        mTrack = track;
+        mSession = session;
     }
 
     public void appendPoint(TrackPoint point) {
-        //mTrack.appendPoint(point);
+        mSession.appendPoint(point);
     }
 
     public void appendPoint(Location location) {
         TrackPoint point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), location.getTime());
-        //mTrack.appendPoint(point);
+        mSession.appendPoint(point);
     }
 
     public void save(File path, String name) {
@@ -59,12 +53,12 @@ public class Gpx {
         }
     }
 
-    public Track getTrack() {
-        return mTrack;
+    public Session getSession() {
+        return mSession;
     }
 
     @Override
     public String toString() {
-        return "Gpx {" + mTrack + '}';
+        return "Gpx {" + mSession + '}';
     }
 }

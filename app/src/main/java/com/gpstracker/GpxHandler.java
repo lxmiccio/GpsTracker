@@ -6,16 +6,17 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class GpxHandler {
 
-    static public void saveGpx(File path, Track track) {
-        Gpx gpx = new Gpx(track);
+    static public void saveGpx(File path, Session session) {
+        Gpx gpx = new Gpx(session);
 
         Log.d("GpxHandler", "path is " + path);
-        Log.d("GpxHandler", "name is " + track.getName());
+        Log.d("GpxHandler", "name is " + session.getName());
         Serializer serializer = new Persister();
-        File result = new File(path, track.getName() + ".gpx");
+        File result = new File(path, session.getName() + ".gpx");
         try {
             serializer.write(gpx, result);
         } catch (Exception e) {
@@ -59,5 +60,49 @@ public class GpxHandler {
         //        e.printStackTrace();
         //    }
         //}
+    }
+
+    static public void saveGpx(File path, Session session, String name) {
+        Gpx gpx = new Gpx(session);
+
+        Log.d("GpxHandler", "path is " + path);
+        Log.d("GpxHandler", "name is " + name);
+        Serializer serializer = new Persister();
+        File result = new File(path, name + ".gpx");
+        try {
+            serializer.write(gpx, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static public Gpx loadGpx(File path, String name) {
+        File source = new File(path, name + ".gpx");
+        Serializer serializer = new Persister();
+
+        Gpx gpx = null;
+        try {
+            gpx = serializer.read(Gpx.class, source, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return gpx;
+    }
+
+    static ArrayList<String> getTracksList(File path) {
+        ArrayList<String> tracksList = new ArrayList<>();
+        File[] files = new File(path.getAbsolutePath()).listFiles();
+        if (files != null) {
+            for (File iFile : files) {
+                if (iFile.getAbsolutePath().endsWith(".gpx")) {
+                    String name = iFile.getAbsolutePath();
+                    name = name.substring(name.lastIndexOf("/") + 1);
+                    name = name.substring(0, name.length() - 4);
+                    tracksList.add(name);
+                }
+            }
+        }
+        return tracksList;
     }
 }

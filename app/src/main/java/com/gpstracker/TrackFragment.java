@@ -7,7 +7,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
@@ -21,6 +20,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -33,12 +33,18 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
 
     private Polyline mGhostRoute;
     private PolylineOptions mGhostRouteOptions;
+    private Marker mGhostMarker;
     private ArrayList<LatLng> mGhostLatLngs;
 
-    private Session mSession;
+    private Session mReferenceSession;
 
-    private TextView mGhostDistance;
+    private TrackPoint mPreviousPoint;
+    private int mTraveledDistance;
+
+    private TextView mYou;
     private TextView mDistance;
+    private TextView mGhost;
+    private TextView mGhostDistance;
     private TextView mDifference;
 
     private FloatingActionButton mStartRacing;
@@ -46,6 +52,9 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
 
     public TrackFragment() {
         super();
+        mGhostLatLngs = new ArrayList<>();
+        mPreviousPoint = null;
+        mTraveledDistance = 0;
     }
 
     public static TrackFragment getInstance() {
@@ -78,43 +87,40 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
-        mGhostDistance = view.findViewById(R.id.ghost_distance);
-        mGhostDistance.setVisibility(View.INVISIBLE);
-
+        mYou = view.findViewById(R.id.you);
         mDistance = view.findViewById(R.id.distance);
-        mDistance.setVisibility(View.INVISIBLE);
+
+        mGhost = view.findViewById(R.id.ghost);
+        mGhostDistance = view.findViewById(R.id.ghost_distance);
 
         mDifference = view.findViewById(R.id.difference);
-        mDistance.setVisibility(View.INVISIBLE);
+        mChronometer = view.findViewById(R.id.chronometer);
 
         mStartRacing = view.findViewById(R.id.start_racing);
         mStartRacing.setOnClickListener(mStartRecordingClickListener);
 
         mStopRacing = view.findViewById(R.id.stop_racing);
         mStopRacing.setOnClickListener(mStopRecordingClickListener);
-        mStopRacing.hide();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
         clear();
-        if (mSession != null) {
-            drawSession(mSession);
+        if (mReferenceSession != null) {
+            drawSession(mReferenceSession);
         } else {
             Log.w("TrackFragment", "Track is null");
         }
     }
 
-    public void setSession(Session session) {
-        mSession = session;
+    public void setReferenceSession(Session referenceSession) {
+        mReferenceSession = referenceSession;
     }
 
     public void drawGhostPoint(TrackPoint point) {
 
         LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
-
-        boolean ignore = false;
 
         if (mGhostLatLngs.size() == 0) {
             mGhostLatLngs.add(latLng);
@@ -126,7 +132,6 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             mGhostRouteOptions.width(8);
 
             mGhostRouteOptions.add(latLng);
-            mGhostRoute = mMap.addPolyline(mGhostRouteOptions);
         } else {
             // Compute distance between previous location
             Location currentLocation = new Location("");
@@ -138,7 +143,7 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             previousLocation.setLongitude(mGhostLatLngs.get(mGhostLatLngs.size() - 1).latitude);
 
             double distance = currentLocation.distanceTo(previousLocation);
-//            ignore = shouldIgnoreLocationChange(currentLocation, previousLocation);
+//          boolean ignore = shouldIgnoreLocationChange(currentLocation, previousLocation);
 
             // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
             if (distance >= 0/* && !ignore*/) {
@@ -146,7 +151,14 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             }
         }
 
-//        if (!ignore) {
+        mGhostRoute = mMap.addPolyline(mGhostRouteOptions);
+
+        // Remove previous marker
+        if (mGhostMarker != null) {
+            mGhostMarker.remove();
+            mGhostMarker = null;
+        }
+
         // Draw marker at current point
         Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
         circleDrawable.setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
@@ -157,11 +169,7 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
         circleDrawable.setBounds(0, 0, 30, 30);
         circleDrawable.draw(canvas);
 
-        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
-
-//        } else {
-//            Log.d("GoogleMaps", "Location ignored");
-//        }
+        mGhostMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
     }
 
     private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
@@ -171,48 +179,20 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             mStartRacing.hide();
             mStopRacing.show();
 
+            // start session timer
+            mStartingTime = System.currentTimeMillis();
+            mTimerHandler.removeCallbacks(mTimerTask);
+            mTimerHandler.postDelayed(mTimerTask, 1000);
+
 //            ??????????
 //            GpsService gpsService = GpsService.getInstance();
 //            gpsService.setTrack(mTrack);
 //            gpsService.createSession(mTrack.getName());
 
             GpsService gpsService = GpsService.getInstance();
-            gpsService.setGpsListener(new GpsListener() {
-                @Override
-                public void onLocationReceived(TrackPoint trackPoint) {
-                    drawPoint(trackPoint);
-
-                    TrackPoint closestPoint = mSession.getClosestTrackPoint(trackPoint.getTime());
-                    Log.d("TrackFragment", "Closest point is " + closestPoint.toString());
-                    drawGhostPoint(closestPoint);
-
-                    int ghostTraveledDistance = mSession.getTraveledDistance(trackPoint.getTime());
-                    mGhostDistance.setText(String.valueOf(ghostTraveledDistance) + " m");
-                    mGhostDistance.setVisibility(View.VISIBLE);
-
-                    int traveledDistance = mSession.getTraveledDistance(trackPoint.getTime());
-                    mDistance.setText(String.valueOf(traveledDistance) + " m");
-                    mDistance.setVisibility(View.VISIBLE);
-
-                    int difference = traveledDistance - ghostTraveledDistance;
-                    mDifference.setText(String.valueOf(difference) + " m");
-                    mDifference.setVisibility(View.VISIBLE);
-
-                    final Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d("TrackFragment", "Timer timed out");
-                            mGhostDistance.setVisibility(View.INVISIBLE);
-                            mDistance.setVisibility(View.INVISIBLE);
-                            mDifference.setVisibility(View.INVISIBLE);
-                        }
-                    }, 2500);  //the time is in milliseconds
-                }
-            });
+            gpsService.setGpsListener(mGpsListener);
 
             gpsService.startLocationUpdates();
-            // handler.removeCallbacksAndMessages(null); To stop
         }
     };
 
@@ -222,6 +202,41 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             mStopRacing.hide();
             mStartRacing.show();
             GpsService.getInstance().stopLocationUpdates();
+        }
+    };
+
+    private GpsListener mGpsListener = new GpsListener() {
+        @Override
+        public void onLocationReceived(TrackPoint trackPoint) {
+            drawPoint(trackPoint);
+
+            TrackPoint closestPoint = mReferenceSession.getClosestTrackPoint(trackPoint.getTime());
+            Log.d("TrackFragment", "Closest point is " + closestPoint.toString());
+            drawGhostPoint(closestPoint);
+
+            int ghostTraveledDistance = mReferenceSession.getTraveledDistance(trackPoint.getTime());
+            mGhostDistance.setText(String.valueOf(ghostTraveledDistance) + " m");
+
+            if (mPreviousPoint != null) {
+                mTraveledDistance += trackPoint.distanceTo(mPreviousPoint);
+            } else {
+                mTraveledDistance = 0;
+            }
+            mPreviousPoint = trackPoint;
+
+            mDistance.setText(String.valueOf(mTraveledDistance) + " m");
+
+            int difference = mTraveledDistance - ghostTraveledDistance;
+            mDifference.setText(String.valueOf(difference) + " m");
+
+            if (mYou.getVisibility() == View.INVISIBLE) {
+                mYou.setVisibility(View.VISIBLE);
+                mGhost.setVisibility(View.VISIBLE);
+                mDistance.setVisibility(View.VISIBLE);
+                mGhostDistance.setVisibility(View.VISIBLE);
+                mDifference.setVisibility(View.VISIBLE);
+                mChronometer.setVisibility(View.VISIBLE);
+            }
         }
     };
 }

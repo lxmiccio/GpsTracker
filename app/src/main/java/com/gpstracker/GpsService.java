@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -38,6 +39,9 @@ public class GpsService {
 
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
+
+    private Handler mSimulationHandler;
+    private ArrayList<TrackPoint> mSimulationPoints;
 
     private DatabaseHelper mDb;
 
@@ -76,38 +80,54 @@ public class GpsService {
     }
 
     public void startLocationUpdates() {
-        if (mTrack != null) {
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    //Location Permission already granted
+        if (!SettingsHandler.isGpsSimulationEnabled()) {
+            if (mTrack != null) {
+                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        //Location Permission already granted
+                        mTracking = true;
+                        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                        initSession();
+                    } else {
+                        //Request Location Permission
+                        Log.d("GpsService", "checkLocationPermission");
+                        checkLocationPermission();
+                    }
+                } else {
+                    //Request Location Permission
                     mTracking = true;
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     initSession();
-                } else {
-                    //Request Location Permission
-                    Log.d("GpsService", "checkLocationPermission");
-                    checkLocationPermission();
                 }
-            } else {
-                //Request Location Permission
-                mTracking = true;
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                initSession();
             }
+        } else {
+            mSimulationHandler = new Handler();
+
+            Gpx gpx = GpxHandler.loadGpx(MainActivity.getContext().getFilesDir(), "Prova13");
+            mSimulationPoints = gpx.getSession().getPoints();
+
+            mTracking = true;
+            mSimulationHandler.postDelayed(mSimulationTask, 1000);
         }
     }
 
     public void stopLocationUpdates() {
-        mTracking = false;
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        if (mSimulationHandler == null) {
+            mTracking = false;
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
-        double length = mSession.getLength();
-        mDb.updateSession(length);
+            double length = mSession.getLength();
+            mDb.updateSession(length);
 
-//        GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
+//            GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
 
-        mTrack = null;
-        mSession = null;
+            mTrack = null;
+            mSession = null;
+        } else {
+            mTracking = false;
+            mSimulationHandler.removeCallbacks(mSimulationTask);
+            mSimulationHandler = null;
+        }
     }
 
     private void initSession() {
@@ -200,6 +220,22 @@ public class GpsService {
 
                 if (mGpsListener != null) {
                     mGpsListener.onLocationReceived(point);
+                }
+            }
+        }
+    };
+
+    private Runnable mSimulationTask = new Runnable() {
+        public void run() {
+            if (mGpsListener != null) {
+                if (mSimulationPoints.size() > 0) {
+                    TrackPoint point = mSimulationPoints.get(0);;
+                    mSimulationPoints.remove(0);
+
+                    mGpsListener.onLocationReceived(point);
+                    mSimulationHandler.postDelayed(mSimulationTask, 1000);
+                } else {
+                    stopLocationUpdates();
                 }
             }
         }

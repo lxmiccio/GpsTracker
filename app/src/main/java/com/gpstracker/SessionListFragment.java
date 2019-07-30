@@ -57,7 +57,7 @@ public class SessionListFragment extends Fragment {
                 Session session = sessions.get(position);
 
                 mTrackFragment = TrackFragment.getInstance();
-                mTrackFragment.setSession(session);
+                mTrackFragment.setReferenceSession(session);
 
                 // Add fragment to BackStack so that when the back button is pressed, the inner fragment is removed
                 FragmentActivity fragmentActivity = (FragmentActivity) getActivity();
