@@ -3,37 +3,28 @@ package com.gpstracker;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class SettingsFragment extends Fragment {
-
-    private OnFragmentInteractionListener mListener;
-
-    private SharedPreferences mSharedPreference;
-
-    private TextView mStartStopTracking;
-    private TextView mDeleteData;
 
     private LinearLayout mMapType;
     private TextView mSelectedMapType;
 
+    private Switch mSimulateGps;
+    private TextView mDeleteData;
+
     private DatabaseHelper mDb;
-    private GpsService mGpsService;
 
     public SettingsFragment() {
         // Required empty public constructor
-        mDb = DatabaseHelper.getInstance();
-        mGpsService = GpsService.getInstance();
     }
 
     public static SettingsFragment getInstance() {
@@ -44,6 +35,7 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDb = DatabaseHelper.getInstance();
     }
 
     @Override
@@ -51,19 +43,18 @@ public class SettingsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        mSharedPreference = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE);
-
-        mStartStopTracking = view.findViewById(R.id.start_stop_tracking);
-        mStartStopTracking.setOnClickListener(startStopTrackingClickListener);
-
-        mDeleteData = view.findViewById(R.id.delete_data);
-        mDeleteData.setOnClickListener(deleteCoordinatesClickListener);
-
         mMapType = view.findViewById(R.id.map_type);
-        mMapType.setOnClickListener(mapTypeClickListener);
+        mMapType.setOnClickListener(mMapTypeClickListener);
 
         mSelectedMapType = view.findViewById(R.id.selected_map_type);
-        mSelectedMapType.setText(mSharedPreference.getString("MapType", "Normal"));
+        mSelectedMapType.setText(SettingsHandler.getMapType());
+
+        mSimulateGps = view.findViewById(R.id.simulate_gps);
+        mSimulateGps.setChecked(SettingsHandler.isGpsSimulationEnabled());
+        mSimulateGps.setOnCheckedChangeListener(mSimulateGpsChangeListener);
+
+        mDeleteData = view.findViewById(R.id.delete_data);
+        mDeleteData.setOnClickListener(mDeleteCoordinatesClickListener);
 
         return view;
     }
@@ -71,56 +62,14 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
-
-    private TextView.OnClickListener startStopTrackingClickListener = new TextView.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (mGpsService.isTracking()) {
-                mGpsService.stopLocationUpdates();
-            } else {
-                mGpsService.startLocationUpdates();
-            }
-        }
-    };
-
-    private TextView.OnClickListener deleteCoordinatesClickListener = new TextView.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            new AlertDialog.Builder(MainActivity.getContext())
-                    .setTitle("Cancellare tutti i dati?")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            mDb.deleteAllTracks();
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    }).show();
-        }
-    };
-
-    private TextView.OnClickListener mapTypeClickListener = new TextView.OnClickListener() {
+    private TextView.OnClickListener mMapTypeClickListener = new TextView.OnClickListener() {
         @Override
         public void onClick(View v) {
             final CharSequence maps[] = new CharSequence[4];
@@ -134,11 +83,35 @@ public class SettingsFragment extends Fragment {
                     .setItems(maps, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            SharedPreferences.Editor editor = mSharedPreference.edit();
-                            editor.putString("MapType", maps[id].toString());
-                            editor.apply();
-
+                            SettingsHandler.setMapType(maps[id].toString());
                             mSelectedMapType.setText(maps[id].toString());
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    }).show();
+        }
+    };
+
+    private Switch.OnCheckedChangeListener mSimulateGpsChangeListener = new Switch.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            SettingsHandler.setGpsSimulationEnabled(isChecked);
+        }
+    };
+
+    private TextView.OnClickListener mDeleteCoordinatesClickListener = new TextView.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            new AlertDialog.Builder(MainActivity.getContext())
+                    .setTitle("Cancellare tutti i dati?")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            mDb.deleteAllTracks();
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

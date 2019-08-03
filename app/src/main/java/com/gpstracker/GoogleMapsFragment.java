@@ -26,8 +26,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
     protected Polyline mRoute;
@@ -71,7 +69,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
         mMap = googleMap;
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16f));
 
-        setMapType(MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal"));
+        setMapType(SettingsHandler.getMapType());
         setZoomControls(true);
     }
 
@@ -214,6 +212,8 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     public void clear() {
         mMap.clear();
         mMarker = null;
+
+        mLatLngs.clear();
     }
 
 //    private boolean shouldIgnoreLocationChange(Location oldLocation, Location newLocation) {

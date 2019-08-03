@@ -221,9 +221,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Session session = new Session(id, startingDate, endingDate);
                 session.setPoints(points);
                 sessions.add(session);
-
-                GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), session, "Prova"+id);
-
             } while (cursor.moveToNext());
         }
         cursor.close();

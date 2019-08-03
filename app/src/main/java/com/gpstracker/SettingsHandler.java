@@ -1,10 +1,28 @@
 package com.gpstracker;
 
+import android.content.SharedPreferences;
+
 import static android.content.Context.MODE_PRIVATE;
 
 public class SettingsHandler {
+
+    public static String getMapType() {
+        return MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal");
+    }
+
+    public static void setMapType(String mapType) {
+        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).edit();
+        editor.putString("MapType", mapType);
+        editor.apply();
+    }
+
     public static boolean isGpsSimulationEnabled() {
-        return true;
-        //return MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getBoolean("isGpsSimulationEnabled", false);
+        return MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getBoolean("isGpsSimulationEnabled", false);
+    }
+
+    public static void setGpsSimulationEnabled(boolean enabled) {
+        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).edit();
+        editor.putBoolean("isGpsSimulationEnabled", enabled);
+        editor.apply();
     }
 }

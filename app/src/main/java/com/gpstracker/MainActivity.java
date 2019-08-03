@@ -22,8 +22,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        CoordinateListFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener {
+        CoordinateListFragment.OnFragmentInteractionListener {
 
     static final int SMS_PERMISSION_CODE = 1;
     static final int PHONE_ACCESS_FINE_LOCATION = 4;
@@ -101,9 +100,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
             getSupportFragmentManager().popBackStackImmediate();
             getSupportFragmentManager().beginTransaction().show(mMapsFragment).commit();
-
-            mMapsFragment.setMapType(getMapType());
-            mMapsFragment.refresh();
         } else {
             //Already in main page
         }
@@ -266,10 +262,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static Context getContext() {
         return mContext;
-    }
-
-    private String getMapType() {
-        return getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal");
     }
 
     @Override

@@ -28,7 +28,6 @@ public class TrackListFragment extends Fragment {
 
     public TrackListFragment() {
         // Required empty public constructor
-        mDb = DatabaseHelper.getInstance();
     }
 
     public static TrackListFragment getInstance() {
@@ -39,6 +38,7 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDb = DatabaseHelper.getInstance();
     }
 
     @Override

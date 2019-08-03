@@ -14,26 +14,6 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
-        <TextView
-            android:id="@+id/start_stop_tracking"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:height="50dp"
-            android:gravity="center_vertical"
-            android:text="Simula messaggio enable/disable"
-            android:textColor="@android:color/black"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/delete_data"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:height="50dp"
-            android:gravity="center_vertical"
-            android:text="Elimina dati"
-            android:textColor="@android:color/black"
-            android:textSize="20sp" />
-
         <LinearLayout
             android:id="@+id/map_type"
             android:layout_width="match_parent"
@@ -60,6 +40,24 @@
                 android:textSize="20sp" />
 
         </LinearLayout>
+
+        <Switch
+            android:id="@+id/simulate_gps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:height="50dp"
+            android:text="Simula GPS"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/delete_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:height="50dp"
+            android:gravity="center_vertical"
+            android:text="Elimina dati"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
 
     </LinearLayout>
 
