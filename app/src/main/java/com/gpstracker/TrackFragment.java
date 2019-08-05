@@ -29,6 +29,7 @@ import java.util.ArrayList;
 
 public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallback {
 
+    public final static String TAG = "TrackFragment";
     private static TrackFragment mInstance = null;
 
     private Polyline mGhostRoute;

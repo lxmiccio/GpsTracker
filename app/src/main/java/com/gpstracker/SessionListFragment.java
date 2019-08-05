@@ -1,9 +1,10 @@
 package com.gpstracker;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +18,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class SessionListFragment extends Fragment {
+
+    public final static String TAG = "SessionListFragment";
 
     private SessionAdapter mSessionAdapter;
     private ListView mListView;
@@ -60,11 +63,13 @@ public class SessionListFragment extends Fragment {
                 mTrackFragment.setReferenceSessionTrack(mTrack);
                 mTrackFragment.setReferenceSession(session);
 
+                FragmentManager supportFragmentManager = getFragmentManager();
+                FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
+
                 // Add fragment to BackStack so that when the back button is pressed, the inner fragment is removed
-                FragmentActivity fragmentActivity = (FragmentActivity) getActivity();
-                fragmentActivity.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, mTrackFragment)
-                        .addToBackStack("TrackFragment").commit();
+                supportFragmentTransaction.replace(R.id.fragment_container, mTrackFragment, TrackFragment.TAG)
+                        .addToBackStack(TrackFragment.TAG)
+                        .commit();
             }
         });
 

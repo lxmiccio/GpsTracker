@@ -1,9 +1,9 @@
 package com.gpstracker;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +14,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 public class SettingsFragment extends Fragment {
+
+    public final static String TAG = "SettingsFragment";
 
     private LinearLayout mMapType;
     private TextView mSelectedMapType;

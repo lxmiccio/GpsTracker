@@ -1,16 +1,16 @@
 package com.gpstracker;
 
 import android.Manifest;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Telephony;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,8 +21,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        CoordinateListFragment.OnFragmentInteractionListener {
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     static final int SMS_PERMISSION_CODE = 1;
     static final int PHONE_ACCESS_FINE_LOCATION = 4;
@@ -62,7 +63,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mMapsFragment = MapsFragment.getInstance();
                 mMapsFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, mMapsFragment).commit();
+                        .add(R.id.fragment_container, mMapsFragment)
+                        .addToBackStack(MapsFragment.TAG)
+                        .commit();
             }
         }
 
@@ -93,13 +96,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+        } else if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
-        } else if (getFragmentManager().getBackStackEntryCount() > 0) {
-            getFragmentManager().popBackStackImmediate();
-        } else if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
-            getSupportFragmentManager().popBackStackImmediate();
-            getSupportFragmentManager().beginTransaction().show(mMapsFragment).commit();
         } else {
             //Already in main page
         }
@@ -117,44 +115,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        android.support.v4.app.FragmentManager supportFragmentManager = getSupportFragmentManager();
-        android.support.v4.app.FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
+        FragmentManager supportFragmentManager = getSupportFragmentManager();
+        FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
 
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        // Removes all the fragments except MapsFragment
+        while (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            getSupportFragmentManager().popBackStackImmediate();
+        }
+
+        if (id == R.id.nav_coordinates_list) {
             if (mCoordinatesListFragment == null) {
                 mCoordinatesListFragment = CoordinateListFragment.getInstance();
             } else {
                 mCoordinatesListFragment.refresh();
             }
 
-            if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(mMapsFragment)
-                        .addToBackStack(MapsFragment.TAG)
-                        .commit();
-            }
-
-            fragmentTransaction.replace(R.id.fragment_container, mCoordinatesListFragment)
+            supportFragmentTransaction.replace(R.id.fragment_container, mCoordinatesListFragment)
+                    .addToBackStack(CoordinateListFragment.TAG)
                     .commit();
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_tracks_list) {
             if (mTrackListFragment == null) {
                 mTrackListFragment = TrackListFragment.getInstance();
             } else {
                 mTrackListFragment.refresh();
             }
 
-            if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(mMapsFragment)
-                        .addToBackStack(MapsFragment.TAG)
-                        .commit();
-            }
-
-            fragmentTransaction.replace(R.id.fragment_container, mTrackListFragment)
+            supportFragmentTransaction.replace(R.id.fragment_container, mTrackListFragment)
+                    .addToBackStack(TrackListFragment.TAG)
                     .commit();
 
         } else if (id == R.id.nav_settings) {
@@ -162,13 +152,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mSettingsFragment = SettingsFragment.getInstance();
             }
 
-            if (supportFragmentManager.getBackStackEntryCount() == 0) {
-                supportFragmentTransaction.remove(mMapsFragment)
-                        .addToBackStack(MapsFragment.TAG)
-                        .commit();
-            }
-
-            fragmentTransaction.replace(R.id.fragment_container, mSettingsFragment)
+            supportFragmentTransaction.replace(R.id.fragment_container, mSettingsFragment)
+                    .addToBackStack(SettingsFragment.TAG)
                     .commit();
         }
 
@@ -262,10 +247,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static Context getContext() {
         return mContext;
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 }

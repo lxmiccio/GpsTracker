@@ -1,10 +1,10 @@
 package com.gpstracker;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +18,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class TrackListFragment extends Fragment {
+
+    public final static String TAG = "TrackListFragment";
 
     private TrackAdapter mTrackAdapter;
     private ListView mListView;
@@ -59,10 +61,11 @@ public class TrackListFragment extends Fragment {
                 mSessionListFragment = SessionListFragment.getInstance();
                 mSessionListFragment.setTrack(track);
 
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.fragment_container, mSessionListFragment)
-                        .addToBackStack("SessionListFragment")
+                FragmentManager supportFragmentManager = getFragmentManager();
+                FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
+
+                supportFragmentTransaction.replace(R.id.fragment_container, mSessionListFragment)
+                        .addToBackStack(SessionListFragment.TAG)
                         .commit();
             }
         });

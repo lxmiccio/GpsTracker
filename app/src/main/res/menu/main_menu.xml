@@ -7,11 +7,11 @@
     <item android:title="Lists">
         <menu>
             <item
-                android:id="@+id/nav_camera"
+                android:id="@+id/nav_coordinates_list"
                 android:icon="@drawable/ic_coordinates_list"
                 android:title="Coordinates" />
             <item
-                android:id="@+id/nav_gallery"
+                android:id="@+id/nav_tracks_list"
                 android:icon="@drawable/ic_tracks_list"
                 android:title="Tracks" />
         </menu>
