@@ -109,15 +109,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long createTrack(String name) {
+    public Track createTrack(String name) {
         SQLiteDatabase db = getWritableDatabase();
+
+        String currentDateTime = getCurrentDateTime();
 
         ContentValues trackValues = new ContentValues();
         trackValues.put(KEY_TRACK_NAME, name);
-        trackValues.put(KEY_CREATED_AT, getCurrentDateTime());
+        trackValues.put(KEY_CREATED_AT, currentDateTime);
 
         // insert row
         long trackId = db.insert(TABLE_TRACK, null, trackValues);
+
+        Date createdAt = getDateTime(currentDateTime);
+        Track track = new Track(trackId, name, createdAt);
+        return track;
+    }
+
+    public Session createSession(long trackId) {
+        SQLiteDatabase db = getWritableDatabase();
 
         ContentValues sessionValues = new ContentValues();
         sessionValues.put(KEY_SESSION_LENGTH, 0);
@@ -129,7 +139,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // insert row
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
 
-        return trackId;
+        String currentDateTime = getCurrentDateTime();
+        Date createdAt = getDateTime(currentDateTime);
+        Session session = new Session(sessionId, createdAt, createdAt);
+
+        return session;
     }
 
     public void deleteTrack(long id) {

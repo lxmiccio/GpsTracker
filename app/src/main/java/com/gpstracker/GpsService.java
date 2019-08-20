@@ -67,16 +67,13 @@ public class GpsService {
     }
 
     public void createTrack(String name) {
-        mTrack = new Track(name);
-        mDb.createTrack(mTrack.getName());
+        mTrack = mDb.createTrack(name);
+        mSession = mDb.createSession(mTrack.getId());
     }
 
     public void setTrack(Track track) {
         mTrack = track;
-    }
-
-    public void createSession(String name) {
-        mSession = new Session();
+        mSession = mDb.createSession(mTrack.getId());
     }
 
     public void startLocationUpdates() {
