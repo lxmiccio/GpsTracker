@@ -60,6 +60,8 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         mLatitudeText = view.findViewById(R.id.latitude);
         mLongitudeText = view.findViewById(R.id.longitude);
         mSpeedText = view.findViewById(R.id.speed);

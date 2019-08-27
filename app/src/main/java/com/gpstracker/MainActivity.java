@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CoordinateListFragment mCoordinatesListFragment;
     private TrackListFragment mTrackListFragment;
     private SettingsFragment mSettingsFragment;
-    private SmsBroadcastReceiver smsBroadcastReceiver;
 
     private GpsService mGpsService;
+    private SmsBroadcastReceiver mSmsBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,17 +112,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here
         FragmentManager supportFragmentManager = getSupportFragmentManager();
         FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
-
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
         // Removes all the fragments except MapsFragment
         while (getSupportFragmentManager().getBackStackEntryCount() > 1) {
             getSupportFragmentManager().popBackStackImmediate();
         }
 
+        // Stop location updates when the Fragment changes
+        if (mGpsService.isTracking()) {
+            mGpsService.stopLocationUpdates();
+        }
+
+        int id = item.getItemId();
         if (id == R.id.nav_coordinates_list) {
             if (mCoordinatesListFragment == null) {
                 mCoordinatesListFragment = CoordinateListFragment.getInstance();
@@ -185,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void requestAccessFineLocationPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // You may display a non-blocking explanation here, read more in the documentation:
+            // https://developer.android.com/training/permissions/requesting.html
         }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PHONE_ACCESS_FINE_LOCATION);
     }
@@ -195,6 +201,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void requestAccessCoarseLocationPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            // You may display a non-blocking explanation here, read more in the documentation:
+            // https://developer.android.com/training/permissions/requesting.html
         }
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PHONE_ACCESS_COARSE_LOCATION);
     }
@@ -209,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     registerSmsBroadcastReceiver();
                 } else {
                     // Permission denied
-                    unregisterReceiver(smsBroadcastReceiver);
+                    unregisterReceiver(mSmsBroadcastReceiver);
                 }
                 return;
             }
@@ -225,9 +233,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void registerSmsBroadcastReceiver() {
-        smsBroadcastReceiver = new SmsBroadcastReceiver();
-        registerReceiver(smsBroadcastReceiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));
-        smsBroadcastReceiver.setSmsListener(new SmsListener() {
+        mSmsBroadcastReceiver = new SmsBroadcastReceiver();
+        registerReceiver(mSmsBroadcastReceiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));
+        mSmsBroadcastReceiver.setSmsListener(new SmsListener() {
             @Override
             public void onSmsReceived(String sender, String text) {
                 Log.d("MainActivity", "sender is " + sender + ", message is " + text);

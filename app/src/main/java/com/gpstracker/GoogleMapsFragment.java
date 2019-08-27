@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.TextView;
@@ -26,7 +27,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
+public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
     protected Polyline mRoute;
     protected PolylineOptions mRouteOptions;
@@ -75,6 +76,12 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        // stop session timer
+        mTimerHandler.removeCallbacks(mTimerTask);
     }
 
     @Override
