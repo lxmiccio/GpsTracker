@@ -48,8 +48,11 @@ public class SessionAdapter extends ArrayAdapter<Session> {
 
         viewHolder.name.setText("Name");
         viewHolder.length.setText(String.valueOf(session.getLength()) + " m");
+
         String minutes = String.valueOf(session.getDuration() / 60);
+        minutes = String.format("%1$" + 2 + "s", minutes).replace(' ', '0');
         String seconds = String.valueOf(session.getDuration() % 60);
+        seconds = String.format("%1$" + 2 + "s", seconds).replace(' ', '0');
         viewHolder.time.setText(minutes + ":" + seconds);
 
         return convertView;

@@ -42,11 +42,24 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
 
     protected DatabaseHelper mDb;
 
+    protected int[] mColors = {
+            Color.BLACK,
+            Color.GRAY,
+            Color.RED,
+            Color.GREEN,
+            Color.BLUE,
+            Color.YELLOW,
+            Color.CYAN,
+            Color.MAGENTA
+    };
+    protected int mLastColor;
+
     public GoogleMapsFragment() {
         mMarker = null;
         mLatLngs = new ArrayList<>();
         mTimerHandler = new Handler();
         mDb = DatabaseHelper.getInstance();
+        mLastColor = 0;
     }
 
     @Override
@@ -144,8 +157,12 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void drawSession(Session session) {
+        drawSession(session, Color.BLACK);
+    }
+
+    public void drawSession(Session session, int color) {
         PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.BLACK);
+        polylineOptions.color(color);
         polylineOptions.visible(true);
         polylineOptions.width(8);
 
@@ -171,7 +188,7 @@ public class GoogleMapsFragment extends Fragment implements OnMapReadyCallback {
     public void drawSessions(ArrayList<Session> sessions) {
         for (int i = 0; i < sessions.size(); ++i) {
             Session session = sessions.get(i);
-            drawSession(session);
+            drawSession(session, mColors[i % (mColors.length)]);
 
             if (i == sessions.size() - 1) {
                 ArrayList<TrackPoint> points = session.getPoints();

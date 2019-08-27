@@ -62,20 +62,6 @@ public class GpxHandler {
         //}
     }
 
-    static public void saveGpx(File path, Session session, String name) {
-        Gpx gpx = new Gpx(session);
-
-        Log.d("GpxHandler", "path is " + path);
-        Log.d("GpxHandler", "name is " + name);
-        Serializer serializer = new Persister();
-        File result = new File(path, name + ".gpx");
-        try {
-            serializer.write(gpx, result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     static public Gpx loadGpx(File path, String name) {
         File source = new File(path, name + ".gpx");
         Serializer serializer = new Persister();

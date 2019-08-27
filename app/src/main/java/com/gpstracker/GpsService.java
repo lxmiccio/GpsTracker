@@ -69,11 +69,13 @@ public class GpsService {
     public void createTrack(String name) {
         mTrack = mDb.createTrack(name);
         mSession = mDb.createSession(mTrack.getId());
+        mSession.setName(name);
     }
 
     public void setTrack(Track track) {
         mTrack = track;
         mSession = mDb.createSession(mTrack.getId());
+        mSession.setName(mTrack.getName());
     }
 
     public void startLocationUpdates() {
@@ -84,7 +86,6 @@ public class GpsService {
                         //Location Permission already granted
                         mTracking = true;
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                        initSession();
                     } else {
                         //Request Location Permission
                         Log.d("GpsService", "checkLocationPermission");
@@ -94,7 +95,6 @@ public class GpsService {
                     //Request Location Permission
                     mTracking = true;
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                    initSession();
                 }
             }
         } else {
@@ -116,7 +116,7 @@ public class GpsService {
             double length = mSession.getLength();
             mDb.updateSession(length);
 
-//            GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mTrack);
+            GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mSession);
 
             mTrack = null;
             mSession = null;
@@ -125,10 +125,6 @@ public class GpsService {
             mSimulationHandler.removeCallbacks(mSimulationTask);
             mSimulationHandler = null;
         }
-    }
-
-    private void initSession() {
-        mSession = new Session();
     }
 
     public boolean isTracking() {
@@ -185,14 +181,6 @@ public class GpsService {
                 //The last location in the list is the newest
                 Location location = locationList.get(locationList.size() - 1);
 
-//                Date startingDate = mTrack.getStartingDate();
-//                Date currentDate = new Date();
-//                long diff = currentDate.getTime() - startingDate.getTime();
-//                int numOfDays = (int) (diff / (1000 * 60 * 60 * 24));
-//                int hours = (int) (diff / (1000 * 60 * 60));
-//                int minutes = (int) (diff / (1000 * 60));
-//                int seconds = (int) (diff / (1000));
-
                 Date startingDate = mSession.getStartingDate();
                 Date currentDate = new Date();
                 long diff =  currentDate.getTime() - startingDate.getTime();
@@ -229,7 +217,10 @@ public class GpsService {
                     TrackPoint point = mSimulationPoints.get(0);;
                     mSimulationPoints.remove(0);
 
-                    mGpsListener.onLocationReceived(point);
+                    if (mGpsListener != null) {
+                        mGpsListener.onLocationReceived(point);
+                    }
+
                     mSimulationHandler.postDelayed(mSimulationTask, 1000);
                 } else {
                     stopLocationUpdates();

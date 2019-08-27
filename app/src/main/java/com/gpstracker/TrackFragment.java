@@ -120,7 +120,7 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
         super.onMapReady(googleMap);
         clear();
         if (mReferenceSession != null) {
-            drawSession(mReferenceSession);
+            drawSession(mReferenceSession, Color.BLUE);
         } else {
             Log.w("TrackFragment", "Track is null");
         }

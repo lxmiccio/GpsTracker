@@ -24,7 +24,6 @@ public class Session {
         mId = -1;
         mStartingDate = new Date();
         mEndingDate = new Date();
-        mName = "Prova";
         mTrackSegment = new TrackSegment();
     }
 
@@ -32,7 +31,7 @@ public class Session {
         mId = id;
         mStartingDate = startingDate;
         mEndingDate = endingDate;
-        mName = "Prova";
+
         mTrackSegment = new TrackSegment();
     }
 
@@ -158,6 +157,10 @@ public class Session {
 
     public String getName() {
         return mName;
+    }
+
+    public void setName(String name) {
+        mName = name;
     }
 
     public ArrayList<TrackPoint> getPoints() {
