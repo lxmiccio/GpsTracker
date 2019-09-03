@@ -112,22 +112,24 @@ public class GpsService {
     }
 
     public void stopLocationUpdates() {
+        mTracking = false;
+
         if (mSimulationHandler == null) {
-            mTracking = false;
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-
-            mSession.setEndingDate(new Date());
-            mDb.updateSession(mSession);
-
-            GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mSession);
-
-            mTrack = null;
-            mSession = null;
         } else {
-            mTracking = false;
             mSimulationHandler.removeCallbacks(mSimulationTask);
             mSimulationHandler = null;
         }
+
+        mSession.setEndingDate(new Date());
+        mDb.updateSession(mSession);
+
+//        if (mSimulationHandler == null) {
+            GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mSession);
+//        }
+
+        mTrack = null;
+        mSession = null;
     }
 
     public boolean isTracking() {
@@ -217,14 +219,21 @@ public class GpsService {
         public void run() {
             if (mGpsListener != null) {
                 if (mSimulationPoints.size() > 0) {
-                    TrackPoint point = mSimulationPoints.get(0);;
+                    TrackPoint point = mSimulationPoints.get(0);
                     mSimulationPoints.remove(0);
 
                     if (mGpsListener != null) {
                         mGpsListener.onLocationReceived(point);
                     }
 
-                    mSimulationHandler.postDelayed(mSimulationTask, 1000);
+                    mSession.appendPoint(point);
+                    mDb.createCoordinate(point, mSession.getId());
+
+                    if (mSimulationPoints.size() > 0) {
+                        TrackPoint nextPoint = mSimulationPoints.get(0);
+                        long diffTime = nextPoint.getTime() - point.getTime();
+                        mSimulationHandler.postDelayed(mSimulationTask, diffTime);
+                    }
                 } else {
                     stopLocationUpdates();
                 }

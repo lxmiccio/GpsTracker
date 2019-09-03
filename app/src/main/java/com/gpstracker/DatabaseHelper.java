@@ -15,7 +15,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise db won't update
-    private static final int DATABASE_VERSION = 181;
+    private static final int DATABASE_VERSION = 182;
 
     // Database Name
     private static final String DATABASE_NAME = "GpsTracker";
@@ -30,8 +30,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_CREATED_AT = "created_at";
     private static final String KEY_STARTED_AT = "started_at";
     private static final String KEY_FINISHED_AT = "finished_at";
-    private static final String KEY_TRACK_ID = "track_id";
     private static final String KEY_TRACK_NAME = "name";
+    private static final String KEY_SESSION_TRACK_ID = "track_id";
     private static final String KEY_SESSION_NAME = "name";
     private static final String KEY_SESSION_LENGTH = "length";
     private static final String KEY_SESSION_ID = "session_id";
@@ -56,8 +56,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_STARTED_AT + " DATETIME,"
             + KEY_FINISHED_AT + " DATETIME,"
             + KEY_CREATED_AT + " DATETIME,"
-            + KEY_TRACK_ID + " INTEGER,"
-            + " FOREIGN KEY (" + KEY_TRACK_ID + ") REFERENCES " + TABLE_TRACK + " (" + KEY_ID + ") ON DELETE CASCADE)";
+            + KEY_SESSION_TRACK_ID + " INTEGER,"
+            + " FOREIGN KEY (" + KEY_SESSION_TRACK_ID + ") REFERENCES " + TABLE_TRACK + " (" + KEY_ID + ") ON DELETE CASCADE)";
 
     // Coordinates table create statement
     private static final String CREATE_TABLE_COORDINATE = "CREATE TABLE "
@@ -141,7 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sessionValues.put(KEY_STARTED_AT, getCurrentDateTime());
         sessionValues.put(KEY_FINISHED_AT, getCurrentDateTime());
         sessionValues.put(KEY_CREATED_AT, getCurrentDateTime());
-        sessionValues.put(KEY_TRACK_ID, track.getId());
+        sessionValues.put(KEY_SESSION_TRACK_ID, track.getId());
 
         // insert row
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
@@ -281,7 +281,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<Session> sessions = new ArrayList();
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_TRACK_ID + " = " + trackId;
+        String selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_SESSION_TRACK_ID + " = " + trackId;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
@@ -361,12 +361,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // looping through rows to retrieve the track id
         long trackId = -1;
         if (cursor.moveToFirst()) {
-            trackId = cursor.getLong(cursor.getColumnIndex(KEY_TRACK_ID));
+            trackId = cursor.getLong(cursor.getColumnIndex(KEY_SESSION_TRACK_ID));
         }
 
         db.execSQL("DELETE FROM " + TABLE_SESSION + " WHERE " + KEY_ID + " = " + id);
 
-        selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_TRACK_ID + " = " + trackId;
+        selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_SESSION_TRACK_ID + " = " + trackId;
         cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.getCount() == 0) {
@@ -393,26 +393,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Session saveSession(Track track, Session session, long second) {
         SQLiteDatabase db = getWritableDatabase();
 
-        SimpleDateFormat nameDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault());
-        String startingDate = nameDateFormat.format(session.getStartingDate());
-        String name = track.getName() + "_" + startingDate;
-
-        SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         ContentValues sessionValues = new ContentValues();
-        sessionValues.put(KEY_SESSION_NAME, name);
+        sessionValues.put(KEY_SESSION_NAME, session.getNameWithDate());
         sessionValues.put(KEY_SESSION_LENGTH, session.getLength());
-        sessionValues.put(KEY_STARTED_AT, dbDateFormat.format(session.getStartingDate()));
-        sessionValues.put(KEY_FINISHED_AT, dbDateFormat.format(session.getEndingDate()));
-        sessionValues.put(KEY_CREATED_AT, dbDateFormat.format(session.getStartingDate()));
-        sessionValues.put(KEY_TRACK_ID, track.getId());
+        sessionValues.put(KEY_STARTED_AT, dateFormat.format(session.getStartingDate()));
+        sessionValues.put(KEY_FINISHED_AT, dateFormat.format(session.getEndingDate()));
+        sessionValues.put(KEY_CREATED_AT, dateFormat.format(session.getStartingDate()));
+        sessionValues.put(KEY_SESSION_TRACK_ID, track.getId());
 
         // insert row
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
 
         String currentDateTime = getCurrentDateTime();
         Date createdAt = getDateTime(currentDateTime);
-        Session newSession = new Session(sessionId, name, createdAt, createdAt);
+        Session newSession = new Session(sessionId, session.getNameWithDate(), createdAt, createdAt);
 
         return newSession;
     }

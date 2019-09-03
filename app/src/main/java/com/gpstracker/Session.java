@@ -5,8 +5,10 @@ import android.util.Log;
 
 import org.simpleframework.xml.Element;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 public class Session {
 
@@ -167,6 +169,12 @@ public class Session {
 
     public String getName() {
         return mName;
+    }
+
+    public String getNameWithDate() {
+        SimpleDateFormat nameDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault());
+        String startingDate = nameDateFormat.format(mStartingDate);
+        return mName + "_" + startingDate;
     }
 
     public void setName(String name) {

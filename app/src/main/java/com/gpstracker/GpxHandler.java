@@ -14,10 +14,10 @@ public class GpxHandler {
         Gpx gpx = new Gpx(session);
 
         Log.d("GpxHandler", "path is " + path);
-        Log.d("GpxHandler", "name is " + session.getName());
+        Log.d("GpxHandler", "name is " + session.getNameWithDate());
         
         Serializer serializer = new Persister();
-        File result = new File(path, session.getName() + ".gpx");
+        File result = new File(path, session.getNameWithDate() + ".gpx");
         try {
             serializer.write(gpx, result);
         } catch (Exception e) {

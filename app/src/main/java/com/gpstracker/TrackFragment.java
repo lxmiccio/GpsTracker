@@ -68,7 +68,7 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("TrackFragment", "ONCREATE");
+
         mGhostLatLngs = new ArrayList<>();
         mPreviousPoint = null;
         mTraveledDistance = 0;
@@ -135,7 +135,6 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
     }
 
     public void drawGhostPoint(TrackPoint point) {
-
         LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
 
         if (mGhostLatLngs.size() == 0) {
@@ -194,6 +193,11 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             // Show stop recording button
             mStartRacing.hide();
             mStopRacing.show();
+
+            // reset map
+            mLatLngs.clear();
+            mMap.clear();
+            drawSession(mReferenceSession);
 
             // start session timer
             mStartingTime = System.currentTimeMillis();
