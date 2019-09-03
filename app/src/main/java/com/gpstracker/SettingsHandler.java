@@ -25,4 +25,14 @@ public class SettingsHandler {
         editor.putBoolean("isGpsSimulationEnabled", enabled);
         editor.apply();
     }
+
+    public static long getSessionToSimulate() {
+        return MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getLong("SessionToSimulate", -1);
+    }
+
+    public static void setSessionToSimulate(long sessionId) {
+        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).edit();
+        editor.putLong("SessionToSimulate", sessionId);
+        editor.apply();
+    }
 }

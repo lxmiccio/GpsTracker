@@ -15,6 +15,7 @@ public class GpxHandler {
 
         Log.d("GpxHandler", "path is " + path);
         Log.d("GpxHandler", "name is " + session.getName());
+        
         Serializer serializer = new Persister();
         File result = new File(path, session.getName() + ".gpx");
         try {

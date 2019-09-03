@@ -13,6 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class SettingsFragment extends Fragment {
 
     public final static String TAG = "SettingsFragment";
@@ -102,6 +104,29 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             SettingsHandler.setGpsSimulationEnabled(isChecked);
+
+            if (isChecked) {
+                final ArrayList<Session> sessions = mDb.getAllSessions();
+                final CharSequence sessionSequence[] = new CharSequence[sessions.size()];
+                for (int i = 0; i < sessions.size(); ++i) {
+                    sessionSequence[i] = String.valueOf(sessions.get(i).getName());
+                }
+
+                new AlertDialog.Builder(MainActivity.getContext())
+                        .setTitle("Seleziona la traccia da simulare")
+                        .setItems(sessionSequence, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                SettingsHandler.setSessionToSimulate(sessions.get(id).getId());
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+            }
         }
     };
 

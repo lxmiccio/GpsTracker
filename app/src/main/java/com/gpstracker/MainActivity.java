@@ -20,6 +20,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     static final int SMS_PERMISSION_CODE = 1;
@@ -86,6 +88,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("MainActivity", "accessCoarseLocationPermission denied, requesting it");
             requestAccessCoarseLocationPermission();
         }
+
+//        Uncomment to import Sessions from Gpx
+//        ArrayList<String> trackFilesName = GpxHandler.getTracksList(getFilesDir());
+//        for (String trackFileName : trackFilesName) {
+//            Gpx gpx = GpxHandler.loadGpx(getFilesDir(), trackFileName);
+//            Session session = gpx.getSession();
+//
+//            DatabaseHelper db = DatabaseHelper.getInstance();
+//            Track newTrack = db.saveTrack(session.getName(), session.getStartingDate());
+//            Session newSession = db.saveSession(newTrack, session, session.getPoints().get(session.getPoints().size() - 1).getTime()/1000);
+//
+//            for (TrackPoint point : session.getPoints()) {
+//                db.saveCoordinate(newSession, point);
+//            }
+//        }
     }
 
     @Override

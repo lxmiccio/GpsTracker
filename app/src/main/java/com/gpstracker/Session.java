@@ -10,8 +10,13 @@ import java.util.Date;
 
 public class Session {
 
+    @Element(name = "id")
     private long mId;
+
+    @Element(name = "startingDate")
     private Date mStartingDate;
+
+    @Element(name = "endingDate")
     private Date mEndingDate;
 
     @Element(name = "name")
@@ -27,8 +32,9 @@ public class Session {
         mTrackSegment = new TrackSegment();
     }
 
-    public Session(long id, Date startingDate, Date endingDate) {
+    public Session(long id, String name, Date startingDate, Date endingDate) {
         mId = id;
+        mName = name;
         mStartingDate = startingDate;
         mEndingDate = endingDate;
 
@@ -149,6 +155,10 @@ public class Session {
 
     public Date getEndingDate() {
         return mEndingDate;
+    }
+
+    public void setEndingDate(Date endingDate) {
+        mEndingDate = endingDate;
     }
 
     public TrackSegment getTrackSegment() {

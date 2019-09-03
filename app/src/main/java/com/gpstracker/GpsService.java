@@ -68,13 +68,13 @@ public class GpsService {
 
     public void createTrack(String name) {
         mTrack = mDb.createTrack(name);
-        mSession = mDb.createSession(mTrack.getId());
+        mSession = mDb.createSession(mTrack);
         mSession.setName(name);
     }
 
     public void setTrack(Track track) {
         mTrack = track;
-        mSession = mDb.createSession(mTrack.getId());
+        mSession = mDb.createSession(mTrack);
         mSession.setName(mTrack.getName());
     }
 
@@ -100,11 +100,14 @@ public class GpsService {
         } else {
             mSimulationHandler = new Handler();
 
-            Gpx gpx = GpxHandler.loadGpx(MainActivity.getContext().getFilesDir(), "Prova13");
-            mSimulationPoints = gpx.getSession().getPoints();
+            long sessionId = SettingsHandler.getSessionToSimulate();
+            Session session = mDb.getSession(sessionId);
+            if (session != null) {
+                mSimulationPoints = session.getPoints();
 
-            mTracking = true;
-            mSimulationHandler.postDelayed(mSimulationTask, 1000);
+                mTracking = true;
+                mSimulationHandler.postDelayed(mSimulationTask, 1000);
+            }
         }
     }
 
@@ -113,8 +116,8 @@ public class GpsService {
             mTracking = false;
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
 
-            double length = mSession.getLength();
-            mDb.updateSession(length);
+            mSession.setEndingDate(new Date());
+            mDb.updateSession(mSession);
 
             GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mSession);
 
@@ -201,7 +204,7 @@ public class GpsService {
 
                 mSession.appendPoint(point);
 
-                mDb.createCoordinate(point, mDb.getCurrentSessionId());
+                mDb.createCoordinate(point, mSession.getId());
 
                 if (mGpsListener != null) {
                     mGpsListener.onLocationReceived(point);

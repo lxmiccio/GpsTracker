@@ -46,7 +46,7 @@ public class SessionAdapter extends ArrayAdapter<Session> {
 
         Session session = getItem(position);
 
-        viewHolder.name.setText("Name");
+        viewHolder.name.setText(session.getName());
         viewHolder.length.setText(String.valueOf(session.getLength()) + " m");
 
         String minutes = String.valueOf(session.getDuration() / 60);
