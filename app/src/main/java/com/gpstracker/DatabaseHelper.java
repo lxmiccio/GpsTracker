@@ -15,7 +15,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise db won't update
-    private static final int DATABASE_VERSION = 182;
+    private static final int DATABASE_VERSION = 183;
 
     // Database Name
     private static final String DATABASE_NAME = "GpsTracker";

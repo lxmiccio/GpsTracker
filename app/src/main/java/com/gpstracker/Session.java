@@ -80,6 +80,10 @@ public class Session {
         double length = 0;
 
         for (int i = 0; i < points.size() - 1; ++i) {
+            if(points.get(i) == point) {
+                break;
+            }
+
             TrackPoint p1 = points.get(i);
             TrackPoint p2 = points.get(i + 1);
 
@@ -93,10 +97,6 @@ public class Session {
             b.setLongitude(p2.getLongitude());
 
             length += a.distanceTo(b);
-
-            if(points.get(i) == point) {
-                break;
-            }
         }
 
         Log.d("Track", "Traveled length is " + length);

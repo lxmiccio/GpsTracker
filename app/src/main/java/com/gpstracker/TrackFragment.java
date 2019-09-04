@@ -109,10 +109,10 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
         mChronometer = view.findViewById(R.id.chronometer);
 
         mStartRacing = view.findViewById(R.id.start_racing);
-        mStartRacing.setOnClickListener(mStartRecordingClickListener);
+        mStartRacing.setOnClickListener(mStartRacingClickListener);
 
         mStopRacing = view.findViewById(R.id.stop_racing);
-        mStopRacing.setOnClickListener(mStopRecordingClickListener);
+        mStopRacing.setOnClickListener(mStopRacingClickListener);
     }
 
     @Override
@@ -187,19 +187,22 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
         mGhostMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
     }
 
-    private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
+    private View.OnClickListener mStartRacingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            // Show stop recording button
+            // Show stop racing button
             mStartRacing.hide();
             mStopRacing.show();
 
-            // reset map
+            // Reset map
             mLatLngs.clear();
             mMap.clear();
             drawSession(mReferenceSession);
 
-            // start session timer
+            mPreviousPoint = null;
+            mTraveledDistance = 0;
+
+            // Start session timer
             mStartingTime = System.currentTimeMillis();
             mTimerHandler.removeCallbacks(mTimerTask);
             mTimerHandler.postDelayed(mTimerTask, 1000);
@@ -212,7 +215,7 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
         }
     };
 
-    private View.OnClickListener mStopRecordingClickListener = new View.OnClickListener() {
+    private View.OnClickListener mStopRacingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             mStopRacing.hide();
@@ -227,10 +230,10 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             mDifference.setVisibility(View.INVISIBLE);
             mChronometer.setVisibility(View.INVISIBLE);
 
-            // stop location updates
+            // Stop location updates
             GpsService.getInstance().stopLocationUpdates();
 
-            // stop session timer
+            // Stop session timer
             mTimerHandler.removeCallbacks(mTimerTask);
         }
     };
