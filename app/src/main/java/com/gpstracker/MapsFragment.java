@@ -78,6 +78,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
+        clear();
         drawSessions(mDb.getAllSessions());
     }
 
@@ -157,7 +158,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         public void onLocationReceived(TrackPoint trackPoint) {
             mLatitudeText.setText("Latitudine: " + String.valueOf(trackPoint.getLatitude()));
             mLongitudeText.setText("Longitudine: " + String.valueOf(trackPoint.getLongitude()));
-            mSpeedText.setText("Velocità: " + String.valueOf(trackPoint.getSpeed()) + " km/h");
+            mSpeedText.setText("Velocità: " + String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
 
             if (mLatitudeText.getVisibility() == View.INVISIBLE) {
                 mLatitudeText.setVisibility(View.VISIBLE);

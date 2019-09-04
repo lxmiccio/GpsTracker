@@ -63,7 +63,7 @@ public class GpxHandler {
         //}
     }
 
-    static public Gpx loadGpx(File path, String name) {
+    static public Gpx loadGpx(String path, String name) {
         File source = new File(path, name + ".gpx");
         Serializer serializer = new Persister();
 
@@ -77,9 +77,9 @@ public class GpxHandler {
         return gpx;
     }
 
-    static ArrayList<String> getTracksList(File path) {
+    static ArrayList<String> getTracksList(String path) {
         ArrayList<String> tracksList = new ArrayList<>();
-        File[] files = new File(path.getAbsolutePath()).listFiles();
+        File[] files = new File(path).listFiles();
         if (files != null) {
             for (File iFile : files) {
                 if (iFile.getAbsolutePath().endsWith(".gpx")) {

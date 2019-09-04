@@ -89,20 +89,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             requestAccessCoarseLocationPermission();
         }
 
-//        Uncomment to import Sessions from Gpx
-//        ArrayList<String> trackFilesName = GpxHandler.getTracksList(getFilesDir());
-//        for (String trackFileName : trackFilesName) {
-//            Gpx gpx = GpxHandler.loadGpx(getFilesDir(), trackFileName);
-//            Session session = gpx.getSession();
-//
-//            DatabaseHelper db = DatabaseHelper.getInstance();
-//            Track newTrack = db.saveTrack(session.getName(), session.getStartingDate());
-//            Session newSession = db.saveSession(newTrack, session, session.getPoints().get(session.getPoints().size() - 1).getTime()/1000);
-//
-//            for (TrackPoint point : session.getPoints()) {
-//                db.saveCoordinate(newSession, point);
-//            }
-//        }
+        // Import default Tracks from Gpx if available
+        if (DatabaseHelper.getInstance().getAllSessions().size() == 0) {
+            ArrayList<String> trackFilesName = GpxHandler.getTracksList(getFilesDir() + "/default_tracks");
+            for (String trackFileName : trackFilesName) {
+                Gpx gpx = GpxHandler.loadGpx(getFilesDir() + "/default_tracks", trackFileName);
+                Session session = gpx.getSession();
+
+                DatabaseHelper db = DatabaseHelper.getInstance();
+                Track newTrack = db.saveTrack(session.getName(), session.getStartingDate());
+                Session newSession = db.saveSession(newTrack, session, session.getPoints().get(session.getPoints().size() - 1).getTime()/1000);
+
+                for (TrackPoint point : session.getPoints()) {
+                    db.saveCoordinate(newSession, point);
+                }
+            }
+        }
     }
 
     @Override

@@ -109,13 +109,12 @@ public class Session {
         long minTimeDiff = Long.MAX_VALUE;
 
         ArrayList<TrackPoint> points = mTrackSegment.getTrackPoints();
-        for (int i = 0; i < points.size() - 1; ++i) {
+        for (int i = 0; i < points.size(); ++i) {
             long timeDiff = time - points.get(i).getTime();
             timeDiff = Math.abs(timeDiff);
             if (timeDiff < minTimeDiff) {
                 closestPoint = points.get(i);
                 minTimeDiff = timeDiff;
-                Log.d("Track", "Min time difference is " + minTimeDiff);
             }
         }
 

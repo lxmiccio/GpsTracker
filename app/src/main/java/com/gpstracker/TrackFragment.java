@@ -197,7 +197,7 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             // Reset map
             mLatLngs.clear();
             mMap.clear();
-            drawSession(mReferenceSession);
+            drawSession(mReferenceSession, Color.BLUE);
 
             mPreviousPoint = null;
             mTraveledDistance = 0;
@@ -249,7 +249,7 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             TrackPoint closestPoint = mReferenceSession.getClosestTrackPoint(trackPoint.getTime());
             if (closestPoint != null) {
                 drawGhostPoint(closestPoint);
-                mGhostSpeed.setText(String.valueOf(closestPoint.getSpeed()) + " km/h");
+                mGhostSpeed.setText(String.valueOf(Double.valueOf(closestPoint.getSpeed()).intValue()) + " km/h");
             }
 
             if (mPreviousPoint != null) {
@@ -260,10 +260,10 @@ public class TrackFragment extends GoogleMapsFragment implements OnMapReadyCallb
             mPreviousPoint = trackPoint;
 
             mDistance.setText(String.valueOf(mTraveledDistance) + " m");
-            mSpeed.setText(String.valueOf(trackPoint.getSpeed()) + " km/h");
+            mSpeed.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
 
             int difference = mTraveledDistance - ghostTraveledDistance;
-            mDifference.setText(String.valueOf(difference) + " m");
+            mDifference.setText("Differenza: " + String.valueOf(difference) + " m");
 
             if (mYou.getVisibility() == View.INVISIBLE) {
                 mYou.setVisibility(View.VISIBLE);
