@@ -196,6 +196,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                 }
 
                 drawPoint(trackPoint);
+                centerCamera(trackPoint);
             } else {
                 drawMarker(trackPoint);
             }

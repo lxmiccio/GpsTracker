@@ -164,9 +164,6 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
         circleDrawable.draw(canvas);
 
         mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
-
-        // Move camera to user location
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     public void drawPoints(ArrayList<TrackPoint> points) {

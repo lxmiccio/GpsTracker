@@ -32,6 +32,7 @@ public class GpsService {
 
     private GpsListener mGpsListener;
 
+    private TrackPoint mLatestTrackPoint;
     private boolean mTracking;
     private Track mTrack;
     private Session mSession;
@@ -159,6 +160,10 @@ public class GpsService {
         startLowRateLocationUpdated();
     }
 
+    public TrackPoint getLatestTrackPoint() {
+        return mLatestTrackPoint;
+    }
+
     public boolean isTracking() {
         return mTracking;
     }
@@ -240,6 +245,8 @@ public class GpsService {
                 } else {
                     point = new TrackPoint(location.getAltitude(), location.getBearing(), location.getLatitude(), location.getLongitude(), location.getSpeed(), 0);
                 }
+
+                mLatestTrackPoint = point;
 
                 if (mGpsListener != null) {
                     mGpsListener.onLocationReceived(point);

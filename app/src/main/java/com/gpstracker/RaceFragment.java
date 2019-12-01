@@ -1,6 +1,8 @@
 package com.gpstracker;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -42,15 +44,12 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private Track mReferenceSessionTrack;
     private Session mReferenceSession;
 
-    private TrackPoint mLatestTrackPoint;
     private TrackPoint mPreviousTrackPoint;
     private int mTraveledDistance;
 
     private RelativeLayout mInfo;
-    private TextView mYou;
     private TextView mDistance;
     private TextView mSpeed;
-    private TextView mGhost;
     private TextView mGhostDistance;
     private TextView mGhostSpeed;
     private TextView mDifference;
@@ -116,11 +115,9 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
         mInfo = view.findViewById(R.id.info);
 
-        mYou = view.findViewById(R.id.you);
         mDistance = view.findViewById(R.id.distance);
         mSpeed = view.findViewById(R.id.speed);
 
-        mGhost = view.findViewById(R.id.ghost);
         mGhostDistance = view.findViewById(R.id.ghost_distance);
         mGhostSpeed = view.findViewById(R.id.ghost_speed);
 
@@ -132,7 +129,9 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
         mStartRacing = view.findViewById(R.id.start_racing);
         mStartRacing.setOnClickListener(mStartRacingClickListener);
-        mStartRacing.setEnabled(false);
+
+        TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
+        updateStartRacingButton(trackPoint);
 
         mStopRacing = view.findViewById(R.id.stop_racing);
         mStopRacing.setOnClickListener(mStopRacingClickListener);
@@ -141,12 +140,18 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
+
         clear();
+
         if (mReferenceSession != null) {
             drawSession(mReferenceSession, Color.BLUE);
         } else {
             Log.w("RaceFragment", "Track is null");
         }
+
+        // Draw marker on the user position
+        TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
+        drawMarker(trackPoint);
     }
 
     public void setReferenceSessionTrack(Track referenceSessionTrack) {
@@ -210,6 +215,41 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
         mGhostMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
     }
 
+    private void updateStartRacingButton(TrackPoint trackPoint) {
+        //Evaluate distance from starting line
+        float distanceFromStartingLine = trackPoint.distanceTo(mReferenceSession.getPoints().get(0));
+        Log.d("RaceFragment", "Distance from starting line is " + distanceFromStartingLine + " m");
+
+        //Enable StartRacing button only if the user is close to the starting line
+        mStartRacing.setEnabled(distanceFromStartingLine <= 10);
+        if (distanceFromStartingLine <= 10) {
+            mStartRacing.setBackgroundTintList(MainActivity.getContext().getResources().getColorStateList(R.color.colorPrimary));
+        } else {
+            mStartRacing.setBackgroundTintList(MainActivity.getContext().getResources().getColorStateList(R.color.colorLightGrey));
+        }
+    }
+
+    private void detectRaceFinished(TrackPoint trackPoint) {
+        // Evaluate distance from finish line
+        float distanceFromFinishLine = trackPoint.distanceTo(mReferenceSession.getPoints().get(mReferenceSession.getPoints().size() - 1));
+        Log.d("RaceFragment", "Distance from finish line is " + distanceFromFinishLine + " m");
+
+        // Race is finished only if the user is close to the finish line and the traveled distance is similar to the reference one
+        if (distanceFromFinishLine <= 10 && Math.abs(mReferenceSession.getLength() - mTraveledDistance) <= 10) {
+            mStopRacing.hide();
+            mStartRacing.show();
+
+            // Hide information about race
+            mInfo.setVisibility(View.INVISIBLE);
+
+            // Stop location updates
+            mGpsService.stopLocationUpdates();
+
+            // Stop session timer
+            mTimerHandler.removeCallbacks(mTimerTask);
+        }
+    }
+
     private View.OnClickListener mStartRacingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -239,8 +279,9 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            if (mLatestTrackPoint != null) {
-                centerCamera(mLatestTrackPoint);
+            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
+            if (trackPoint != null) {
+                centerCamera(trackPoint);
             }
         }
     };
@@ -248,26 +289,40 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private View.OnClickListener mStopRacingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            mStopRacing.hide();
-            mStartRacing.show();
+            new AlertDialog.Builder(MainActivity.getContext())
+                    .setMessage(R.string.quit_race_message)
+                    .setPositiveButton(R.string.yes_message, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            mStopRacing.hide();
+                            mStartRacing.show();
 
-            mInfo.setVisibility(View.INVISIBLE);
+                            // Hide information about race
+                            mInfo.setVisibility(View.INVISIBLE);
 
-            // Stop location updates
-            mGpsService.stopLocationUpdates();
+                            // Stop location updates
+                            mGpsService.stopLocationUpdates();
 
-            // Stop session timer
-            mTimerHandler.removeCallbacks(mTimerTask);
+                            // Stop session timer
+                            mTimerHandler.removeCallbacks(mTimerTask);
+
+                            // TODO: Remove session from database
+                        }
+                    })
+                    .setNegativeButton(R.string.no_message, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Do nothing
+                        }
+                    })
+                    .show();
         }
     };
 
     private GpsListener mGpsListener = new GpsListener() {
         @Override
         public void onLocationReceived(TrackPoint trackPoint) {
-            mLatestTrackPoint = trackPoint;
-
             if (mGpsService.isTracking()) {
                 drawPoint(trackPoint);
+                centerCamera(trackPoint);
 
                 int ghostTraveledDistance = mReferenceSession.getTraveledDistance(trackPoint.getTime());
                 mGhostDistance.setText(String.valueOf(ghostTraveledDistance) + " m");
@@ -294,15 +349,14 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
                 if (mInfo.getVisibility() == View.INVISIBLE) {
                     mInfo.setVisibility(View.VISIBLE);
                 }
+
+                // Check if user reached the finish line
+                detectRaceFinished(trackPoint);
             } else {
                 drawMarker(trackPoint);
 
-                //Evaluate distance from starting line
-                float distanceFromStartingLine = trackPoint.distanceTo(mReferenceSession.getPoints().get(0));
-                Log.d("RaceFragment", "Distance from starting line is " + distanceFromStartingLine + " m");
-
-                //Enable StartRacing button only if the user is close to the starting line
-                mStartRacing.setEnabled(distanceFromStartingLine <= 10);
+                // Update StartRacing button
+                updateStartRacingButton(trackPoint);
             }
         }
     };

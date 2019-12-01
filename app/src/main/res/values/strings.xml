@@ -6,6 +6,10 @@
     <string name="track_name_yes">Yes</string>
     <string name="track_name_no">Cancel</string>
 
+    <string name="quit_race_message">Vuoi terminare la gara? (La sessione non verrà registrata)</string>
+    <string name="yes_message">Si</string>
+    <string name="no_message">No</string>
+
     <string name="track_save_message">Save the track?</string>
     <string name="track_save_yes">Yes</string>
     <string name="track_save_no">Cancel</string>
