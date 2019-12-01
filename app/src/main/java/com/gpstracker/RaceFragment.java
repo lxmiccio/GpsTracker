@@ -225,7 +225,7 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
         if (distanceFromStartingLine <= 10) {
             mStartRacing.setBackgroundTintList(MainActivity.getContext().getResources().getColorStateList(R.color.colorPrimary));
         } else {
-            mStartRacing.setBackgroundTintList(MainActivity.getContext().getResources().getColorStateList(R.color.colorLightGrey));
+            mStartRacing.setBackgroundTintList(MainActivity.getContext().getResources().getColorStateList(R.color.colorDarkGrey));
         }
     }
 

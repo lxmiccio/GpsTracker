@@ -90,6 +90,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16f));
+        mMap.getUiSettings().setMapToolbarEnabled(false);
 
         setMapType(SettingsHandler.getMapType());
         setZoomControls(true);
@@ -154,7 +155,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
         }
 
         // Draw marker at current point
-        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_user_position);
+        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_user);
         circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
         Canvas canvas = new Canvas();
@@ -188,31 +189,27 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
             polylineOptions.add(latLng);
 
             if (i == 0) {
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at beginning"));
                 // Draw marker at current point
-//                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_start);
-//                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-//
-//                Canvas canvas = new Canvas();
-//                Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-//                canvas.setBitmap(bitmap);
-//                circleDrawable.setBounds(0, 0, 100, 100);
-//                circleDrawable.draw(canvas);
-//
-//                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_starting_point);
+
+                Canvas canvas = new Canvas();
+                Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+                canvas.setBitmap(bitmap);
+                circleDrawable.setBounds(0, 0, 100, 100);
+                circleDrawable.draw(canvas);
+
+                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Inizio di " + session.getName()));
             } else if (i == points.size() - 1) {
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at end"));
                 // Draw marker at current point
-//                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_finish);
-//                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-//
-//                Canvas canvas = new Canvas();
-//                Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-//                canvas.setBitmap(bitmap);
-//                circleDrawable.setBounds(0, 0, 100, 100);
-//                circleDrawable.draw(canvas);
-//
-//                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
+                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_ending_point);
+
+                Canvas canvas = new Canvas();
+                Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+                canvas.setBitmap(bitmap);
+                circleDrawable.setBounds(0, 0, 100, 100);
+                circleDrawable.draw(canvas);
+
+                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Fine di " + session.getName()));
             }
         }
 

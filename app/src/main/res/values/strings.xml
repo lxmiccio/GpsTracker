@@ -10,6 +10,10 @@
     <string name="yes_message">Si</string>
     <string name="no_message">No</string>
 
+    <string name="name">Nome</string>
+    <string name="length">Lunghezza</string>
+    <string name="created_at">Creata il</string>
+
     <string name="track_save_message">Save the track?</string>
     <string name="track_save_yes">Yes</string>
     <string name="track_save_no">Cancel</string>

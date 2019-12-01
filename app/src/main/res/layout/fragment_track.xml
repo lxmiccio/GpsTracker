@@ -16,8 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginRight="136dp"
-        android:layout_marginBottom="17dp"
+        android:layout_marginEnd="136dp"
+        android:layout_marginBottom="15dp"
         android:src="@drawable/ic_my_position"
         app:backgroundTint="@color/colorPrimary" />
 
@@ -26,8 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginRight="68dp"
-        android:layout_marginBottom="17dp"
+        android:layout_marginEnd="68dp"
+        android:layout_marginBottom="15dp"
         android:clickable="true"
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_start_racing" />
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="68dp"
-        android:layout_marginBottom="17dp"
+        android:layout_marginBottom="15dp"
         android:clickable="true"
         android:visibility="invisible"
         app:backgroundTint="@color/colorPrimary"
@@ -59,7 +59,7 @@
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
             android:scaleType="fitXY"
-            android:src="@drawable/round60" />
+            android:src="@drawable/ic_overlay" />
 
         <TextView
             android:id="@+id/you"
@@ -99,7 +99,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginRight="5dp"
             android:scaleType="fitXY"
-            android:src="@drawable/round60" />
+            android:src="@drawable/ic_overlay" />
 
         <TextView
             android:id="@+id/ghost"
@@ -144,7 +144,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginTop="80dp"
             android:scaleType="fitXY"
-            android:src="@drawable/round60" />
+            android:src="@drawable/ic_overlay" />
 
         <TextView
             android:id="@+id/difference"

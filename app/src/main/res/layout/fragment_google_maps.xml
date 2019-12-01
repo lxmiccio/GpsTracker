@@ -19,7 +19,7 @@
         android:layout_marginRight="68dp"
         android:layout_marginBottom="17dp"
         android:clickable="true"
-        app:backgroundTint="?attr/colorPrimaryDark"
+        app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_record" />
 
     <android.support.design.widget.FloatingActionButton
@@ -31,7 +31,7 @@
         android:layout_marginBottom="17dp"
         android:clickable="true"
         android:visibility="invisible"
-        app:backgroundTint="?attr/colorPrimaryDark"
+        app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_stop_recording" />
 
     <android.support.design.widget.FloatingActionButton
@@ -43,7 +43,7 @@
         android:layout_marginBottom="17dp"
         android:clickable="true"
         android:src="@drawable/ic_my_position"
-        app:backgroundTint="?attr/colorPrimaryDark" />
+        app:backgroundTint="@color/colorPrimary" />
 
     <RelativeLayout
         android:id="@+id/info"
@@ -60,7 +60,7 @@
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
             android:scaleType="fitXY"
-            android:src="@drawable/round60" />
+            android:src="@drawable/ic_overlay" />
 
         <TextView
             android:id="@+id/latitude"
