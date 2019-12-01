@@ -27,7 +27,7 @@ public class SessionListFragment extends Fragment {
     private Track mTrack;
     private DatabaseHelper mDb;
 
-    private TrackFragment mTrackFragment;
+    private RaceFragment mRaceFragment;
 
     public SessionListFragment() {
         // Required empty public constructor
@@ -59,16 +59,16 @@ public class SessionListFragment extends Fragment {
                 ArrayList<Session> sessions = mSessionAdapter.getSessions();
                 Session session = sessions.get(position);
 
-                mTrackFragment = TrackFragment.getInstance();
-                mTrackFragment.setReferenceSessionTrack(mTrack);
-                mTrackFragment.setReferenceSession(session);
+                mRaceFragment = RaceFragment.getInstance();
+                mRaceFragment.setReferenceSessionTrack(mTrack);
+                mRaceFragment.setReferenceSession(session);
 
                 FragmentManager supportFragmentManager = getFragmentManager();
                 FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
 
                 // Add fragment to BackStack so that when the back button is pressed, the inner fragment is removed
-                supportFragmentTransaction.replace(R.id.fragment_container, mTrackFragment, TrackFragment.TAG)
-                        .addToBackStack(TrackFragment.TAG)
+                supportFragmentTransaction.replace(R.id.fragment_container, mRaceFragment, RaceFragment.TAG)
+                        .addToBackStack(RaceFragment.TAG)
                         .commit();
             }
         });

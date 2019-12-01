@@ -42,6 +42,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
     protected TextView mChronometer;
 
     protected DatabaseHelper mDb;
+    protected GpsService mGpsService;
 
     protected int[] mColors = {
             Color.BLACK,
@@ -60,6 +61,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
         mLatLngs = new ArrayList<>();
         mTimerHandler = new Handler();
         mDb = DatabaseHelper.getInstance();
+        mGpsService = GpsService.getInstance();
         mLastColor = 0;
     }
 
@@ -80,7 +82,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        // stop session timer
+        // Stop session timer
         mTimerHandler.removeCallbacks(mTimerTask);
     }
 
@@ -139,22 +141,32 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
         }
 
         // Draw marker at current point
-        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_coordinate);
+        drawMarker(point);
+    }
+
+    public void drawMarker(TrackPoint point) {
+        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+
+        // Remove previous marker
+        if (mMarker != null) {
+            mMarker.remove();
+            mMarker = null;
+        }
+
+        // Draw marker at current point
+        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_user_position);
         circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
         Canvas canvas = new Canvas();
-        Bitmap bitmap = Bitmap.createBitmap(30, 30, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
         canvas.setBitmap(bitmap);
-        circleDrawable.setBounds(0, 0, 30, 30);
+        circleDrawable.setBounds(0, 0, 100, 100);
         circleDrawable.draw(canvas);
 
         mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
 
         // Move camera to user location
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-//        } else {
-//            Log.d("GoogleMaps", "Location ignored");
-//        }
     }
 
     public void drawPoints(ArrayList<TrackPoint> points) {
@@ -180,8 +192,30 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
 
             if (i == 0) {
                 mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at beginning"));
+                // Draw marker at current point
+//                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_start);
+//                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+//
+//                Canvas canvas = new Canvas();
+//                Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+//                canvas.setBitmap(bitmap);
+//                circleDrawable.setBounds(0, 0, 100, 100);
+//                circleDrawable.draw(canvas);
+//
+//                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
             } else if (i == points.size() - 1) {
                 mMap.addMarker(new MarkerOptions().position(latLng).title("Marker at end"));
+                // Draw marker at current point
+//                Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_finish);
+//                circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+//
+//                Canvas canvas = new Canvas();
+//                Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+//                canvas.setBitmap(bitmap);
+//                circleDrawable.setBounds(0, 0, 100, 100);
+//                circleDrawable.draw(canvas);
+//
+//                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
             }
         }
 

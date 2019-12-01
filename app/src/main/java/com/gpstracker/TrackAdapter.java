@@ -47,7 +47,7 @@ public class TrackAdapter extends ArrayAdapter<Track> {
 
         Track track = getItem(position);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd\nHH:mm:ss", Locale.getDefault());
         viewHolder.name.setText(track.getName());
         viewHolder.created_at.setText(dateFormat.format(track.getCreatedAt()));
 

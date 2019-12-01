@@ -3,13 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gpstracker.TrackFragment">
+    tools:context="com.gpstracker.RaceFragment">
 
     <fragment
         android:id="@+id/map"
         class="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/center_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="136dp"
+        android:layout_marginBottom="17dp"
+        android:clickable="true"
+        android:src="@drawable/ic_my_position"
+        app:backgroundTint="?attr/colorPrimaryDark" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/start_racing"
@@ -19,7 +30,7 @@
         android:layout_marginRight="68dp"
         android:layout_marginBottom="17dp"
         android:clickable="true"
-        app:srcCompat="@android:drawable/ic_media_play" />
+        app:srcCompat="@drawable/ic_start_racing" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/stop_racing"
@@ -32,82 +43,128 @@
         android:visibility="invisible"
         app:srcCompat="@android:drawable/ic_media_pause" />
 
-    <TextView
-        android:id="@+id/you"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:text="Tu"
-        android:visibility="invisible" />
-
-    <TextView
-        android:id="@+id/ghost"
+    <RelativeLayout
+        android:id="@+id/info"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"
-        android:gravity="right"
-        android:text="Fantasma"
-        android:visibility="invisible" />
+        android:layout_height="match_parent"
+        android:visibility="invisible">
 
-    <TextView
-        android:id="@+id/distance"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="40dp"
-        android:text="Distanza"
-        android:visibility="invisible" />
+        <ImageView
+            android:id="@+id/you_info"
+            android:layout_width="173dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/round60" />
 
-    <TextView
-        android:id="@+id/ghost_distance"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginRight="20dp"
-        android:gravity="right"
-        android:text="Distanza"
-        android:visibility="invisible" />
+        <TextView
+            android:id="@+id/you"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="10dp"
+            android:elevation="10dp"
+            android:text="Tu"
+            android:textColor="@color/colorLightGrey" />
 
-    <TextView
-        android:id="@+id/speed"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="60dp"
-        android:text="Velocità"
-        android:visibility="invisible" />
+        <TextView
+            android:id="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="30dp"
+            android:elevation="10dp"
+            android:text="Distanza"
+            android:textColor="@color/colorLightGrey" />
 
-    <TextView
-        android:id="@+id/ghost_speed"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginRight="20dp"
-        android:gravity="right"
-        android:text="Velocità"
-        android:visibility="invisible" />
+        <TextView
+            android:id="@+id/speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="50dp"
+            android:elevation="10dp"
+            android:text="Velocità"
+            android:textColor="@color/colorLightGrey" />
 
-    <TextView
-        android:id="@+id/difference"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="80dp"
-        android:text="Differenza"
-        android:visibility="invisible" />
+        <ImageView
+            android:id="@+id/ghost_info"
+            android:layout_width="173dp"
+            android:layout_height="70dp"
+            android:layout_marginLeft="233dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/round60" />
 
-    <TextView
-        android:id="@+id/chronometer"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="100dp"
-        android:text="Tempo"
-        android:visibility="invisible" />
+        <TextView
+            android:id="@+id/ghost"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="241dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="12dp"
+            android:elevation="10dp"
+            android:gravity="right"
+            android:text="Fantasma"
+            android:textColor="@color/colorLightGrey" />
+
+        <TextView
+            android:id="@+id/ghost_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="241dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="12dp"
+            android:elevation="10dp"
+            android:gravity="right"
+            android:text="Distanza"
+            android:textColor="@color/colorLightGrey" />
+
+        <TextView
+            android:id="@+id/ghost_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="241dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="12dp"
+            android:elevation="10dp"
+            android:gravity="right"
+            android:text="Velocità"
+            android:textColor="@color/colorLightGrey" />
+
+        <ImageView
+            android:id="@+id/comparison"
+            android:layout_width="173dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="80dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/round60" />
+
+        <TextView
+            android:id="@+id/difference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="85dp"
+            android:elevation="10dp"
+            android:text="Differenza"
+            android:textColor="@color/colorLightGrey" />
+
+        <TextView
+            android:id="@+id/chronometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="105dp"
+            android:elevation="10dp"
+            android:text="Tempo"
+            android:textColor="@color/colorLightGrey" />
+
+    </RelativeLayout>
 
 </FrameLayout>

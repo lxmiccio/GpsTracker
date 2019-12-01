@@ -1,6 +1,7 @@
 package com.gpstracker;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -20,10 +22,14 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     public final static String TAG = "MapsFragment";
     private static MapsFragment mInstance = null;
 
+    private TrackPoint mLatestTrackPoint;
+
+    private RelativeLayout mInfo;
     private TextView mLatitudeText;
     private TextView mLongitudeText;
     private TextView mSpeedText;
 
+    private FloatingActionButton mCenterPosition;
     private FloatingActionButton mStartRecording;
     private FloatingActionButton mStopRecording;
 
@@ -36,6 +42,18 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             mInstance = new MapsFragment();
         }
         return mInstance;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mGpsService.setGpsListener(mGpsListener);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mGpsService.setGpsListener(null);
     }
 
     @Override
@@ -62,10 +80,15 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mInfo = view.findViewById(R.id.info);
+
         mLatitudeText = view.findViewById(R.id.latitude);
         mLongitudeText = view.findViewById(R.id.longitude);
         mSpeedText = view.findViewById(R.id.speed);
         mChronometer = view.findViewById(R.id.chronometer);
+
+        mCenterPosition = view.findViewById(R.id.center_position);
+        mCenterPosition.setOnClickListener(mCenterPositionClickListener);
 
         mStartRecording = view.findViewById(R.id.start_recording);
         mStartRecording.setOnClickListener(mStartRecordingClickListener);
@@ -73,6 +96,8 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         mStopRecording = view.findViewById(R.id.stop_recording);
         mStopRecording.setOnClickListener(mStopRecordingClickListener);
         mStopRecording.hide();
+
+        mGpsService.setGpsListener(mGpsListener);
     }
 
     @Override
@@ -88,6 +113,15 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             drawSessions(mDb.getAllSessions());
         }
     }
+
+    private View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (mLatestTrackPoint != null) {
+                centerCamera(mLatestTrackPoint);
+            }
+        }
+    };
 
     private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
         @Override
@@ -108,15 +142,12 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                             mStartRecording.hide();
                             mStopRecording.show();
 
-                            GpsService gpsService = GpsService.getInstance();
-                            gpsService.createTrack(txtTrackName.getText().toString());
+                            mGpsService.createTrack(txtTrackName.getText().toString());
 
-                            gpsService.setGpsListener(mGpsListener);
+                            // Start location updates
+                            mGpsService.startLocationUpdates();
 
-                            // start location updates
-                            gpsService.startLocationUpdates();
-
-                            // start session timer
+                            // Start session timer
                             mStartingTime = System.currentTimeMillis();
                             mTimerHandler.removeCallbacks(mTimerTask);
                             mTimerHandler.postDelayed(mTimerTask, 1000);
@@ -135,16 +166,13 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private View.OnClickListener mStopRecordingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            mLatitudeText.setVisibility(View.INVISIBLE);
-            mLongitudeText.setVisibility(View.INVISIBLE);
-            mSpeedText.setVisibility(View.INVISIBLE);
-            mChronometer.setVisibility(View.INVISIBLE);
+            mInfo.setVisibility(View.INVISIBLE);
 
             mStopRecording.hide();
             mStartRecording.show();
 
             // stop location updates
-            GpsService.getInstance().stopLocationUpdates();
+            mGpsService.stopLocationUpdates();
 
             // stop session timer
             mTimerHandler.removeCallbacks(mTimerTask);
@@ -156,17 +184,21 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private GpsListener mGpsListener = new GpsListener() {
         @Override
         public void onLocationReceived(TrackPoint trackPoint) {
-            mLatitudeText.setText("Latitudine: " + String.valueOf(trackPoint.getLatitude()));
-            mLongitudeText.setText("Longitudine: " + String.valueOf(trackPoint.getLongitude()));
-            mSpeedText.setText("Velocità: " + String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
+            mLatestTrackPoint = trackPoint;
 
-            if (mLatitudeText.getVisibility() == View.INVISIBLE) {
-                mLatitudeText.setVisibility(View.VISIBLE);
-                mLongitudeText.setVisibility(View.VISIBLE);
-                mSpeedText.setVisibility(View.VISIBLE);
+            if (mGpsService.isTracking()) {
+                mLatitudeText.setText("Latitudine: " + String.valueOf(trackPoint.getLatitude()));
+                mLongitudeText.setText("Longitudine: " + String.valueOf(trackPoint.getLongitude()));
+                mSpeedText.setText("Velocità: " + String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
+
+                if (mInfo.getVisibility() == View.INVISIBLE) {
+                    mInfo.setVisibility(View.VISIBLE);
+                }
+
+                drawPoint(trackPoint);
+            } else {
+                drawMarker(trackPoint);
             }
-
-            drawPoint(trackPoint);
         }
     };
 }
