@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -156,7 +155,6 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
 
         // Draw marker at current point
         Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_user);
-        circleDrawable.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
         Canvas canvas = new Canvas();
         Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
@@ -198,7 +196,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
                 circleDrawable.setBounds(0, 0, 100, 100);
                 circleDrawable.draw(canvas);
 
-                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Inizio di " + session.getName()));
+                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Inizio di " + session.getName()));
             } else if (i == points.size() - 1) {
                 // Draw marker at current point
                 Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_ending_point);
@@ -209,14 +207,14 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
                 circleDrawable.setBounds(0, 0, 100, 100);
                 circleDrawable.draw(canvas);
 
-                mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Fine di " + session.getName()));
+                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Fine di " + session.getName()));
             }
         }
 
         mMap.addPolyline(polylineOptions);
 
         if (points.size() > 0) {
-            centerCamera(points.get(points.size() - 1));
+            centerCamera(points.get(0));
         }
     }
 

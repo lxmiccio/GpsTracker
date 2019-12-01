@@ -305,7 +305,8 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
                             // Stop session timer
                             mTimerHandler.removeCallbacks(mTimerTask);
 
-                            // TODO: Remove session from database
+                            // Remove the session from the database
+                            mDb.deleteSession(mGpsService.getSession().getId());
                         }
                     })
                     .setNegativeButton(R.string.no_message, new DialogInterface.OnClickListener() {
@@ -320,6 +321,9 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private GpsListener mGpsListener = new GpsListener() {
         @Override
         public void onLocationReceived(TrackPoint trackPoint) {
+            // Draw marker on the user position
+            drawMarker(trackPoint);
+
             if (mGpsService.isTracking()) {
                 drawPoint(trackPoint);
                 centerCamera(trackPoint);
@@ -353,8 +357,6 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
                 // Check if user reached the finish line
                 detectRaceFinished(trackPoint);
             } else {
-                drawMarker(trackPoint);
-
                 // Update StartRacing button
                 updateStartRacingButton(trackPoint);
             }
