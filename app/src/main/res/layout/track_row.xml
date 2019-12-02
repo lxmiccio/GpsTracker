@@ -34,5 +34,5 @@
         android:gravity="right|center_vertical"
         android:paddingRight="20dp"
         android:text="2019-28-11 22:48:36"
-        android:textSize="20sp" />
+        android:textSize="17sp" />
 </LinearLayout>

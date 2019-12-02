@@ -99,8 +99,6 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
 
         LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
 
-        boolean ignore = false;
-
         if (mLatLngs.size() == 0) {
             mLatLngs.add(latLng);
 
@@ -121,17 +119,10 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
             previousLocation.setLatitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
             previousLocation.setLongitude(mLatLngs.get(mLatLngs.size() - 1).latitude);
 
-            double distance = currentLocation.distanceTo(previousLocation);
-//            ignore = shouldIgnoreLocationChange(currentLocation, previousLocation);
-
-            // Add point only if distance is greater that MINIMUM_LOCATIONS_DISTANCE
-            if (distance >= 0/* && !ignore*/) {
-                mLatLngs.add(latLng);
-                mRouteOptions.add(latLng);
-            }
+            mLatLngs.add(latLng);
+            mRouteOptions.add(latLng);
         }
 
-//        if (!ignore) {
         mRoute = mMap.addPolyline(mRouteOptions);
 
         // Remove previous marker
@@ -266,22 +257,6 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
         mLatLngs.clear();
     }
 
-//    private boolean shouldIgnoreLocationChange(Location oldLocation, Location newLocation) {
-//        if (oldLocation == null) {
-//            // didn't have any location before, so accept new
-//            return false;
-//        } else if (null == newLocation || !newLocation.hasAccuracy() || newLocation.getAccuracy() > 150) {
-//            // new location got invalid or too vague accuracy so ignore it
-//            return true;
-//        }
-//
-//        // ignore change if change is smaller then 3 meters and
-//        if (oldLocation.distanceTo(newLocation) < 3f && newLocation.getAccuracy() >= oldLocation.getAccuracy()) {
-//            return true;
-//        }
-//        return false;
-//    }
-
     protected Runnable mTimerTask = new Runnable() {
         public void run() {
             long unixTime = System.currentTimeMillis();
@@ -295,7 +270,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
             seconds = String.format("%1$" + 2 + "s", seconds).replace(' ', '0');
 
             String time = minutes + ":" + seconds;
-            mChronometer.setText("Tempo: " + time);
+            mChronometer.setText(time);
 
             if (mChronometer.getVisibility() == View.INVISIBLE) {
                 mChronometer.setVisibility(View.VISIBLE);

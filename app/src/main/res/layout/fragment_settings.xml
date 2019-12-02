@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".SettingsFragment">
 
     <LinearLayout
@@ -25,7 +24,7 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Tipo di mappa"
+                android:text="@string/map_type"
                 android:textColor="@android:color/black"
                 android:textSize="20sp" />
 
@@ -35,7 +34,6 @@
                 android:layout_height="50dp"
                 android:layout_weight="1"
                 android:gravity="right|center_vertical"
-                android:text="Normale"
                 android:textColor="@android:color/black"
                 android:textSize="20sp" />
 
@@ -46,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:height="50dp"
-            android:text="Simula GPS"
+            android:text="@string/simulate_gps"
             android:textSize="20sp" />
 
         <TextView
@@ -55,7 +53,7 @@
             android:layout_height="wrap_content"
             android:height="50dp"
             android:gravity="center_vertical"
-            android:text="Elimina dati"
+            android:text="@string/delete_data"
             android:textColor="@android:color/black"
             android:textSize="20sp" />
 

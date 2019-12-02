@@ -128,12 +128,12 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         public void onClick(View view) {
             // Use the Builder class for convenient dialog construction
             final EditText txtTrackName = new EditText(MainActivity.getContext());
-            txtTrackName.setHint("Track");
+            txtTrackName.setHint(R.string.track_name_hint);
 
             new AlertDialog.Builder(MainActivity.getContext())
                     .setMessage(R.string.track_name_message)
                     .setView(txtTrackName)
-                    .setPositiveButton(R.string.track_name_yes, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.track_name_confirm, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // Delete the route on the map
                             clear();
@@ -153,7 +153,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                             mTimerHandler.postDelayed(mTimerTask, 1000);
                         }
                     })
-                    .setNegativeButton(R.string.track_name_no, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.track_name_cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // Delete the route on the map
                             clear();

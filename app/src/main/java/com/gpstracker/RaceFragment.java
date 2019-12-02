@@ -115,14 +115,14 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
         mInfo = view.findViewById(R.id.info);
 
-        mDistance = view.findViewById(R.id.distance);
-        mSpeed = view.findViewById(R.id.speed);
+        mDistance = view.findViewById(R.id.distance_value);
+        mSpeed = view.findViewById(R.id.speed_value);
 
-        mGhostDistance = view.findViewById(R.id.ghost_distance);
-        mGhostSpeed = view.findViewById(R.id.ghost_speed);
+        mGhostDistance = view.findViewById(R.id.ghost_distance_value);
+        mGhostSpeed = view.findViewById(R.id.ghost_speed_value);
 
-        mDifference = view.findViewById(R.id.difference);
-        mChronometer = view.findViewById(R.id.chronometer);
+        mDifference = view.findViewById(R.id.difference_value);
+        mChronometer = view.findViewById(R.id.chronometer_value);
 
         mCenterPosition = view.findViewById(R.id.center_position);
         mCenterPosition.setOnClickListener(mCenterPositionClickListener);
@@ -306,6 +306,7 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
                             mTimerHandler.removeCallbacks(mTimerTask);
 
                             // Remove the session from the database
+                            // TODO: check why getSession() returns a null session
                             mDb.deleteSession(mGpsService.getSession().getId());
                         }
                     })
@@ -348,7 +349,8 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
                 mSpeed.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
 
                 int difference = mTraveledDistance - ghostTraveledDistance;
-                mDifference.setText("Differenza: " + String.valueOf(difference) + " m");
+                mDifference.setText(String.valueOf(difference) + " m");
+                mDifference.setTextColor(difference >= 0 ? Color.GREEN : Color.RED);
 
                 if (mInfo.getVisibility() == View.INVISIBLE) {
                     mInfo.setVisibility(View.VISIBLE);
