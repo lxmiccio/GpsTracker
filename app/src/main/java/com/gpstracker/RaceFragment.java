@@ -143,6 +143,14 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
         clear();
 
+        resetMap();
+    }
+
+    public void resetMap() {
+        mLatLngs.clear();
+        mMap.clear();
+
+        // Draw session
         if (mReferenceSession != null) {
             drawSession(mReferenceSession, Color.BLUE);
         } else {
@@ -245,22 +253,33 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
             // Stop location updates
             mGpsService.stopLocationUpdates();
 
+            // Save current session
+            mGpsService.saveCurrentSession();
+
             // Stop session timer
             mTimerHandler.removeCallbacks(mTimerTask);
         }
     }
 
+    private View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
+            if (trackPoint != null) {
+                centerCamera(trackPoint);
+            }
+        }
+    };
+
     private View.OnClickListener mStartRacingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            // Show stop racing button
+            // Show StopRacing button
             mStartRacing.hide();
             mStopRacing.show();
 
             // Reset map
-            mLatLngs.clear();
-            mMap.clear();
-            drawSession(mReferenceSession, Color.BLUE);
+            resetMap();
 
             mPreviousTrackPoint = null;
             mTraveledDistance = 0;
@@ -273,16 +292,6 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
             mGpsService.setTrack(mReferenceSessionTrack);
 
             mGpsService.startLocationUpdates();
-        }
-    };
-
-    private View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
-            if (trackPoint != null) {
-                centerCamera(trackPoint);
-            }
         }
     };
 
@@ -302,12 +311,14 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
                             // Stop location updates
                             mGpsService.stopLocationUpdates();
 
+                            // Discard current session
+                            mGpsService.discardCurrentSession();
+
                             // Stop session timer
                             mTimerHandler.removeCallbacks(mTimerTask);
 
-                            // Remove the session from the database
-                            // TODO: check why getSession() returns a null session
-                            mDb.deleteSession(mGpsService.getSession().getId());
+                            // Reset the map
+                            resetMap();
                         }
                     })
                     .setNegativeButton(R.string.no_message, new DialogInterface.OnClickListener() {

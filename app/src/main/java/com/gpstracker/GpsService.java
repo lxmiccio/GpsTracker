@@ -146,18 +146,28 @@ public class GpsService {
             mSimulationHandler = null;
         }
 
+        //Start low rate location updated
+        startLowRateLocationUpdated();
+    }
+
+    public void saveCurrentSession() {
         mSession.setEndingDate(new Date());
         mDb.updateSession(mSession);
 
 //        if (mSimulationHandler == null) {
-            GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mSession);
+        GpxHandler.saveGpx(MainActivity.getContext().getFilesDir(), mSession);
 //        }
 
         mTrack = null;
         mSession = null;
+    }
 
-        //Start low rate location updated
-        startLowRateLocationUpdated();
+    public void discardCurrentSession() {
+        mSession.setEndingDate(new Date());
+        mDb.deleteSession(mSession.getId());
+
+        mTrack = null;
+        mSession = null;
     }
 
     public TrackPoint getLatestTrackPoint() {

@@ -171,10 +171,13 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             mStopRecording.hide();
             mStartRecording.show();
 
-            // stop location updates
+            // Stop location updates
             mGpsService.stopLocationUpdates();
 
-            // stop session timer
+            // Save current session
+            mGpsService.saveCurrentSession();
+
+            // Stop session timer
             mTimerHandler.removeCallbacks(mTimerTask);
 
             refresh();
@@ -187,9 +190,9 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             mLatestTrackPoint = trackPoint;
 
             if (mGpsService.isTracking()) {
-                mLatitudeText.setText("Latitudine: " + String.valueOf(trackPoint.getLatitude()));
-                mLongitudeText.setText("Longitudine: " + String.valueOf(trackPoint.getLongitude()));
-                mSpeedText.setText("Velocità: " + String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
+                mLatitudeText.setText(String.valueOf(trackPoint.getLatitude()));
+                mLongitudeText.setText(String.valueOf(trackPoint.getLongitude()));
+                mSpeedText.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
 
                 if (mInfo.getVisibility() == View.INVISIBLE) {
                     mInfo.setVisibility(View.VISIBLE);
