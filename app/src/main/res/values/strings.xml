@@ -31,5 +31,8 @@
     <string name="simulate_gps">Simula GPS</string>
     <string name="delete_data">Elimina dati</string>
     <string name="tracks">Tracciati</string>
+    <string name="settings">Impostazioni</string>
+    <string name="tracks">Tracciati</string>
+    <string name="delete">Elimina</string>
 
 </resources>

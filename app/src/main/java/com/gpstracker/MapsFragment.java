@@ -53,6 +53,18 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     @Override
     public void onDetach() {
         super.onDetach();
+
+        if (mGpsService.isTracking()) {
+            // Stop location updates
+            mGpsService.stopLocationUpdates();
+
+            // Discard current session
+            mGpsService.discardCurrentSession();
+
+            // Stop session timer
+            mTimerHandler.removeCallbacks(mTimerTask);
+        }
+
         mGpsService.setGpsListener(null);
     }
 
