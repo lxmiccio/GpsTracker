@@ -22,6 +22,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     public final static String TAG = "MapsFragment";
     private static MapsFragment mInstance = null;
 
+    private boolean mCenterMapToUserPosition;
     private TrackPoint mLatestTrackPoint;
 
     private RelativeLayout mInfo;
@@ -35,6 +36,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
     public MapsFragment() {
         super();
+        mCenterMapToUserPosition = true;
     }
 
     public static MapsFragment getInstance() {
@@ -47,6 +49,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
         mGpsService.setGpsListener(mGpsListener);
     }
 
@@ -85,7 +88,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         }
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_google_maps, container, false);
+        return inflater.inflate(R.layout.recording_fragment, container, false);
     }
 
     @Override
@@ -94,10 +97,10 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
         mInfo = view.findViewById(R.id.info);
 
-        mLatitudeText = view.findViewById(R.id.latitude);
-        mLongitudeText = view.findViewById(R.id.longitude);
-        mSpeedText = view.findViewById(R.id.speed);
-        mChronometer = view.findViewById(R.id.chronometer);
+        mLatitudeText = view.findViewById(R.id.latitude_value);
+        mLongitudeText = view.findViewById(R.id.longitude_value);
+        mSpeedText = view.findViewById(R.id.speed_value);
+        mChronometer = view.findViewById(R.id.chronometer_value);
 
         mCenterPosition = view.findViewById(R.id.center_position);
         mCenterPosition.setOnClickListener(mCenterPositionClickListener);
@@ -115,8 +118,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
-        clear();
-        drawSessions(mDb.getAllSessions());
+        refresh();
     }
 
     public void refresh() {
@@ -145,7 +147,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
             new AlertDialog.Builder(MainActivity.getContext())
                     .setMessage(R.string.track_name_message)
                     .setView(txtTrackName)
-                    .setPositiveButton(R.string.track_name_confirm, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // Delete the route on the map
                             clear();
@@ -165,7 +167,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                             mTimerHandler.postDelayed(mTimerTask, 1000);
                         }
                     })
-                    .setNegativeButton(R.string.track_name_cancel, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // Delete the route on the map
                             clear();
@@ -213,6 +215,12 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                 drawPoint(trackPoint);
                 centerCamera(trackPoint);
             } else {
+                // The first time a TrackPoint is received, center the camera to the User position
+                if (mCenterMapToUserPosition) {
+                    mCenterMapToUserPosition = false;
+                    centerCamera(trackPoint);
+                }
+
                 drawMarker(trackPoint);
             }
         }

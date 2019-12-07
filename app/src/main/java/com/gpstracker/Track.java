@@ -15,19 +15,6 @@ public class Track {
 
     private ArrayList<Session> mSessions;
 
-    public Track() {
-        mId = -1;
-        mCreatedAt = new Date();
-        mSessions = new ArrayList<>();
-    }
-
-    public Track(String name) {
-        mId = -1;
-        mName = name;
-        mCreatedAt = new Date();
-        mSessions = new ArrayList<>();
-    }
-
     public Track(long id, String name, Date createdAt) {
         mId = id;
         mName = name;
@@ -53,14 +40,6 @@ public class Track {
             length = mSessions.get(0).getLength();
         }
         return length;
-    }
-
-    public ArrayList<Session> getSessions() {
-        return mSessions;
-    }
-
-    public void addSession(Session session) {
-        mSessions.add(session);
     }
 
     @Override

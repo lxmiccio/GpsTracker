@@ -16,9 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginRight="68dp"
+        android:layout_marginEnd="68dp"
         android:layout_marginBottom="17dp"
-        android:clickable="true"
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_record" />
 
@@ -27,9 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginRight="68dp"
+        android:layout_marginEnd="68dp"
         android:layout_marginBottom="17dp"
-        android:clickable="true"
         android:visibility="invisible"
         app:backgroundTint="@color/colorPrimary"
         app:srcCompat="@drawable/ic_stop_recording" />
@@ -39,9 +37,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginRight="136dp"
+        android:layout_marginEnd="136dp"
         android:layout_marginBottom="17dp"
-        android:clickable="true"
         android:src="@drawable/ic_my_position"
         app:backgroundTint="@color/colorPrimary" />
 
@@ -63,41 +60,85 @@
             android:src="@drawable/ic_overlay" />
 
         <TextView
-            android:id="@+id/latitude"
+            android:id="@+id/latitude_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
             android:layout_marginTop="10dp"
             android:elevation="10dp"
             android:text="@string/latitude"
             android:textColor="@color/colorLightGrey" />
 
         <TextView
-            android:id="@+id/longitude"
+            android:id="@+id/latitude_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/latitude_label"
+            android:elevation="10dp"
+            android:text="@string/latitude"
+            android:textColor="@color/colorLightGrey" />
+
+        <TextView
+            android:id="@+id/longitude_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:layout_marginTop="30dp"
             android:elevation="10dp"
             android:text="@string/longitude"
             android:textColor="@color/colorLightGrey" />
 
         <TextView
-            android:id="@+id/speed"
+            android:id="@+id/longitude_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="30dp"
+            android:layout_toEndOf="@+id/longitude_label"
+            android:elevation="10dp"
+            android:text="@string/longitude"
+            android:textColor="@color/colorLightGrey" />
+
+        <TextView
+            android:id="@+id/speed_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:layout_marginTop="50dp"
             android:elevation="10dp"
             android:text="@string/speed"
             android:textColor="@color/colorLightGrey" />
 
         <TextView
-            android:id="@+id/chronometer"
+            android:id="@+id/speed_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="50dp"
+            android:layout_toEndOf="@+id/speed_label"
+            android:elevation="10dp"
+            android:text="@string/speed"
+            android:textColor="@color/colorLightGrey" />
+
+        <TextView
+            android:id="@+id/chronometer_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
             android:layout_marginTop="70dp"
+            android:elevation="10dp"
+            android:text="@string/time"
+            android:textColor="@color/colorLightGrey" />
+
+        <TextView
+            android:id="@+id/chronometer_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="70dp"
+            android:layout_toEndOf="@+id/speed_label"
             android:elevation="10dp"
             android:text="@string/time"
             android:textColor="@color/colorLightGrey" />

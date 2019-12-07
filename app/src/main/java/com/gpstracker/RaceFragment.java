@@ -119,7 +119,7 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
         }
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_track, container, false);
+        return inflater.inflate(R.layout.racing_fragment, container, false);
     }
 
     @Override
@@ -159,9 +159,6 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     }
 
     public void resetMap() {
-        mLatLngs.clear();
-        mMap.clear();
-
         // Draw session
         if (mReferenceSession != null) {
             drawSession(mReferenceSession, Color.BLUE);
@@ -171,7 +168,9 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
         // Draw marker on the user position
         TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
-        drawMarker(trackPoint);
+        if (trackPoint != null) {
+            drawMarker(trackPoint);
+        }
     }
 
     public void setReferenceSessionTrack(Track referenceSessionTrack) {

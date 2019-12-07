@@ -3,12 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <item android:title="Lists">
+    <item android:title="@string/lists">
         <menu>
-            <item
-                android:id="@+id/nav_coordinates_list"
-                android:icon="@drawable/ic_coordinates_list"
-                android:title="Coordinates" />
             <item
                 android:id="@+id/nav_tracks_list"
                 android:icon="@drawable/ic_tracks_list"
@@ -16,7 +12,7 @@
         </menu>
     </item>
 
-    <item android:title="Settings">
+    <item android:title="@string/other">
         <menu>
             <item
                 android:id="@+id/nav_settings"

@@ -45,7 +45,7 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+        View view = inflater.inflate(R.layout.settings_fragment, container, false);
 
         mMapType = view.findViewById(R.id.map_type);
         mMapType.setOnClickListener(mMapTypeClickListener);
@@ -83,7 +83,7 @@ public class SettingsFragment extends Fragment {
             maps[3] = "Hybrid";
 
             new AlertDialog.Builder(MainActivity.getContext())
-                    .setTitle("Select map type")
+                    .setTitle(R.string.select_map_type)
                     .setItems(maps, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
@@ -91,7 +91,7 @@ public class SettingsFragment extends Fragment {
                             mSelectedMapType.setText(maps[id].toString());
                         }
                     })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.dismiss();
@@ -113,14 +113,14 @@ public class SettingsFragment extends Fragment {
                 }
 
                 new AlertDialog.Builder(MainActivity.getContext())
-                        .setTitle("Seleziona la traccia da simulare")
+                        .setTitle(R.string.select_session_to_simulate)
                         .setItems(sessionSequence, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 SettingsHandler.setSessionToSimulate(sessions.get(id).getId());
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.dismiss();
@@ -134,14 +134,14 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             new AlertDialog.Builder(MainActivity.getContext())
-                    .setTitle("Cancellare tutti i dati?")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    .setTitle(R.string.delete_all_data)
+                    .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             mDb.deleteAllTracks();
                         }
                     })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.dismiss();

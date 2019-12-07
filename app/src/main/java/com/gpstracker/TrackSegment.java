@@ -13,10 +13,6 @@ public class TrackSegment {
         mPoints = new ArrayList<>();
     }
 
-    public TrackSegment(ArrayList<TrackPoint> trkpts) {
-        mPoints = trkpts;
-    }
-
     public void appendPoint(TrackPoint point) {
         mPoints.add(point);
     }

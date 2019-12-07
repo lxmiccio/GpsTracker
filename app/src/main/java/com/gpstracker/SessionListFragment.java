@@ -47,7 +47,7 @@ public class SessionListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_session_list, container, false);
+        View view = inflater.inflate(R.layout.session_list_fragment, container, false);
 
         ArrayList<Session> sessions = mDb.getSessionsByTrack(mTrack.getId());
         mSessionAdapter = new SessionAdapter(sessions, MainActivity.getContext());

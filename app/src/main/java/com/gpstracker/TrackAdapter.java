@@ -39,7 +39,6 @@ public class TrackAdapter extends ArrayAdapter<Track> {
 
             viewHolder = new ViewHolder();
             viewHolder.name = convertView.findViewById(R.id.name);
-            viewHolder.length = convertView.findViewById(R.id.length);
             viewHolder.created_at = convertView.findViewById(R.id.created_at);
             convertView.setTag(viewHolder);
         } else {
@@ -50,7 +49,6 @@ public class TrackAdapter extends ArrayAdapter<Track> {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd\nHH:mm:ss", Locale.getDefault());
         viewHolder.name.setText(track.getName());
-        viewHolder.length.setText(track.getLength() + " m");
         viewHolder.created_at.setText(dateFormat.format(track.getCreatedAt()));
 
         return convertView;
@@ -95,7 +93,6 @@ public class TrackAdapter extends ArrayAdapter<Track> {
 
     private class ViewHolder {
         public TextView name;
-        public TextView length;
         public TextView created_at;
     }
 }

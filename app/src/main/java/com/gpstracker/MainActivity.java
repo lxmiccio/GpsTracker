@@ -2,10 +2,8 @@ package com.gpstracker;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
@@ -24,18 +22,15 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    static final int SMS_PERMISSION_CODE = 1;
     static final int PHONE_ACCESS_FINE_LOCATION = 4;
     static final int PHONE_ACCESS_COARSE_LOCATION = 5;
 
     static Context mContext;
     private MapsFragment mMapsFragment;
-    private CoordinateListFragment mCoordinatesListFragment;
     private TrackListFragment mTrackListFragment;
     private SettingsFragment mSettingsFragment;
 
     private GpsService mGpsService;
-    private SmsBroadcastReceiver mSmsBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,15 +61,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .addToBackStack(MapsFragment.TAG)
                         .commit();
             }
-        }
-
-        Log.d("MainActivity", "smsPermission is " + isSmsPermissionGranted());
-        if (!isSmsPermissionGranted()) {
-            Log.d("MainActivity", "smsPermission denied, requesting it");
-            requestReadAndSendSmsPermission();
-        } else {
-            Log.d("MainActivity", "smsPermission granted, registering SmsBroadcastReceiver");
-            registerSmsBroadcastReceiver();
         }
 
         Log.d("MainActivity", "accessFineLocationPermission is " + isAccessFineLocationPermissionGranted());
@@ -146,17 +132,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         int id = item.getItemId();
-        if (id == R.id.nav_coordinates_list) {
-            if (mCoordinatesListFragment == null) {
-                mCoordinatesListFragment = CoordinateListFragment.getInstance();
-            } else {
-                mCoordinatesListFragment.refresh();
-            }
-
-            supportFragmentTransaction.replace(R.id.fragment_container, mCoordinatesListFragment)
-                    .addToBackStack(CoordinateListFragment.TAG)
-                    .commit();
-        } else if (id == R.id.nav_tracks_list) {
+        if (id == R.id.nav_tracks_list) {
             if (mTrackListFragment == null) {
                 mTrackListFragment = TrackListFragment.getInstance();
             } else {
@@ -180,26 +156,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    private void startRecording() {
-        mGpsService.startLocationUpdates();
-    }
-
-    private void stopRecording() {
-        mGpsService.stopLocationUpdates();
-    }
-
-    private boolean isSmsPermissionGranted() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestReadAndSendSmsPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECEIVE_SMS)) {
-            // You may display a non-blocking explanation here, read more in the documentation:
-            // https://developer.android.com/training/permissions/requesting.html
-        }
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECEIVE_SMS}, SMS_PERMISSION_CODE);
     }
 
     private boolean isAccessFineLocationPermissionGranted() {
@@ -228,45 +184,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        Log.d("MainActivity", "Permission request code is " + requestCode);
         switch (requestCode) {
-            case SMS_PERMISSION_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    registerSmsBroadcastReceiver();
-                } else {
-                    // Permission denied
-                    unregisterReceiver(mSmsBroadcastReceiver);
-                }
-                return;
-            }
             case PHONE_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
-                    mGpsService.startLocationUpdates();
+                    Log.d("MainActivity", "Location permission granted");
                 }
                 return;
             }
         }
-    }
-
-    private void registerSmsBroadcastReceiver() {
-        mSmsBroadcastReceiver = new SmsBroadcastReceiver();
-        registerReceiver(mSmsBroadcastReceiver, new IntentFilter(Telephony.Sms.Intents.SMS_RECEIVED_ACTION));
-        mSmsBroadcastReceiver.setSmsListener(new SmsListener() {
-            @Override
-            public void onSmsReceived(String sender, String text) {
-                Log.d("MainActivity", "sender is " + sender + ", message is " + text);
-                if (text.equals("enable")) {
-                    startRecording();
-                } else if (text.equals("disable")) {
-                    stopRecording();
-                } else {
-                    Log.d("MainActivity", "Message text ignored");
-                }
-            }
-        });
     }
 
     public static Context getContext() {

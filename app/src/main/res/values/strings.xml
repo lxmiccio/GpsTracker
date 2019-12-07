@@ -4,8 +4,8 @@
 
     <string name="track_name_message">Inserisci il nome del tracciato</string>
     <string name="track_name_hint">Tracciato</string>
-    <string name="track_name_confirm">Conferma</string>
-    <string name="track_name_cancel">Annulla</string>
+    <string name="confirm">Conferma</string>
+    <string name="cancel">Annulla</string>
 
     <string name="quit_race_message">Vuoi terminare la gara? (La sessione non verrà registrata)</string>
     <string name="yes_message">Si</string>
@@ -32,7 +32,11 @@
     <string name="delete_data">Elimina dati</string>
     <string name="tracks">Tracciati</string>
     <string name="settings">Impostazioni</string>
-    <string name="tracks">Tracciati</string>
     <string name="delete">Elimina</string>
+    <string name="select_map_type">Seleziona il tipo di mappa</string>
+    <string name="select_session_to_simulate">Seleziona la sessione da simulare</string>
+    <string name="delete_all_data">Cancellare tutti i dati?</string>
+    <string name="lists">Liste</string>
+    <string name="other">Altro</string>
 
 </resources>

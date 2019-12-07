@@ -1,8 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:background="?android:attr/activatedBackgroundIndicator"
     android:orientation="horizontal"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:theme="@style/AppTheme.SelectedListItem">
 
     <TextView
@@ -10,20 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:gravity="left|center_vertical"
-        android:paddingLeft="20dp"
+        android:gravity="start|center_vertical"
+        android:paddingStart="20dp"
         android:text="Nome"
-        android:textSize="20sp" />
-
-
-    <TextView
-        android:id="@+id/length"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:paddingLeft="20dp"
-        android:text="10000 m"
         android:textSize="20sp" />
 
     <TextView
@@ -31,8 +20,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:gravity="right|center_vertical"
-        android:paddingRight="20dp"
+        android:gravity="end|center_vertical"
+        android:paddingEnd="20dp"
         android:text="2019-28-11 22:48:36"
         android:textSize="17sp" />
 </LinearLayout>
