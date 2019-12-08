@@ -129,6 +129,27 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         }
     }
 
+    private void finishRecording(boolean save) {
+        mInfo.setVisibility(View.INVISIBLE);
+
+        mStopRecording.hide();
+        mStartRecording.show();
+
+        // Stop location updates
+        mGpsService.stopLocationUpdates();
+
+        // Stop session timer
+        mTimerHandler.removeCallbacks(mTimerTask);
+
+        if (save) {
+            mGpsService.saveCurrentSession();
+        } else {
+            mGpsService.discardCurrentSession();
+        }
+
+        refresh();
+    }
+
     private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -143,7 +164,6 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                         public void onClick(DialogInterface dialog, int id) {
                             // Delete the route on the map
                             clear();
-
 
                             mPreviousTrackPoint = null;
                             mTraveledDistance = 0;
@@ -176,21 +196,25 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private View.OnClickListener mStopRecordingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            mInfo.setVisibility(View.INVISIBLE);
-
-            mStopRecording.hide();
-            mStartRecording.show();
-
-            // Stop location updates
-            mGpsService.stopLocationUpdates();
-
-            // Save current session
-            mGpsService.saveCurrentSession();
-
-            // Stop session timer
-            mTimerHandler.removeCallbacks(mTimerTask);
-
-            refresh();
+            if (mGpsService.getSession().getLength() >= 10) {
+                // Save current session
+                finishRecording(true);
+            } else {
+                // Discard current session if shorten than 10 m
+                new AlertDialog.Builder(MainActivity.getContext())
+                        .setTitle(R.string.discard_track)
+                        .setMessage(R.string.track_minimum_length)
+                        .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finishRecording(false);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                            }
+                        }).show();
+            }
         }
     };
 

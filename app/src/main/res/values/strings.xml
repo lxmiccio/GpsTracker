@@ -47,5 +47,8 @@
     <string name="hybrid">Ibrida</string>
     <string name="starting_point_of">Inizio di</string>
     <string name="ending_point_of">Fine di</string>
+    <string name="invalid_recording">Registrazione invalida</string>
+    <string name="discard_track">Scartare il tracciato?</string>
+    <string name="track_minimum_length">Il tracciato deve essere lungo almeno 10 metri</string>
 
 </resources>
