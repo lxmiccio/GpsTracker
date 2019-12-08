@@ -17,10 +17,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
-public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallback {
+public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyCallback {
 
-    public final static String TAG = "MapsFragment";
-    private static MapsFragment mInstance = null;
+    public final static String TAG = "RecordingFragment";
+    private static RecordingFragment mInstance = null;
 
     private boolean mCenterMapToUserPosition;
 
@@ -34,14 +34,14 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private FloatingActionButton mStartRecording;
     private FloatingActionButton mStopRecording;
 
-    public MapsFragment() {
+    public RecordingFragment() {
         super();
         mCenterMapToUserPosition = true;
     }
 
-    public static MapsFragment getInstance() {
+    public static RecordingFragment getInstance() {
         if (mInstance == null) {
-            mInstance = new MapsFragment();
+            mInstance = new RecordingFragment();
         }
         return mInstance;
     }
@@ -165,9 +165,6 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                             // Delete the route on the map
                             clear();
 
-                            mPreviousTrackPoint = null;
-                            mTraveledDistance = 0;
-
                             // Show stop recording button
                             mStartRecording.hide();
                             mStopRecording.show();
@@ -222,12 +219,8 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         @Override
         public void onLocationReceived(TrackPoint trackPoint) {
             if (mGpsService.isTracking()) {
-                if (mPreviousTrackPoint != null) {
-                    mTraveledDistance += trackPoint.distanceTo(mPreviousTrackPoint);
-                } else {
-                    mTraveledDistance = 0;
-                }
-                mPreviousTrackPoint = trackPoint;
+                // Update traveled distance
+                updateTraveledDistance(trackPoint);
 
                 mLatitudeText.setText(String.valueOf(trackPoint.getLatitude()));
                 mLongitudeText.setText(String.valueOf(trackPoint.getLongitude()));

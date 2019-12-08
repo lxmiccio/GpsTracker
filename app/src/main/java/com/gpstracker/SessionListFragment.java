@@ -27,7 +27,7 @@ public class SessionListFragment extends Fragment {
     private Track mTrack;
     private DatabaseHelper mDb;
 
-    private RaceFragment mRaceFragment;
+    private RacingFragment mRacingFragment;
 
     public SessionListFragment() {
         mDb = DatabaseHelper.getInstance();
@@ -58,16 +58,16 @@ public class SessionListFragment extends Fragment {
                 ArrayList<Session> sessions = mSessionAdapter.getSessions();
                 Session session = sessions.get(position);
 
-                mRaceFragment = RaceFragment.getInstance();
-                mRaceFragment.setReferenceSessionTrack(mTrack);
-                mRaceFragment.setReferenceSession(session);
+                mRacingFragment = RacingFragment.getInstance();
+                mRacingFragment.setReferenceSessionTrack(mTrack);
+                mRacingFragment.setReferenceSession(session);
 
                 FragmentManager supportFragmentManager = getFragmentManager();
                 FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
 
                 // Add fragment to BackStack so that when the back button is pressed, the inner fragment is removed
-                supportFragmentTransaction.replace(R.id.fragment_container, mRaceFragment, RaceFragment.TAG)
-                        .addToBackStack(RaceFragment.TAG)
+                supportFragmentTransaction.replace(R.id.fragment_container, mRacingFragment, RacingFragment.TAG)
+                        .addToBackStack(RacingFragment.TAG)
                         .commit();
             }
         });

@@ -246,6 +246,18 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
     public void clear() {
         mMap.clear();
         mLatLngs.clear();
+
+        mPreviousTrackPoint = null;
+        mTraveledDistance = 0;
+    }
+
+    protected void updateTraveledDistance(TrackPoint trackPoint) {
+        if (mPreviousTrackPoint != null) {
+            mTraveledDistance += trackPoint.distanceTo(mPreviousTrackPoint);
+        } else {
+            mTraveledDistance = 0;
+        }
+        mPreviousTrackPoint = trackPoint;
     }
 
     protected View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {

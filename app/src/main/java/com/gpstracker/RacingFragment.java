@@ -31,10 +31,10 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallback {
+public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCallback {
 
-    public final static String TAG = "RaceFragment";
-    private static RaceFragment mInstance = null;
+    public final static String TAG = "RacingFragment";
+    private static RacingFragment mInstance = null;
 
     private Polyline mGhostRoute;
     private PolylineOptions mGhostRouteOptions;
@@ -55,24 +55,15 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private FloatingActionButton mStartRacing;
     private FloatingActionButton mStopRacing;
 
-    public RaceFragment() {
+    public RacingFragment() {
         super();
     }
 
-    public static RaceFragment getInstance() {
+    public static RacingFragment getInstance() {
         if (mInstance == null) {
-            mInstance = new RaceFragment();
+            mInstance = new RacingFragment();
         }
         return mInstance;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mGhostLatLngs = new ArrayList<>();
-        mPreviousTrackPoint = null;
-        mTraveledDistance = 0;
     }
 
     @Override
@@ -149,24 +140,25 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     @Override
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
-
-        clear();
-
         resetMap();
     }
 
     public void resetMap() {
-        // Draw session
-        if (mReferenceSession != null) {
-            drawSession(mReferenceSession, Color.BLUE);
-        } else {
-            Log.w("RaceFragment", "Track is null");
-        }
+        if (mMap != null) {
+            clear();
 
-        // Draw marker on the user position
-        TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
-        if (trackPoint != null) {
-            drawMarker(trackPoint);
+            // Draw session
+            if (mReferenceSession != null) {
+                drawSession(mReferenceSession, Color.BLUE);
+            } else {
+                Log.w("RacingFragment", "Track is null");
+            }
+
+            // Draw marker on the user position
+            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
+            if (trackPoint != null) {
+                drawMarker(trackPoint);
+            }
         }
     }
 
@@ -234,7 +226,7 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private void updateStartRacingButton(TrackPoint trackPoint) {
         //Evaluate distance from starting line
         float distanceFromStartingLine = trackPoint.distanceTo(mReferenceSession.getPoints().get(0));
-        Log.d("RaceFragment", "Distance from starting line is " + distanceFromStartingLine + " m");
+        Log.d("RacingFragment", "Distance from starting line is " + distanceFromStartingLine + " m");
 
         //Enable StartRacing button only if the user is close to the starting line
         mStartRacing.setEnabled(distanceFromStartingLine <= 10);
@@ -248,7 +240,7 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private void detectRaceFinished(TrackPoint trackPoint) {
         // Evaluate distance from finish line
         float distanceFromFinishLine = trackPoint.distanceTo(mReferenceSession.getPoints().get(mReferenceSession.getPoints().size() - 1));
-        Log.d("RaceFragment", "Distance from finish line is " + distanceFromFinishLine + " m");
+        Log.d("RacingFragment", "Distance from finish line is " + distanceFromFinishLine + " m");
 
         // Race is finished only if the user is close to the finish line and the traveled distance is similar to the reference one
         if (distanceFromFinishLine <= 10 && Math.abs(mReferenceSession.getLength() - mTraveledDistance) <= 10) {
@@ -278,9 +270,6 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
             // Reset map
             resetMap();
-
-            mPreviousTrackPoint = null;
-            mTraveledDistance = 0;
 
             // Start session timer
             mStartingTime = System.currentTimeMillis();
@@ -347,12 +336,8 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
                     mGhostSpeed.setText(String.valueOf(Double.valueOf(closestPoint.getSpeed()).intValue()) + " km/h");
                 }
 
-                if (mPreviousTrackPoint != null) {
-                    mTraveledDistance += trackPoint.distanceTo(mPreviousTrackPoint);
-                } else {
-                    mTraveledDistance = 0;
-                }
-                mPreviousTrackPoint = trackPoint;
+                // Update traveled distance
+                updateTraveledDistance(trackPoint);
 
                 mDistance.setText(String.valueOf(mTraveledDistance) + " m");
                 mSpeed.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");

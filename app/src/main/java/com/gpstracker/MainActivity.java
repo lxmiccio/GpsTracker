@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     static final int PHONE_ACCESS_COARSE_LOCATION = 5;
 
     static Context mContext;
-    private MapsFragment mMapsFragment;
+    private RecordingFragment mRecordingFragment;
     private TrackListFragment mTrackListFragment;
     private SettingsFragment mSettingsFragment;
 
@@ -54,11 +54,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState == null) {
-                mMapsFragment = MapsFragment.getInstance();
-                mMapsFragment.setArguments(getIntent().getExtras());
+                mRecordingFragment = RecordingFragment.getInstance();
+                mRecordingFragment.setArguments(getIntent().getExtras());
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, mMapsFragment)
-                        .addToBackStack(MapsFragment.TAG)
+                        .add(R.id.fragment_container, mRecordingFragment)
+                        .addToBackStack(RecordingFragment.TAG)
                         .commit();
             }
         }
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager supportFragmentManager = getSupportFragmentManager();
         FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
 
-        // Removes all the fragments except MapsFragment
+        // Removes all the fragments except RecordingFragment
         while (getSupportFragmentManager().getBackStackEntryCount() > 1) {
             getSupportFragmentManager().popBackStackImmediate();
         }
