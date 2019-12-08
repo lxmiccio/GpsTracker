@@ -34,14 +34,6 @@ public class Track {
         return mName;
     }
 
-    public int getLength() {
-        int length = 0;
-        if (mSessions.size() > 0) {
-            length = mSessions.get(0).getLength();
-        }
-        return length;
-    }
-
     @Override
     public String toString() {
         return "Track {" + '\'' + mName + '\'' + '\'' + mCreatedAt + '\'' + '}';

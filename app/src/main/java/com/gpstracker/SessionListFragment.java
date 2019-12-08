@@ -30,7 +30,6 @@ public class SessionListFragment extends Fragment {
     private RaceFragment mRaceFragment;
 
     public SessionListFragment() {
-        // Required empty public constructor
         mDb = DatabaseHelper.getInstance();
     }
 
@@ -102,8 +101,10 @@ public class SessionListFragment extends Fragment {
                                 mSessionAdapter.remove(selectedItem);
                             }
                         }
-                        // Close CAB
+
+                        // Close the menu
                         mode.finish();
+
                         return true;
                     default:
                         return false;
@@ -117,21 +118,19 @@ public class SessionListFragment extends Fragment {
 
             @Override
             public void onItemCheckedStateChanged(android.view.ActionMode mode, int position, long id, boolean checked) {
-
                 // Capture total checked items
                 final int checkedCount = mListView.getCheckedItemCount();
-                // Set the CAB title according to total checked items
-                mode.setTitle(checkedCount + " Selected");
+
+                // Set the title according to total checked items
+                String text = " " + (checkedCount == 1 ? getString(R.string.selected_element) : getString(R.string.selected_elements));
+                mode.setTitle(checkedCount + text);
+
                 // Calls toggleSelection method from ListViewAdapter Class
                 mSessionAdapter.toggleSelection(position);
             }
         });
 
         return view;
-    }
-
-    public void setTrack(Track track) {
-        mTrack = track;
     }
 
     @Override
@@ -142,5 +141,9 @@ public class SessionListFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    public void setTrack(Track track) {
+        mTrack = track;
     }
 }

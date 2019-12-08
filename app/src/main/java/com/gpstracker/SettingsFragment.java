@@ -77,10 +77,10 @@ public class SettingsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             final CharSequence maps[] = new CharSequence[4];
-            maps[0] = "Normal";
-            maps[1] = "Satellite";
-            maps[2] = "Terrain";
-            maps[3] = "Hybrid";
+            maps[0] = getString(R.string.normal);
+            maps[1] = getString(R.string.satellite);
+            maps[2] = getString(R.string.terrain);
+            maps[3] = getString(R.string.hybrid);
 
             new AlertDialog.Builder(MainActivity.getContext())
                     .setTitle(R.string.select_map_type)

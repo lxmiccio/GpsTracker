@@ -40,6 +40,9 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
     protected Handler mTimerHandler;
     protected TextView mChronometer;
 
+    protected TrackPoint mPreviousTrackPoint;
+    protected int mTraveledDistance;
+
     protected DatabaseHelper mDb;
     protected GpsService mGpsService;
 
@@ -156,16 +159,6 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
         mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
     }
 
-    public void drawPoints(ArrayList<TrackPoint> points) {
-        for (TrackPoint iPoint : points) {
-            drawPoint(iPoint);
-        }
-    }
-
-    public void drawSession(Session session) {
-        drawSession(session, Color.BLACK);
-    }
-
     public void drawSession(Session session, int color) {
         PolylineOptions polylineOptions = new PolylineOptions();
         polylineOptions.color(color);
@@ -187,7 +180,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
                 circleDrawable.setBounds(0, 0, 100, 100);
                 circleDrawable.draw(canvas);
 
-                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Inizio di " + session.getName()));
+                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title(getString(R.string.starting_point_of) + session.getName()));
             } else if (i == points.size() - 1) {
                 // Draw marker at current point
                 Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_ending_point);
@@ -198,7 +191,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
                 circleDrawable.setBounds(0, 0, 100, 100);
                 circleDrawable.draw(canvas);
 
-                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title("Fine di " + session.getName()));
+                mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng).title(getString(R.string.ending_point_of) + session.getName()));
             }
         }
 
@@ -235,16 +228,16 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
 
     public void setMapType(String type) {
         switch (type) {
-            case "Normal":
+            case "Normale":
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 break;
-            case "Satellite":
+            case "Satellitare":
                 mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                 break;
-            case "Terrain":
+            case "Rilievo":
                 mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 break;
-            case "Hybrid":
+            case "Ibrida":
                 mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 break;
         }
@@ -252,10 +245,18 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
 
     public void clear() {
         mMap.clear();
-        mMarker = null;
-
         mLatLngs.clear();
     }
+
+    protected View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
+            if (trackPoint != null) {
+                centerCamera(trackPoint);
+            }
+        }
+    };
 
     protected Runnable mTimerTask = new Runnable() {
         public void run() {

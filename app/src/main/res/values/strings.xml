@@ -38,5 +38,14 @@
     <string name="delete_all_data">Cancellare tutti i dati?</string>
     <string name="lists">Liste</string>
     <string name="other">Altro</string>
+    <string name="selected_element">elemento selezionato</string>
+    <string name="selected_elements">elementi selezionati</string>
+
+    <string name="normal">Normale</string>
+    <string name="satellite">Satellitare</string>
+    <string name="terrain">Rilievo</string>
+    <string name="hybrid">Ibrida</string>
+    <string name="starting_point_of">Inizio di</string>
+    <string name="ending_point_of">Fine di</string>
 
 </resources>

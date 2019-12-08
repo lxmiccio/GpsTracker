@@ -29,7 +29,7 @@ public class TrackListFragment extends Fragment {
     private SessionListFragment mSessionListFragment;
 
     public TrackListFragment() {
-        // Required empty public constructor
+        mDb = DatabaseHelper.getInstance();
     }
 
     public static TrackListFragment getInstance() {
@@ -40,7 +40,6 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDb = DatabaseHelper.getInstance();
     }
 
     @Override
@@ -69,7 +68,7 @@ public class TrackListFragment extends Fragment {
                         .commit();
             }
         });
-        //mListView.setBackgroundResource(R.drawable.list_selected_item);
+        mListView.setBackgroundResource(R.drawable.list_selected_item);
 
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
@@ -100,8 +99,10 @@ public class TrackListFragment extends Fragment {
                                 mTrackAdapter.remove(selectedItem);
                             }
                         }
-                        // Close CAB
+
+                        // Close the menu
                         mode.finish();
+
                         return true;
                     default:
                         return false;
@@ -115,23 +116,19 @@ public class TrackListFragment extends Fragment {
 
             @Override
             public void onItemCheckedStateChanged(android.view.ActionMode mode, int position, long id, boolean checked) {
-
                 // Capture total checked items
                 final int checkedCount = mListView.getCheckedItemCount();
-                // Set the CAB title according to total checked items
-                mode.setTitle(checkedCount + " Selected");
+
+                // Set the title according to total checked items
+                String text = " " + (checkedCount == 1 ? getString(R.string.selected_element) : getString(R.string.selected_elements));
+                mode.setTitle(checkedCount + text);
+
                 // Calls toggleSelection method from ListViewAdapter Class
                 mTrackAdapter.toggleSelection(position);
             }
         });
 
         return view;
-    }
-
-    public void refresh() {
-        ArrayList<Track> tracks = mDb.getAllTracks();
-        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
-        mListView.setAdapter(mTrackAdapter);
     }
 
     @Override
@@ -142,5 +139,11 @@ public class TrackListFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    public void refresh() {
+        ArrayList<Track> tracks = mDb.getAllTracks();
+        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
+        mListView.setAdapter(mTrackAdapter);
     }
 }

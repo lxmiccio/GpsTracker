@@ -44,9 +44,6 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private Track mReferenceSessionTrack;
     private Session mReferenceSession;
 
-    private TrackPoint mPreviousTrackPoint;
-    private int mTraveledDistance;
-
     private RelativeLayout mInfo;
     private TextView mDistance;
     private TextView mSpeed;
@@ -271,16 +268,6 @@ public class RaceFragment extends GoogleMapsFragment implements OnMapReadyCallba
             mTimerHandler.removeCallbacks(mTimerTask);
         }
     }
-
-    private View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
-            if (trackPoint != null) {
-                centerCamera(trackPoint);
-            }
-        }
-    };
 
     private View.OnClickListener mStartRacingClickListener = new View.OnClickListener() {
         @Override

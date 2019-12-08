@@ -33,4 +33,5 @@
         android:paddingEnd="20dp"
         android:text="2019-28-11 22:48:36"
         android:textSize="20sp" />
+
 </LinearLayout>

@@ -276,13 +276,15 @@ public class GpsService {
                         mGpsListener.onLocationReceived(point);
                     }
 
-                    mSession.appendPoint(point);
-                    mDb.createCoordinate(point, mSession.getId());
+                    if (mSession != null) {
+                        mSession.appendPoint(point);
+                        mDb.createCoordinate(point, mSession.getId());
 
-                    if (mSimulationPoints.size() > 0) {
-                        TrackPoint nextPoint = mSimulationPoints.get(0);
-                        long diffTime = nextPoint.getTime() - point.getTime();
-                        mSimulationHandler.postDelayed(mSimulationTask, diffTime);
+                        if (mSimulationPoints.size() > 0) {
+                            TrackPoint nextPoint = mSimulationPoints.get(0);
+                            long diffTime = nextPoint.getTime() - point.getTime();
+                            mSimulationHandler.postDelayed(mSimulationTask, diffTime);
+                        }
                     }
                 } else {
                     stopLocationUpdates();

@@ -23,11 +23,11 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private static MapsFragment mInstance = null;
 
     private boolean mCenterMapToUserPosition;
-    private TrackPoint mLatestTrackPoint;
 
     private RelativeLayout mInfo;
     private TextView mLatitudeText;
     private TextView mLongitudeText;
+    private TextView mDistanceText;
     private TextView mSpeedText;
 
     private FloatingActionButton mCenterPosition;
@@ -99,6 +99,7 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
 
         mLatitudeText = view.findViewById(R.id.latitude_value);
         mLongitudeText = view.findViewById(R.id.longitude_value);
+        mDistanceText = view.findViewById(R.id.distance_value);
         mSpeedText = view.findViewById(R.id.speed_value);
         mChronometer = view.findViewById(R.id.chronometer_value);
 
@@ -128,15 +129,6 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
         }
     }
 
-    private View.OnClickListener mCenterPositionClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (mLatestTrackPoint != null) {
-                centerCamera(mLatestTrackPoint);
-            }
-        }
-    };
-
     private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -151,6 +143,10 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
                         public void onClick(DialogInterface dialog, int id) {
                             // Delete the route on the map
                             clear();
+
+
+                            mPreviousTrackPoint = null;
+                            mTraveledDistance = 0;
 
                             // Show stop recording button
                             mStartRecording.hide();
@@ -201,11 +197,17 @@ public class MapsFragment extends GoogleMapsFragment implements OnMapReadyCallba
     private GpsListener mGpsListener = new GpsListener() {
         @Override
         public void onLocationReceived(TrackPoint trackPoint) {
-            mLatestTrackPoint = trackPoint;
-
             if (mGpsService.isTracking()) {
+                if (mPreviousTrackPoint != null) {
+                    mTraveledDistance += trackPoint.distanceTo(mPreviousTrackPoint);
+                } else {
+                    mTraveledDistance = 0;
+                }
+                mPreviousTrackPoint = trackPoint;
+
                 mLatitudeText.setText(String.valueOf(trackPoint.getLatitude()));
                 mLongitudeText.setText(String.valueOf(trackPoint.getLongitude()));
+                mDistanceText.setText(String.valueOf(mTraveledDistance) + " m");
                 mSpeedText.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
 
                 if (mInfo.getVisibility() == View.INVISIBLE) {
