@@ -27,9 +27,6 @@ public class TrackPoint {
     @Element(name = "name", required = false)
     private String mName;
 
-    public TrackPoint() {
-    }
-
     public TrackPoint(double altitude, float bearing, double latitude, double longitude, float speed, long time) {
         mAltitude = altitude;
         mBearing = bearing;

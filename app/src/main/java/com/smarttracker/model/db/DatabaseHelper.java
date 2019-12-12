@@ -6,10 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.smarttracker.view.activities.MainActivity;
 import com.smarttracker.model.Session;
 import com.smarttracker.model.Track;
 import com.smarttracker.model.TrackPoint;
+import com.smarttracker.view.activities.MainActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise db won't update
+    // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise database won't update
     private static final int DATABASE_VERSION = 194;
 
     // Database Name
@@ -35,10 +35,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_CREATED_AT = "created_at";
     private static final String KEY_STARTED_AT = "started_at";
     private static final String KEY_FINISHED_AT = "finished_at";
-    private static final String KEY_TRACK_NAME = "name";
-    private static final String KEY_SESSION_TRACK_ID = "track_id";
-    private static final String KEY_SESSION_NAME = "name";
-    private static final String KEY_SESSION_LENGTH = "length";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_LENGTH = "length";
+    private static final String KEY_TRACK_ID = "track_id";
     private static final String KEY_SESSION_ID = "session_id";
     private static final String KEY_ALTITUDE = "altitude";
     private static final String KEY_BEARING = "bearing";
@@ -50,19 +49,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Coordinates table create statement
     private static final String CREATE_TABLE_TRACK = "CREATE TABLE "
             + TABLE_TRACK + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + KEY_TRACK_NAME + " VARCHAR,"
+            + KEY_NAME + " VARCHAR,"
             + KEY_CREATED_AT + " DATETIME)";
 
     // Coordinates table create statement
     private static final String CREATE_TABLE_SESSION = "CREATE TABLE "
             + TABLE_SESSION + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + KEY_SESSION_NAME + " VARCHAR,"
-            + KEY_SESSION_LENGTH + " NUMBER,"
+            + KEY_NAME + " VARCHAR,"
+            + KEY_LENGTH + " NUMBER,"
             + KEY_STARTED_AT + " DATETIME,"
             + KEY_FINISHED_AT + " DATETIME,"
-            + KEY_CREATED_AT + " DATETIME,"
-            + KEY_SESSION_TRACK_ID + " INTEGER,"
-            + " FOREIGN KEY (" + KEY_SESSION_TRACK_ID + ") REFERENCES " + TABLE_TRACK + " (" + KEY_ID + ") ON DELETE CASCADE)";
+            + KEY_TRACK_ID + " INTEGER,"
+            + " FOREIGN KEY (" + KEY_TRACK_ID + ") REFERENCES " + TABLE_TRACK + " (" + KEY_ID + ") ON DELETE CASCADE)";
 
     // Coordinates table create statement
     private static final String CREATE_TABLE_COORDINATE = "CREATE TABLE "
@@ -121,14 +119,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String currentDateTime = getCurrentDateTime();
 
         ContentValues trackValues = new ContentValues();
-        trackValues.put(KEY_TRACK_NAME, name);
+        trackValues.put(KEY_NAME, name);
         trackValues.put(KEY_CREATED_AT, currentDateTime);
 
-        // insert row
+        // Insert a new Track
         long trackId = db.insert(TABLE_TRACK, null, trackValues);
 
+        // Creates a new Track with the given id
         Date createdAt = getDateTime(currentDateTime);
         Track track = new Track(trackId, name, createdAt);
+
         return track;
     }
 
@@ -140,24 +140,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String currentDate = dateFormat.format(date);
         String name = track.getName() + "_" + currentDate;
 
-        ContentValues sessionValues = new ContentValues();
-        sessionValues.put(KEY_SESSION_NAME, name);
-        sessionValues.put(KEY_SESSION_LENGTH, 0);
-        sessionValues.put(KEY_STARTED_AT, getCurrentDateTime());
-        sessionValues.put(KEY_FINISHED_AT, getCurrentDateTime());
-        sessionValues.put(KEY_CREATED_AT, getCurrentDateTime());
-        sessionValues.put(KEY_SESSION_TRACK_ID, track.getId());
+        String currentDateTime = getCurrentDateTime();
 
-        // insert row
+        ContentValues sessionValues = new ContentValues();
+        sessionValues.put(KEY_NAME, name);
+        sessionValues.put(KEY_LENGTH, 0);
+        sessionValues.put(KEY_STARTED_AT, currentDateTime);
+        sessionValues.put(KEY_FINISHED_AT, currentDateTime);
+        sessionValues.put(KEY_TRACK_ID, track.getId());
+
+        // Insert a new Session
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
 
-        String currentDateTime = getCurrentDateTime();
+        // Creates a new Session with the given id
         Date createdAt = getDateTime(currentDateTime);
         Session session = new Session(sessionId, name, createdAt, createdAt);
 
         return session;
     }
-    
+
     public long createCoordinate(TrackPoint point, long sessionId) {
         SQLiteDatabase db = getWritableDatabase();
 
@@ -171,7 +172,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_CREATED_AT, getCurrentDateTime());
         values.put(KEY_SESSION_ID, sessionId);
 
-        // insert row
+        // Insert a new Coordinate
         long id = db.insert(TABLE_COORDINATE, null, values);
 
         return id;
@@ -184,13 +185,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_TRACK;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
+        // Looping through all the Tracks
         if (cursor.moveToFirst()) {
             do {
                 long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
-                String name = cursor.getString(cursor.getColumnIndex(KEY_TRACK_NAME));
+                String name = cursor.getString(cursor.getColumnIndex(KEY_NAME));
                 Date createdAt = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_CREATED_AT)));
-                ArrayList<TrackPoint> points = getCoordinatesByTrackId(id);
 
                 Track track = new Track(id, name, createdAt);
                 tracks.add(track);
@@ -209,17 +209,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_SESSION;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
+        // Looping through all the Sessions
         if (cursor.moveToFirst()) {
             do {
-                long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
-                String name = cursor.getString(cursor.getColumnIndex(KEY_SESSION_NAME));
-                Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
-                Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
-                ArrayList<TrackPoint> points = getCoordinatesByTrackId(id);
-
-                Session session = new Session(id, name, startingDate, endingDate);
-                session.setPoints(points);
+                Session session = parseSession(cursor);
                 sessions.add(session);
             } while (cursor.moveToNext());
         }
@@ -227,54 +220,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return sessions;
     }
-    
-    public ArrayList<TrackPoint> getAllCoordinates() {
-        ArrayList<TrackPoint> coordinates = new ArrayList();
 
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + TABLE_COORDINATE;
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                double altitude = cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE));
-                float bearing = cursor.getFloat(cursor.getColumnIndex(KEY_BEARING));
-                double latitude = cursor.getDouble(cursor.getColumnIndex(KEY_LATITUDE));
-                double longitude = cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE));
-                float speed = cursor.getFloat(cursor.getColumnIndex(KEY_SPEED));
-                long time = cursor.getLong(cursor.getColumnIndex(KEY_TIME));
-                Date date = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_CREATED_AT)));
-
-                TrackPoint coordinate = new TrackPoint(altitude, bearing, latitude, longitude, speed, time);
-                coordinates.add(coordinate);
-
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-
-        return coordinates;
-    }
-
-    public Session getSession(long sessionId) {
+    public Session getSessionById(long sessionId) {
         Session session = null;
 
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_ID + " = " + sessionId;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
+        // Looping through all the Sessions
         if (cursor.moveToFirst()) {
             do {
-                long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
-                String name = cursor.getString(cursor.getColumnIndex(KEY_SESSION_NAME));
-                Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
-                Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
-                ArrayList<TrackPoint> points = getCoordinatesByTrackId(id);
-
-                session = new Session(id, name, startingDate, endingDate);
-                session.setPoints(points);
-
+                session = parseSession(cursor);
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -282,26 +239,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return session;
     }
 
-    public ArrayList<Session> getSessionsByTrack(long trackId) {
+    public ArrayList<Session> getSessionsByTrackId(long trackId) {
         ArrayList<Session> sessions = new ArrayList();
 
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_SESSION_TRACK_ID + " = " + trackId;
+        String selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_TRACK_ID + " = " + trackId;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
+        // Looping through all the Sessions
         if (cursor.moveToFirst()) {
             do {
-                long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
-                String name = cursor.getString(cursor.getColumnIndex(KEY_SESSION_NAME));
-                Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
-                Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
-                ArrayList<TrackPoint> points = getCoordinatesByTrackId(id);
-
-                Session session = new Session(id, name, startingDate, endingDate);
-                session.setPoints(points);
+                Session session = parseSession(cursor);
                 sessions.add(session);
-
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -309,7 +258,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sessions;
     }
 
-    public ArrayList<TrackPoint> getCoordinatesByTrackId(long id) {
+    public ArrayList<TrackPoint> getCoordinatesBySessionId(long id) {
         ArrayList<TrackPoint> coordinates = new ArrayList();
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -339,7 +288,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void updateSession(Session session) {
         SQLiteDatabase db = this.getReadableDatabase();
-        db.execSQL("UPDATE " + TABLE_SESSION + " SET " + KEY_SESSION_LENGTH + " = " + session.getLength() + ", " + KEY_FINISHED_AT + " = '" + getDateTime(session.getEndingDate()) + "' WHERE id = " + session.getId());
+        db.execSQL("UPDATE " + TABLE_SESSION + " SET " + KEY_LENGTH + " = " + session.getLength() + ", " + KEY_FINISHED_AT + " = '" + getDateTime(session.getEndingDate()) + "' WHERE id = " + session.getId());
+    }
+
+    public void deleteTrack(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_TRACK + " WHERE " + KEY_ID + " = " + id);
+        db.close();
     }
 
     public void deleteAllTracks() {
@@ -350,30 +305,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deleteTrack(long id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_TRACK + " WHERE " + KEY_ID + " = " + id);
-        db.close();
-    }
-
     public void deleteSession(long id) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // Remove the Coordinates related to the Session to delete
         db.execSQL("DELETE FROM " + TABLE_COORDINATE + " WHERE " + KEY_SESSION_ID + " = " + id);
 
+        // Retrieve the track id of the Session to delete
         String selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_ID + " = " + id;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through rows to retrieve the track id
         long trackId = -1;
         if (cursor.moveToFirst()) {
-            trackId = cursor.getLong(cursor.getColumnIndex(KEY_SESSION_TRACK_ID));
+            trackId = cursor.getLong(cursor.getColumnIndex(KEY_TRACK_ID));
         }
 
+        // Delete the Session
         db.execSQL("DELETE FROM " + TABLE_SESSION + " WHERE " + KEY_ID + " = " + id);
 
-        selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_SESSION_TRACK_ID + " = " + trackId;
+        // Get the count of remaining Sessions for the Track
+        selectQuery = "SELECT * FROM " + TABLE_SESSION + " WHERE " + KEY_TRACK_ID + " = " + trackId;
         cursor = db.rawQuery(selectQuery, null);
 
+        // If the Track has no Sessions, delete it
         if (cursor.getCount() == 0) {
             db.execSQL("DELETE FROM " + TABLE_TRACK + " WHERE " + KEY_ID + " = " + trackId);
         }
@@ -385,7 +339,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues trackValues = new ContentValues();
-        trackValues.put(KEY_TRACK_NAME, name);
+        trackValues.put(KEY_NAME, name);
         trackValues.put(KEY_CREATED_AT, getDateTime(date));
 
         // insert row
@@ -401,12 +355,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         ContentValues sessionValues = new ContentValues();
-        sessionValues.put(KEY_SESSION_NAME, session.getNameWithDate());
-        sessionValues.put(KEY_SESSION_LENGTH, session.getLength());
+        sessionValues.put(KEY_NAME, session.getNameWithDate());
+        sessionValues.put(KEY_LENGTH, session.getLength());
         sessionValues.put(KEY_STARTED_AT, dateFormat.format(session.getStartingDate()));
         sessionValues.put(KEY_FINISHED_AT, dateFormat.format(session.getEndingDate()));
         sessionValues.put(KEY_CREATED_AT, dateFormat.format(session.getStartingDate()));
-        sessionValues.put(KEY_SESSION_TRACK_ID, track.getId());
+        sessionValues.put(KEY_TRACK_ID, track.getId());
 
         // insert row
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
@@ -435,6 +389,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long id = db.insert(TABLE_COORDINATE, null, values);
 
         //return id;
+    }
+
+    private Session parseSession(Cursor cursor) {
+        long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
+        String name = cursor.getString(cursor.getColumnIndex(KEY_NAME));
+        Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
+        Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
+        ArrayList<TrackPoint> points = getCoordinatesBySessionId(id);
+
+        Session session = new Session(id, name, startingDate, endingDate);
+        session.setPoints(points);
+
+        return session;
     }
 
     private String getCurrentDateTime() {

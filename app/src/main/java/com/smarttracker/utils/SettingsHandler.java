@@ -8,33 +8,38 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class SettingsHandler {
 
+    private static final String SHARED_PREFERENCE_NAME = "settings";
+    private static final String MAP_TYPE_KEY = "MapType";
+    private static final String GPS_SIMULATION_ENABLED_KEY = "GpsSimulationEnabled";
+    private static final String GPS_SESSION_TO_SIMULATE_KEY = "GpsSessionToSimulate";
+
     public static String getMapType() {
-        return MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getString("MapType", "Normal");
+        return MainActivity.getContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE).getString(MAP_TYPE_KEY, "Normale");
     }
 
     public static void setMapType(String mapType) {
-        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).edit();
-        editor.putString("MapType", mapType);
+        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE).edit();
+        editor.putString(MAP_TYPE_KEY, mapType);
         editor.apply();
     }
 
     public static boolean isGpsSimulationEnabled() {
-        return MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getBoolean("isGpsSimulationEnabled", false);
+        return MainActivity.getContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE).getBoolean(GPS_SIMULATION_ENABLED_KEY, false);
     }
 
     public static void setGpsSimulationEnabled(boolean enabled) {
-        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).edit();
-        editor.putBoolean("isGpsSimulationEnabled", enabled);
+        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE).edit();
+        editor.putBoolean(GPS_SIMULATION_ENABLED_KEY, enabled);
         editor.apply();
     }
 
     public static long getSessionToSimulate() {
-        return MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).getLong("SessionToSimulate", -1);
+        return MainActivity.getContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE).getLong(GPS_SESSION_TO_SIMULATE_KEY, -1);
     }
 
     public static void setSessionToSimulate(long sessionId) {
-        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences("settings", MODE_PRIVATE).edit();
-        editor.putLong("SessionToSimulate", sessionId);
+        SharedPreferences.Editor editor = MainActivity.getContext().getSharedPreferences(SHARED_PREFERENCE_NAME, MODE_PRIVATE).edit();
+        editor.putLong(GPS_SESSION_TO_SIMULATE_KEY, sessionId);
         editor.apply();
     }
 }

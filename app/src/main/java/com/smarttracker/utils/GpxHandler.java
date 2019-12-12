@@ -46,9 +46,9 @@ public class GpxHandler {
         ArrayList<String> tracksList = new ArrayList<>();
         File[] files = new File(path).listFiles();
         if (files != null) {
-            for (File iFile : files) {
-                if (iFile.getAbsolutePath().endsWith(".gpx")) {
-                    String name = iFile.getAbsolutePath();
+            for (File file : files) {
+                if (file.getAbsolutePath().endsWith(".gpx")) {
+                    String name = file.getAbsolutePath();
                     name = name.substring(name.lastIndexOf("/") + 1);
                     name = name.substring(0, name.length() - 4);
                     tracksList.add(name);

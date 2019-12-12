@@ -8,9 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.smarttracker.model.db.DatabaseHelper;
 import com.smarttracker.R;
-import com.smarttracker.model.Track;
+import com.smarttracker.model.db.DatabaseHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,16 +17,16 @@ import java.util.Locale;
 
 public class TrackAdapter extends ArrayAdapter<Track> {
 
-    private ArrayList<Track> mDataSet;
-    private SparseBooleanArray mSelectedItems;
+    private ArrayList<Track> mTracks;
+    private SparseBooleanArray mSelectedTracks;
 
     private DatabaseHelper mDb;
 
     public TrackAdapter(ArrayList<Track> data, Context context) {
         super(context, R.layout.track_row, data);
 
-        mDataSet = data;
-        mSelectedItems = new SparseBooleanArray();
+        mTracks = data;
+        mSelectedTracks = new SparseBooleanArray();
 
         mDb = DatabaseHelper.getInstance();
     }
@@ -60,39 +59,36 @@ public class TrackAdapter extends ArrayAdapter<Track> {
 
     @Override
     public void remove(Track track) {
-        mDataSet.remove(track);
+        mTracks.remove(track);
         notifyDataSetChanged();
 
         mDb.deleteTrack(track.getId());
     }
 
     public void toggleSelection(int position) {
-        selectView(position, !mSelectedItems.get(position));
+        selectView(position, !mSelectedTracks.get(position));
     }
 
     public void removeSelection() {
-        mSelectedItems = new SparseBooleanArray();
+        mSelectedTracks = new SparseBooleanArray();
         notifyDataSetChanged();
     }
 
     public void selectView(int position, boolean value) {
-        if (value)
-            mSelectedItems.put(position, value);
-        else
-            mSelectedItems.delete(position);
+        if (value) {
+            mSelectedTracks.put(position, value);
+        } else {
+            mSelectedTracks.delete(position);
+        }
         notifyDataSetChanged();
     }
 
-    public int getSelectedCount() {
-        return mSelectedItems.size();
-    }
-
-    public SparseBooleanArray getSelectedIds() {
-        return mSelectedItems;
-    }
-
     public ArrayList<Track> getTracks() {
-        return mDataSet;
+        return mTracks;
+    }
+
+    public SparseBooleanArray getSelectedTracks() {
+        return mSelectedTracks;
     }
 
     private class ViewHolder {

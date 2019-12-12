@@ -17,13 +17,13 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.smarttracker.model.db.DatabaseHelper;
-import com.smarttracker.utils.GpxHandler;
-import com.smarttracker.view.activities.MainActivity;
 import com.smarttracker.model.Session;
-import com.smarttracker.utils.SettingsHandler;
 import com.smarttracker.model.Track;
 import com.smarttracker.model.TrackPoint;
+import com.smarttracker.model.db.DatabaseHelper;
+import com.smarttracker.utils.GpxHandler;
+import com.smarttracker.utils.SettingsHandler;
+import com.smarttracker.view.activities.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -129,7 +129,7 @@ public class GpsService {
             mSimulationHandler = new Handler();
 
             long sessionId = SettingsHandler.getSessionToSimulate();
-            Session session = mDb.getSession(sessionId);
+            Session session = mDb.getSessionById(sessionId);
             if (session != null) {
                 mSimulationPoints = session.getPoints();
 

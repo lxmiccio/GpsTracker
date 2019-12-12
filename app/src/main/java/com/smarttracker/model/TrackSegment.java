@@ -13,16 +13,16 @@ public class TrackSegment {
         mPoints = new ArrayList<>();
     }
 
+    public ArrayList<TrackPoint> getTrackPoints() {
+        return mPoints;
+    }
+
     public void appendPoint(TrackPoint point) {
         mPoints.add(point);
     }
 
     public void appendPoints(ArrayList<TrackPoint> points) {
         mPoints.addAll(points);
-    }
-
-    public ArrayList<TrackPoint> getTrackPoints() {
-        return mPoints;
     }
 
     @Override

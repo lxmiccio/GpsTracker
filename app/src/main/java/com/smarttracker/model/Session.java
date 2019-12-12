@@ -15,14 +15,14 @@ public class Session {
     @Element(name = "id")
     private long mId;
 
-    @Element(name = "startingDate")
-    private Date mStartingDate;
-
-    @Element(name = "endingDate")
-    private Date mEndingDate;
-
     @Element(name = "name")
     private String mName;
+
+    @Element(name = "time")
+    private Date mStartingDate;
+
+//    @Element(name = "endingDate")
+    private Date mEndingDate;
 
     @Element(name = "trkseg")
     private TrackSegment mTrackSegment;
@@ -62,8 +62,6 @@ public class Session {
 
             length += a.distanceTo(b);
         }
-
-        Log.d("Track", "Track length is " + length);
 
         return (int) length;
     }
@@ -121,49 +119,8 @@ public class Session {
         return closestPoint;
     }
 
-    public TrackPoint getClosestTrackPoint(TrackPoint point) {
-        TrackPoint closestPoint = null;
-        int minDistance = Integer.MAX_VALUE;
-
-        ArrayList<TrackPoint> points = mTrackSegment.getTrackPoints();
-        for (int i = 0; i < points.size() - 1; ++i) {
-            Location a = new Location("");
-            Location b = new Location("");
-
-            a.setLatitude(points.get(i).getLatitude());
-            a.setLongitude(points.get(i).getLongitude());
-
-            b.setLatitude(point.getLatitude());
-            b.setLongitude(point.getLongitude());
-
-            int distance = (int) a.distanceTo(b);
-            if (distance < minDistance) {
-                closestPoint = points.get(i);
-                minDistance = distance;
-            }
-        }
-
-        return closestPoint;
-    }
-
     public long getId() {
         return mId;
-    }
-
-    public Date getStartingDate() {
-        return mStartingDate;
-    }
-
-    public Date getEndingDate() {
-        return mEndingDate;
-    }
-
-    public void setEndingDate(Date endingDate) {
-        mEndingDate = endingDate;
-    }
-
-    public TrackSegment getTrackSegment() {
-        return mTrackSegment;
     }
 
     public String getName() {
@@ -178,6 +135,18 @@ public class Session {
 
     public void setName(String name) {
         mName = name;
+    }
+
+    public Date getStartingDate() {
+        return mStartingDate;
+    }
+
+    public Date getEndingDate() {
+        return mEndingDate;
+    }
+
+    public void setEndingDate(Date endingDate) {
+        mEndingDate = endingDate;
     }
 
     public ArrayList<TrackPoint> getPoints() {

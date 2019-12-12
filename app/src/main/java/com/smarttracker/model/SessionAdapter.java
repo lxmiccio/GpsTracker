@@ -8,24 +8,23 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.smarttracker.model.db.DatabaseHelper;
 import com.smarttracker.R;
-import com.smarttracker.model.Session;
+import com.smarttracker.model.db.DatabaseHelper;
 
 import java.util.ArrayList;
 
 public class SessionAdapter extends ArrayAdapter<Session> {
 
-    private ArrayList<Session> mDataSet;
-    private SparseBooleanArray mSelectedItems;
+    private ArrayList<Session> mSessions;
+    private SparseBooleanArray mSelectedSessions;
 
     private DatabaseHelper mDb;
 
     public SessionAdapter(ArrayList<Session> data, Context context) {
         super(context, R.layout.session_row, data);
 
-        mDataSet = data;
-        mSelectedItems = new SparseBooleanArray();
+        mSessions = data;
+        mSelectedSessions = new SparseBooleanArray();
 
         mDb = DatabaseHelper.getInstance();
     }
@@ -64,39 +63,36 @@ public class SessionAdapter extends ArrayAdapter<Session> {
 
     @Override
     public void remove(Session session) {
-        mDataSet.remove(session);
+        mSessions.remove(session);
         notifyDataSetChanged();
 
         mDb.deleteSession(session.getId());
     }
 
     public void toggleSelection(int position) {
-        selectView(position, !mSelectedItems.get(position));
+        selectView(position, !mSelectedSessions.get(position));
     }
 
     public void removeSelection() {
-        mSelectedItems = new SparseBooleanArray();
+        mSelectedSessions = new SparseBooleanArray();
         notifyDataSetChanged();
     }
 
     public void selectView(int position, boolean value) {
-        if (value)
-            mSelectedItems.put(position, value);
-        else
-            mSelectedItems.delete(position);
+        if (value) {
+            mSelectedSessions.put(position, value);
+        } else {
+            mSelectedSessions.delete(position);
+        }
         notifyDataSetChanged();
     }
 
-    public int getSelectedCount() {
-        return mSelectedItems.size();
-    }
-
-    public SparseBooleanArray getSelectedIds() {
-        return mSelectedItems;
-    }
-
     public ArrayList<Session> getSessions() {
-        return mDataSet;
+        return mSessions;
+    }
+
+    public SparseBooleanArray getSelectedSessions() {
+        return mSelectedSessions;
     }
 
     private class ViewHolder {

@@ -15,11 +15,11 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.smarttracker.model.db.DatabaseHelper;
-import com.smarttracker.view.activities.MainActivity;
 import com.smarttracker.R;
 import com.smarttracker.model.Track;
 import com.smarttracker.model.TrackAdapter;
+import com.smarttracker.model.db.DatabaseHelper;
+import com.smarttracker.view.activities.MainActivity;
 
 import java.util.ArrayList;
 
@@ -93,8 +93,8 @@ public class TrackListFragment extends Fragment {
             public boolean onActionItemClicked(android.view.ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.delete:
-                        // Calls getSelectedIds method from ListViewAdapter Class
-                        SparseBooleanArray selected = mTrackAdapter.getSelectedIds();
+                        // Calls getSelectedTracks method from ListViewAdapter Class
+                        SparseBooleanArray selected = mTrackAdapter.getSelectedTracks();
 
                         // Captures all selected ids with a loop
                         for (int i = (selected.size() - 1); i >= 0; i--) {

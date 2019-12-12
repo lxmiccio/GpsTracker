@@ -15,12 +15,12 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.smarttracker.model.db.DatabaseHelper;
-import com.smarttracker.model.SessionAdapter;
-import com.smarttracker.view.activities.MainActivity;
 import com.smarttracker.R;
 import com.smarttracker.model.Session;
+import com.smarttracker.model.SessionAdapter;
 import com.smarttracker.model.Track;
+import com.smarttracker.model.db.DatabaseHelper;
+import com.smarttracker.view.activities.MainActivity;
 
 import java.util.ArrayList;
 
@@ -55,7 +55,7 @@ public class SessionListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.session_list_fragment, container, false);
 
-        ArrayList<Session> sessions = mDb.getSessionsByTrack(mTrack.getId());
+        ArrayList<Session> sessions = mDb.getSessionsByTrackId(mTrack.getId());
         mSessionAdapter = new SessionAdapter(sessions, MainActivity.getContext());
         mListView = view.findViewById(R.id.session_list);
         mListView.setAdapter(mSessionAdapter);
@@ -96,8 +96,8 @@ public class SessionListFragment extends Fragment {
             public boolean onActionItemClicked(android.view.ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.delete:
-                        // Calls getSelectedIds method from ListViewAdapter Class
-                        SparseBooleanArray selected = mSessionAdapter.getSelectedIds();
+                        // Calls getSelectedTracks method from ListViewAdapter Class
+                        SparseBooleanArray selected = mSessionAdapter.getSelectedSessions();
 
                         // Captures all selected ids with a loop
                         for (int i = (selected.size() - 1); i >= 0; i--) {
