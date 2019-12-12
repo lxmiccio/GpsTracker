@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.gpstracker">
+    package="com.smarttracker">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -17,7 +17,7 @@
             android:value="AIzaSyAZTnhHTUOuoZ9tGIqhuSZUsdi0ba9Y_v4" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.smarttracker.view.activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
