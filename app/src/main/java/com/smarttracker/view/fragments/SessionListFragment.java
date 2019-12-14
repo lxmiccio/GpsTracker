@@ -71,7 +71,7 @@ public class SessionListFragment extends Fragment {
         mTrack = track;
     }
 
-    protected AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             ArrayList<Session> sessions = mSessionAdapter.getSessions();
@@ -91,7 +91,7 @@ public class SessionListFragment extends Fragment {
         }
     };
 
-    protected AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
+    private AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
         @Override
         public boolean onCreateActionMode(android.view.ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.list_multiselection_menu, menu);
