@@ -52,5 +52,7 @@
     <string name="track_minimum_length">Il tracciato deve essere lungo almeno 10 metri</string>
     <string name="location_permission_request">Permessi di posizione necessari</string>
     <string name="location_permission_reason">L\'applicazione necessita dei permessi di posizione</string>
+    <string name="simulation_speed">Velocità Simulazione</string>
+    <string name="kilometers_per_hour">km/h</string>
 
 </resources>

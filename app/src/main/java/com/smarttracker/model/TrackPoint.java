@@ -77,6 +77,10 @@ public class TrackPoint {
         return mTime;
     }
 
+    public void setTime(long time) {
+        mTime = time;
+    }
+
     @Override
     public String toString() {
         return "TrackPoint {" + mAltitude + "," + mBearing + ", " + mLatitude + ", " + mLongitude + ", " + mSpeed + '}';

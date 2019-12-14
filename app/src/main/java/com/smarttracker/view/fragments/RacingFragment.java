@@ -83,15 +83,9 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
     public void onDetach() {
         super.onDetach();
 
+        // Discard Session if a Race is in progress
         if (mGpsService.isTracking()) {
-            // Stop location updates
-            mGpsService.stopLocationUpdates();
-
-            // Discard current session
-            mGpsService.discardCurrentSession();
-
-            // Stop session timer
-            mTimerHandler.removeCallbacks(mTimerTask);
+            finishRacing(false);
         }
 
         mGpsService.setGpsListener(null);
@@ -119,6 +113,7 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         mInfo = view.findViewById(R.id.info);
 
@@ -137,9 +132,6 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
         mStartRacing = view.findViewById(R.id.start_racing);
         mStartRacing.setOnClickListener(mStartRacingClickListener);
 
-        TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
-        updateStartRacingButton(trackPoint);
-
         mStopRacing = view.findViewById(R.id.stop_racing);
         mStopRacing.setOnClickListener(mStopRacingClickListener);
     }
@@ -150,10 +142,10 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
         resetMap();
     }
 
+    @Override
     public void resetMap() {
+        super.resetMap();
         if (mMap != null) {
-            clear();
-
             // Draw session
             if (mReferenceSession != null) {
                 drawSession(mReferenceSession, Color.BLUE);
@@ -161,11 +153,15 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
                 Log.w("RacingFragment", "Track is null");
             }
 
-            // Draw marker on the user position
-            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
-            if (trackPoint != null) {
-                drawMarker(trackPoint);
+            // Remove ghost marker
+            if (mGhostMarker != null) {
+                mGhostMarker.remove();
+                mGhostMarker = null;
             }
+
+            // Check if the user is close to the starting line
+            TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
+            updateStartRacingButton(trackPoint);
         }
     }
 
@@ -175,6 +171,31 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
 
     public void setReferenceSession(Session referenceSession) {
         mReferenceSession = referenceSession;
+    }
+
+    private void finishRacing(boolean save) {
+        mStopRacing.hide();
+        mStartRacing.show();
+
+        // Hide information about race
+        mInfo.setVisibility(View.INVISIBLE);
+
+        // Stop location updates
+        mGpsService.stopLocationUpdates();
+
+        // Stop timer
+        mTimerHandler.removeCallbacks(mTimerTask);
+
+        if (save) {
+            // Save current session
+            mGpsService.saveCurrentSession();
+        } else {
+            // Discard current session
+            mGpsService.discardCurrentSession();
+        }
+
+        // Reset the map
+        resetMap();
     }
 
     public void drawGhostPoint(TrackPoint point) {
@@ -250,45 +271,34 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
         Log.d("RacingFragment", "Distance from finish line is " + distanceFromFinishLine + " m");
 
         // Race is finished only if the user is close to the finish line and the traveled distance is similar to the reference one
-        if (distanceFromFinishLine <= 10 && Math.abs(mReferenceSession.getLength() - mTraveledDistance) <= 10) {
-            mStopRacing.hide();
-            mStartRacing.show();
-
-            // Hide information about race
-            mInfo.setVisibility(View.INVISIBLE);
-
-            // Stop location updates
-            mGpsService.stopLocationUpdates();
-
-            // Save current session
-            mGpsService.saveCurrentSession();
-
-            // Stop session timer
-            mTimerHandler.removeCallbacks(mTimerTask);
+        if (distanceFromFinishLine <= 10 /* && Math.abs(mReferenceSession.getLength() - mTraveledDistance) <= 10 */) {
+            finishRacing(true);
         }
     }
 
     private View.OnClickListener mStartRacingClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            // Reset the map
+            resetMap();
+
             // Show StopRacing button
             mStartRacing.hide();
             mStopRacing.show();
 
-            // Reset map
-            resetMap();
-
             // Reset the previous point
             mPreviousTrackPoint = null;
 
-            // Start session timer
+            // Set the racing track
+            mGpsService.setTrack(mReferenceSessionTrack);
+
+            // Start location updates
+            mGpsService.startLocationUpdates();
+
+            // Start timer
             mStartingTime = System.currentTimeMillis();
             mTimerHandler.removeCallbacks(mTimerTask);
             mTimerHandler.postDelayed(mTimerTask, 1000);
-
-            mGpsService.setTrack(mReferenceSessionTrack);
-
-            mGpsService.startLocationUpdates();
         }
     };
 
@@ -299,23 +309,7 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
                     .setMessage(R.string.quit_race_message)
                     .setPositiveButton(R.string.yes_message, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            mStopRacing.hide();
-                            mStartRacing.show();
-
-                            // Hide information about race
-                            mInfo.setVisibility(View.INVISIBLE);
-
-                            // Stop location updates
-                            mGpsService.stopLocationUpdates();
-
-                            // Discard current session
-                            mGpsService.discardCurrentSession();
-
-                            // Stop session timer
-                            mTimerHandler.removeCallbacks(mTimerTask);
-
-                            // Reset the map
-                            resetMap();
+                            finishRacing(false);
                         }
                     })
                     .setNegativeButton(R.string.no_message, new DialogInterface.OnClickListener() {
@@ -323,6 +317,7 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
                             // Do nothing
                         }
                     })
+                    .setCancelable(false)
                     .show();
         }
     };
@@ -330,39 +325,46 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
     private GpsListener mGpsListener = new GpsListener() {
         @Override
         public void onLocationReceived(TrackPoint trackPoint) {
-            // Draw marker on the user position
-            drawMarker(trackPoint);
-
             if (mGpsService.isTracking()) {
+                // Update track and user position
                 drawPoint(trackPoint);
                 centerCamera(trackPoint);
 
+                // Update traveled distance and speed
+                updateTraveledDistance(trackPoint);
+                mDistance.setText(String.valueOf(mTraveledDistance) + " m");
+                mSpeed.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " " + getString(R.string.kilometers_per_hour));
+
+                // Update ghost traveled distance
                 int ghostTraveledDistance = mReferenceSession.getTraveledDistance(trackPoint.getTime());
                 mGhostDistance.setText(String.valueOf(ghostTraveledDistance) + " m");
 
+                // Evaluate the ghost position at the current time
                 TrackPoint closestPoint = mReferenceSession.getClosestTrackPoint(trackPoint.getTime());
                 if (closestPoint != null) {
+                    // Update ghost position
                     drawGhostPoint(closestPoint);
-                    mGhostSpeed.setText(String.valueOf(Double.valueOf(closestPoint.getSpeed()).intValue()) + " km/h");
+
+                    // Update ghost speed
+                    mGhostSpeed.setText(String.valueOf(Double.valueOf(closestPoint.getSpeed()).intValue()) + " " + getString(R.string.kilometers_per_hour));
                 }
 
-                // Update traveled distance
-                updateTraveledDistance(trackPoint);
-
-                mDistance.setText(String.valueOf(mTraveledDistance) + " m");
-                mSpeed.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
-
+                // Update difference between current session and reference session
                 int difference = mTraveledDistance - ghostTraveledDistance;
                 mDifference.setText(String.valueOf(difference) + " m");
                 mDifference.setTextColor(difference >= 0 ? Color.GREEN : Color.RED);
 
+                // Show information about race
                 if (mInfo.getVisibility() == View.INVISIBLE) {
                     mInfo.setVisibility(View.VISIBLE);
                 }
 
-                // Check if user reached the finish line
+                // Check if user crossed the finish line
                 detectRaceFinished(trackPoint);
             } else {
+                // Update user position
+                drawMarker(trackPoint);
+
                 // Update StartRacing button
                 updateStartRacingButton(trackPoint);
             }

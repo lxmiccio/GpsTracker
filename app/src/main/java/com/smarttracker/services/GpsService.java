@@ -292,6 +292,10 @@ public class GpsService {
                     if (mSimulationPoints.size() > 0) {
                         mSimulationPoints.remove(0);
 
+                        float simulationSpeed = SettingsHandler.getSimulationSpeed();
+                        point.setSpeed((long) (point.getSpeed() * simulationSpeed));
+                        point.setTime((long) (point.getTime() / simulationSpeed));
+
                         mGpsListener.onLocationReceived(point);
 
                         if (mSession != null) {
@@ -300,7 +304,8 @@ public class GpsService {
 
                             if (mSimulationPoints.size() > 0) {
                                 TrackPoint nextPoint = mSimulationPoints.get(0);
-                                long diffTime = nextPoint.getTime() - point.getTime();
+                                long diffTime = (long) (nextPoint.getTime() / simulationSpeed) - point.getTime();
+                                diffTime = (long) (diffTime / simulationSpeed);
                                 mSimulationHandler.postDelayed(mSimulationTask, diffTime);
                             }
                         }

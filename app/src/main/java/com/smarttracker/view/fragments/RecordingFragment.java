@@ -16,10 +16,10 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.smarttracker.view.activities.MainActivity;
 import com.smarttracker.R;
-import com.smarttracker.services.GpsListener;
 import com.smarttracker.model.TrackPoint;
+import com.smarttracker.services.GpsListener;
+import com.smarttracker.view.activities.MainActivity;
 
 public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyCallback {
 
@@ -53,7 +53,6 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         mGpsService.setGpsListener(mGpsListener);
     }
 
@@ -61,15 +60,9 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
     public void onDetach() {
         super.onDetach();
 
+        // Discard Session if a Recording is in progress
         if (mGpsService.isTracking()) {
-            // Stop location updates
-            mGpsService.stopLocationUpdates();
-
-            // Discard current session
-            mGpsService.discardCurrentSession();
-
-            // Stop session timer
-            mTimerHandler.removeCallbacks(mTimerTask);
+            finishRecording(false);
         }
 
         mGpsService.setGpsListener(null);
@@ -123,35 +116,41 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
     @Override
     public void onMapReady(GoogleMap googleMap) {
         super.onMapReady(googleMap);
-        refresh();
+        resetMap();
     }
 
-    public void refresh() {
+    @Override
+    public void resetMap() {
+        super.resetMap();
         if (mMap != null) {
-            clear();
+            // Draw all sessions
             drawSessions(mDb.getAllSessions());
         }
     }
 
     private void finishRecording(boolean save) {
-        mInfo.setVisibility(View.INVISIBLE);
-
         mStopRecording.hide();
         mStartRecording.show();
+
+        // Hide information about race
+        mInfo.setVisibility(View.INVISIBLE);
 
         // Stop location updates
         mGpsService.stopLocationUpdates();
 
-        // Stop session timer
+        // Stop timer
         mTimerHandler.removeCallbacks(mTimerTask);
 
         if (save) {
+            // Save current session
             mGpsService.saveCurrentSession();
         } else {
+            // Discard current session
             mGpsService.discardCurrentSession();
         }
 
-        refresh();
+        // Reset the map
+        resetMap();
     }
 
     private View.OnClickListener mStartRecordingClickListener = new View.OnClickListener() {
@@ -166,17 +165,18 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
                     .setView(txtTrackName)
                     .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // Delete the route on the map
-                            clear();
+                            // Reset the map
+                            resetMap();
 
                             // Show stop recording button
                             mStartRecording.hide();
                             mStopRecording.show();
 
-                            mGpsService.createTrack(txtTrackName.getText().toString());
-
                             // Reset the previous point
                             mPreviousTrackPoint = null;
+
+                            // Create a new track
+                            mGpsService.createTrack(txtTrackName.getText().toString());
 
                             // Start location updates
                             mGpsService.startLocationUpdates();
@@ -189,8 +189,8 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // Delete the route on the map
-                            clear();
+                            // Reset the map
+                            resetMap();
                         }
                     })
                     .show();
@@ -216,8 +216,11 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
                         })
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                // Do nothing
                             }
-                        }).show();
+                        })
+                        .setCancelable(false)
+                        .show();
             }
         }
     };
@@ -226,20 +229,23 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
         @Override
         public void onLocationReceived(TrackPoint trackPoint) {
             if (mGpsService.isTracking()) {
-                // Update traveled distance
-                updateTraveledDistance(trackPoint);
+                // Update track and user position
+                drawPoint(trackPoint);
+                centerCamera(trackPoint);
 
+                // Update latitude and longitude
                 mLatitudeText.setText(String.valueOf(trackPoint.getLatitude()));
                 mLongitudeText.setText(String.valueOf(trackPoint.getLongitude()));
-                mDistanceText.setText(String.valueOf(mTraveledDistance) + " m");
-                mSpeedText.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " km/h");
 
+                // Update traveled distance and speed
+                updateTraveledDistance(trackPoint);
+                mDistanceText.setText(String.valueOf(mTraveledDistance) + " m");
+                mSpeedText.setText(String.valueOf(Double.valueOf(trackPoint.getSpeed()).intValue()) + " " + getString(R.string.kilometers_per_hour));
+
+                // Show information about race
                 if (mInfo.getVisibility() == View.INVISIBLE) {
                     mInfo.setVisibility(View.VISIBLE);
                 }
-
-                drawPoint(trackPoint);
-                centerCamera(trackPoint);
             } else {
                 // The first time a TrackPoint is received, center the camera to the User position
                 if (mCenterMapToUserPosition) {
@@ -247,6 +253,7 @@ public class RecordingFragment extends GoogleMapsFragment implements OnMapReadyC
                     centerCamera(trackPoint);
                 }
 
+                // Update user position
                 drawMarker(trackPoint);
             }
         }

@@ -30,6 +30,10 @@ public class SettingsFragment extends Fragment {
     private TextView mSelectedMapType;
 
     private Switch mSimulateGps;
+
+    private LinearLayout mSimulationSpeed;
+    private TextView mSelectedSimulationSpeed;
+
     private TextView mDeleteData;
 
     private GpsService mGpsService;
@@ -59,6 +63,12 @@ public class SettingsFragment extends Fragment {
         mSimulateGps = view.findViewById(R.id.simulate_gps);
         mSimulateGps.setChecked(SettingsHandler.isGpsSimulationEnabled());
         mSimulateGps.setOnCheckedChangeListener(mSimulateGpsChangeListener);
+
+        mSimulationSpeed = view.findViewById(R.id.simulation_speed);
+        mSimulationSpeed.setOnClickListener(mSimulationSpeedlickListener);
+
+        mSelectedSimulationSpeed = view.findViewById(R.id.selected_simulation_speed);
+        mSelectedSimulationSpeed.setText(String.valueOf(SettingsHandler.getSimulationSpeed()));
 
         mDeleteData = view.findViewById(R.id.delete_data);
         mDeleteData.setOnClickListener(mDeleteCoordinatesClickListener);
@@ -137,6 +147,35 @@ public class SettingsFragment extends Fragment {
                 mGpsService.stopLowRateLocationUpdated();
                 mGpsService.startLowRateLocationUpdated();
             }
+        }
+    };
+
+    private TextView.OnClickListener mSimulationSpeedlickListener = new TextView.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            final CharSequence speeds[] = new CharSequence[6];
+            speeds[0] = "0.50";
+            speeds[1] = "0.75";
+            speeds[2] = "1";
+            speeds[3] = "2";
+            speeds[4] = "5";
+            speeds[5] = "15";
+
+            new AlertDialog.Builder(MainActivity.getContext())
+                    .setTitle(R.string.simulation_speed)
+                    .setItems(speeds, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            SettingsHandler.setSimulationSpeed(Float.parseFloat(speeds[id].toString()));
+                            mSelectedSimulationSpeed.setText(speeds[id].toString());
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    }).show();
         }
     };
 

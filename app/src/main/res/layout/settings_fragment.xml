@@ -40,6 +40,32 @@
         android:text="@string/simulate_gps"
         android:textSize="20sp" />
 
+    <LinearLayout
+        android:id="@+id/simulation_speed"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/simulation_speed"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/selected_simulation_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:gravity="end|center_vertical"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/delete_data"
         android:layout_width="match_parent"
