@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.smarttracker.R;
 import com.smarttracker.model.db.DatabaseHelper;
+import com.smarttracker.utils.DateFormatUtils;
 
 import java.util.ArrayList;
 
@@ -37,7 +38,7 @@ public class SessionAdapter extends ArrayAdapter<Session> {
             convertView = inflater.inflate(R.layout.session_row, null);
 
             viewHolder = new ViewHolder();
-            viewHolder.name = convertView.findViewById(R.id.name);
+            viewHolder.createdAt = convertView.findViewById(R.id.created_at);
             viewHolder.length = convertView.findViewById(R.id.length);
             viewHolder.time = convertView.findViewById(R.id.time);
             convertView.setTag(viewHolder);
@@ -47,7 +48,7 @@ public class SessionAdapter extends ArrayAdapter<Session> {
 
         Session session = getItem(position);
 
-        viewHolder.name.setText(session.getName());
+        viewHolder.createdAt.setText(DateFormatUtils.getDateTime(session.getStartingDate()));
         viewHolder.length.setText(String.valueOf(session.getLength()) + " m");
 
         // Format the date
@@ -95,7 +96,7 @@ public class SessionAdapter extends ArrayAdapter<Session> {
     }
 
     private class ViewHolder {
-        public TextView name;
+        public TextView createdAt;
         public TextView length;
         public TextView time;
     }

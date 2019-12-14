@@ -254,7 +254,6 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
     private void updateStartRacingButton(TrackPoint trackPoint) {
         //Evaluate distance from starting line
         float distanceFromStartingLine = trackPoint.distanceTo(mReferenceSession.getPoints().get(0));
-        Log.d("RacingFragment", "Distance from starting line is " + distanceFromStartingLine + " m");
 
         //Enable StartRacing button only if the user is close to the starting line
         mStartRacing.setEnabled(distanceFromStartingLine <= 10);
@@ -268,7 +267,6 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
     private void detectRaceFinished(TrackPoint trackPoint) {
         // Evaluate distance from finish line
         float distanceFromFinishLine = trackPoint.distanceTo(mReferenceSession.getPoints().get(mReferenceSession.getPoints().size() - 1));
-        Log.d("RacingFragment", "Distance from finish line is " + distanceFromFinishLine + " m");
 
         // Race is finished only if the user is close to the finish line and the traveled distance is similar to the reference one
         if (distanceFromFinishLine <= 10 /* && Math.abs(mReferenceSession.getLength() - mTraveledDistance) <= 10 */) {

@@ -189,23 +189,12 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
 
         // Add the polyline to the map
         mMap.addPolyline(polylineOptions);
-
-        if (points.size() > 0) {
-            centerCamera(points.get(0));
-        }
     }
 
     protected void drawSessions(ArrayList<Session> sessions) {
         for (int i = 0; i < sessions.size(); ++i) {
             Session session = sessions.get(i);
             drawSession(session, mColors[i % (mColors.length)]);
-
-//            if (i == sessions.size() - 1) {
-//                ArrayList<TrackPoint> points = session.getPoints();
-//                if (points.size() > 0) {
-//                    centerCamera(points.get(points.size() - 1));
-//                }
-//            }
         }
     }
 
@@ -235,6 +224,7 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
             TrackPoint trackPoint = mGpsService.getLatestTrackPoint();
             if (trackPoint != null) {
                 drawMarker(trackPoint);
+                centerCamera(trackPoint);
             }
         }
     }

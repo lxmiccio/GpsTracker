@@ -6,14 +6,14 @@
     android:theme="@style/AppTheme.SelectedListItem">
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/created_at"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="0.8"
         android:gravity="start|center_vertical"
         android:paddingStart="20dp"
-        android:text="Name"
-        android:textSize="20sp" />
+        android:text="2019/12/14 08:00:00"
+        android:textSize="17sp"  />
 
     <TextView
         android:id="@+id/length"

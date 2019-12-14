@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.smarttracker.R;
 import com.smarttracker.model.Session;
@@ -26,6 +27,8 @@ import java.util.ArrayList;
 public class SessionListFragment extends Fragment {
 
     public final static String TAG = "SessionListFragment";
+
+    private TextView mTrackName;
 
     private SessionAdapter mSessionAdapter;
     private ListView mListView;
@@ -49,6 +52,12 @@ public class SessionListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.session_list_fragment, container, false);
 
+        mTrackName = view.findViewById(R.id.name);
+        mTrackName.setText(mTrack.getName());
+
+        ArrayList<Session> sessions = mDb.getSessionsByTrackId(mTrack.getId());
+        mSessionAdapter = new SessionAdapter(sessions, MainActivity.getContext());
+
         mListView = view.findViewById(R.id.session_list);
         mListView.setAdapter(mSessionAdapter);
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
@@ -60,9 +69,6 @@ public class SessionListFragment extends Fragment {
 
     public void setTrack(Track track) {
         mTrack = track;
-
-        ArrayList<Session> sessions = mDb.getSessionsByTrackId(mTrack.getId());
-        mSessionAdapter = new SessionAdapter(sessions, MainActivity.getContext());
     }
 
     protected AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {

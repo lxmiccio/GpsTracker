@@ -153,13 +153,12 @@ public class SettingsFragment extends Fragment {
     private TextView.OnClickListener mSimulationSpeedlickListener = new TextView.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final CharSequence speeds[] = new CharSequence[6];
+            final CharSequence speeds[] = new CharSequence[5];
             speeds[0] = "0.50";
             speeds[1] = "0.75";
             speeds[2] = "1";
             speeds[3] = "2";
             speeds[4] = "5";
-            speeds[5] = "15";
 
             new AlertDialog.Builder(MainActivity.getContext())
                     .setTitle(R.string.simulation_speed)

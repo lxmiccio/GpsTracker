@@ -9,13 +9,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.smarttracker.model.Session;
 import com.smarttracker.model.Track;
 import com.smarttracker.model.TrackPoint;
+import com.smarttracker.utils.DateFormatUtils;
 import com.smarttracker.view.activities.MainActivity;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -118,7 +116,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Track createTrack(String name) {
         SQLiteDatabase db = getWritableDatabase();
 
-        String currentDateTime = getCurrentDateTime();
+        String currentDateTime = DateFormatUtils.getCurrentDateTime();
 
         ContentValues trackValues = new ContentValues();
         trackValues.put(KEY_NAME, name);
@@ -128,7 +126,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long trackId = db.insert(TABLE_TRACK, null, trackValues);
 
         // Creates a new Track with the given id
-        Date createdAt = getDateTime(currentDateTime);
+        Date createdAt = DateFormatUtils.getDateTime(currentDateTime);
         Track track = new Track(trackId, name, createdAt);
 
         return track;
@@ -137,12 +135,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Session createSession(Track track) {
         SQLiteDatabase db = getWritableDatabase();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault());
-        Date date = new Date();
-        String currentDate = dateFormat.format(date);
-        String name = track.getName() + "_" + currentDate;
+        String currentDate = DateFormatUtils.getCurrentDateTime();
+        String name = track.getName() + " " + currentDate;
 
-        String currentDateTime = getCurrentDateTime();
+        String currentDateTime = DateFormatUtils.getCurrentDateTime();
 
         ContentValues sessionValues = new ContentValues();
         sessionValues.put(KEY_NAME, name);
@@ -155,7 +151,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
 
         // Creates a new Session with the given id
-        Date createdAt = getDateTime(currentDateTime);
+        Date createdAt = DateFormatUtils.getDateTime(currentDateTime);
         Session session = new Session(sessionId, name, createdAt, createdAt);
 
         return session;
@@ -171,7 +167,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_LONGITUDE, point.getLongitude());
         values.put(KEY_SPEED, point.getSpeed());
         values.put(KEY_TIME, point.getTime());
-        values.put(KEY_CREATED_AT, getCurrentDateTime());
+        values.put(KEY_CREATED_AT, DateFormatUtils.getCurrentDateTime());
         values.put(KEY_SESSION_ID, sessionId);
 
         // Insert a new Coordinate
@@ -192,7 +188,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
                 String name = cursor.getString(cursor.getColumnIndex(KEY_NAME));
-                Date createdAt = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_CREATED_AT)));
+                Date createdAt = DateFormatUtils.getDateTime(cursor.getString(cursor.getColumnIndex(KEY_CREATED_AT)));
 
                 Track track = new Track(id, name, createdAt);
                 tracks.add(track);
@@ -289,7 +285,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void updateSession(Session session) {
         SQLiteDatabase db = this.getReadableDatabase();
-        db.execSQL("UPDATE " + TABLE_SESSION + " SET " + KEY_LENGTH + " = " + session.getLength() + ", " + KEY_FINISHED_AT + " = '" + getDateTime(session.getEndingDate()) + "' WHERE id = " + session.getId());
+        db.execSQL("UPDATE " + TABLE_SESSION + " SET " + KEY_LENGTH + " = " + session.getLength() + ", " + KEY_FINISHED_AT + " = '" + DateFormatUtils.getDateTime(session.getEndingDate()) + "' WHERE id = " + session.getId());
     }
 
     public void deleteTrack(long id) {
@@ -341,7 +337,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues trackValues = new ContentValues();
         trackValues.put(KEY_NAME, name);
-        trackValues.put(KEY_CREATED_AT, getDateTime(date));
+        trackValues.put(KEY_CREATED_AT, DateFormatUtils.getDateTime(date));
 
         // Insert a new Track
         long trackId = db.insert(TABLE_TRACK, null, trackValues);
@@ -353,21 +349,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Session saveSession(Track track, Session session, long second) {
         SQLiteDatabase db = getWritableDatabase();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-
         ContentValues sessionValues = new ContentValues();
         sessionValues.put(KEY_NAME, session.getNameWithDate());
         sessionValues.put(KEY_LENGTH, session.getLength());
-        sessionValues.put(KEY_STARTED_AT, dateFormat.format(session.getStartingDate()));
-        sessionValues.put(KEY_FINISHED_AT, dateFormat.format(session.getEndingDate()));
-        sessionValues.put(KEY_CREATED_AT, dateFormat.format(session.getStartingDate()));
+        sessionValues.put(KEY_STARTED_AT, DateFormatUtils.getDateTime(session.getStartingDate()));
+        sessionValues.put(KEY_FINISHED_AT, DateFormatUtils.getDateTime(session.getEndingDate()));
+        sessionValues.put(KEY_CREATED_AT, DateFormatUtils.getDateTime(session.getStartingDate()));
         sessionValues.put(KEY_TRACK_ID, track.getId());
 
         // Insert a new Session
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
 
-        String currentDateTime = getCurrentDateTime();
-        Date createdAt = getDateTime(currentDateTime);
+        String currentDateTime = DateFormatUtils.getCurrentDateTime();
+        Date createdAt = DateFormatUtils.getDateTime(currentDateTime);
         Session newSession = new Session(sessionId, session.getNameWithDate(), createdAt, createdAt);
 
         return newSession;
@@ -383,7 +377,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_LONGITUDE, point.getLongitude());
         values.put(KEY_SPEED, point.getSpeed());
         values.put(KEY_TIME, point.getTime());
-        values.put(KEY_CREATED_AT, getCurrentDateTime());
+        values.put(KEY_CREATED_AT, DateFormatUtils.getCurrentDateTime());
         values.put(KEY_SESSION_ID, session.getId());
 
         // Insert a new Coordinate
@@ -393,34 +387,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private Session parseSession(Cursor cursor) {
         long id = cursor.getLong(cursor.getColumnIndex(KEY_ID));
         String name = cursor.getString(cursor.getColumnIndex(KEY_NAME));
-        Date startingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
-        Date endingDate = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
+        Date startingDate = DateFormatUtils.getDateTime(cursor.getString(cursor.getColumnIndex(KEY_STARTED_AT)));
+        Date endingDate = DateFormatUtils.getDateTime(cursor.getString(cursor.getColumnIndex(KEY_FINISHED_AT)));
         ArrayList<TrackPoint> points = getCoordinatesBySessionId(id);
 
         Session session = new Session(id, name, startingDate, endingDate);
         session.setPoints(points);
 
         return session;
-    }
-
-    private String getCurrentDateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        Date date = new Date();
-        return dateFormat.format(date);
-    }
-
-    private String getDateTime(Date date) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        return dateFormat.format(date);
-    }
-
-    private Date getDateTime(String dateTime) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try {
-            return dateFormat.parse(dateTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return new Date();
     }
 }

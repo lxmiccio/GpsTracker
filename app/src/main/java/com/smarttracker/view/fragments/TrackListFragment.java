@@ -35,9 +35,6 @@ public class TrackListFragment extends Fragment {
 
     public TrackListFragment() {
         mDb = DatabaseHelper.getInstance();
-
-        ArrayList<Track> tracks = mDb.getAllTracks();
-        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
     }
 
     @Override
@@ -49,6 +46,9 @@ public class TrackListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.track_list_fragment, container, false);
+
+        ArrayList<Track> tracks = mDb.getAllTracks();
+        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
 
         mListView = view.findViewById(R.id.track_list);
         mListView.setAdapter(mTrackAdapter);
