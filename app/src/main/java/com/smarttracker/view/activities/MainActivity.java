@@ -136,11 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         int id = item.getItemId();
         if (id == R.id.nav_tracks_list) {
-            if (mTrackListFragment == null) {
-                mTrackListFragment = TrackListFragment.getInstance();
-            } else {
-                mTrackListFragment.refresh();
-            }
+            mTrackListFragment = new TrackListFragment();
 
             // Navigate to TrackListFragment
             supportFragmentTransaction.replace(R.id.fragment_container, mTrackListFragment)

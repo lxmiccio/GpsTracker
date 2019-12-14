@@ -1,6 +1,5 @@
 package com.smarttracker.view.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,17 +29,15 @@ public class TrackListFragment extends Fragment {
     private TrackAdapter mTrackAdapter;
     private ListView mListView;
 
-    private DatabaseHelper mDb;
-
     private SessionListFragment mSessionListFragment;
+
+    private DatabaseHelper mDb;
 
     public TrackListFragment() {
         mDb = DatabaseHelper.getInstance();
-    }
 
-    public static TrackListFragment getInstance() {
-        TrackListFragment fragment = new TrackListFragment();
-        return fragment;
+        ArrayList<Track> tracks = mDb.getAllTracks();
+        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
     }
 
     @Override
@@ -53,103 +50,88 @@ public class TrackListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.track_list_fragment, container, false);
 
-        ArrayList<Track> tracks = mDb.getAllTracks();
-        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
         mListView = view.findViewById(R.id.track_list);
         mListView.setAdapter(mTrackAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ArrayList<Track> tracks = mTrackAdapter.getTracks();
-                Track track = tracks.get(position);
-
-                mSessionListFragment = new SessionListFragment();
-                mSessionListFragment.setTrack(track);
-
-                FragmentManager supportFragmentManager = getFragmentManager();
-                FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
-
-                supportFragmentTransaction.replace(R.id.fragment_container, mSessionListFragment)
-                        .addToBackStack(SessionListFragment.TAG)
-                        .commit();
-            }
-        });
-        mListView.setBackgroundResource(R.drawable.list_selected_item);
-
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
-            @Override
-            public boolean onCreateActionMode(android.view.ActionMode mode, Menu menu) {
-                mode.getMenuInflater().inflate(R.menu.list_multiselection_menu, menu);
-                return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(android.view.ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(android.view.ActionMode mode, MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.delete:
-                        // Calls getSelectedTracks method from ListViewAdapter Class
-                        SparseBooleanArray selected = mTrackAdapter.getSelectedTracks();
-
-                        // Captures all selected ids with a loop
-                        for (int i = (selected.size() - 1); i >= 0; i--) {
-                            if (selected.valueAt(i)) {
-                                Track selectedItem = mTrackAdapter.getItem(selected.keyAt(i));
-
-                                // Remove selected items following the ids
-                                mTrackAdapter.remove(selectedItem);
-                            }
-                        }
-
-                        // Close the menu
-                        mode.finish();
-
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            @Override
-            public void onDestroyActionMode(android.view.ActionMode mode) {
-                mTrackAdapter.removeSelection();
-            }
-
-            @Override
-            public void onItemCheckedStateChanged(android.view.ActionMode mode, int position, long id, boolean checked) {
-                // Capture total checked items
-                final int checkedCount = mListView.getCheckedItemCount();
-
-                // Set the title according to total checked items
-                String text = " " + (checkedCount == 1 ? getString(R.string.selected_element) : getString(R.string.selected_elements));
-                mode.setTitle(checkedCount + text);
-
-                // Calls toggleSelection method from ListViewAdapter Class
-                mTrackAdapter.toggleSelection(position);
-            }
-        });
+        mListView.setOnItemClickListener(mItemClickListener);
+        mListView.setMultiChoiceModeListener(mMultiChoiceModeListener);
 
         return view;
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
+    protected AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            ArrayList<Track> tracks = mTrackAdapter.getTracks();
+            Track track = tracks.get(position);
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
+            mSessionListFragment = new SessionListFragment();
+            mSessionListFragment.setTrack(track);
 
-    public void refresh() {
-        ArrayList<Track> tracks = mDb.getAllTracks();
-        mTrackAdapter = new TrackAdapter(tracks, MainActivity.getContext());
-        mListView.setAdapter(mTrackAdapter);
-    }
+            FragmentManager supportFragmentManager = getFragmentManager();
+            FragmentTransaction supportFragmentTransaction = supportFragmentManager.beginTransaction();
+
+            // Add fragment to BackStack so that when the back button is pressed, the inner fragment is removed
+            supportFragmentTransaction.replace(R.id.fragment_container, mSessionListFragment)
+                    .addToBackStack(SessionListFragment.TAG)
+                    .commit();
+        }
+    };
+
+    protected AbsListView.MultiChoiceModeListener mMultiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
+        @Override
+        public boolean onCreateActionMode(android.view.ActionMode mode, Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.list_multiselection_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(android.view.ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(android.view.ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.delete:
+                    // Get the selected Tracks
+                    SparseBooleanArray selected = mTrackAdapter.getSelectedTracks();
+
+                    // Looping through all the selected Tracks
+                    for (int i = (selected.size() - 1); i >= 0; i--) {
+                        if (selected.valueAt(i)) {
+                            Track selectedItem = mTrackAdapter.getItem(selected.keyAt(i));
+
+                            // Remove the selected Track
+                            mTrackAdapter.remove(selectedItem);
+                        }
+                    }
+
+                    // Close the menu
+                    mode.finish();
+
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(android.view.ActionMode mode) {
+            mTrackAdapter.removeSelection();
+        }
+
+        @Override
+        public void onItemCheckedStateChanged(android.view.ActionMode mode, int position, long id, boolean checked) {
+            // Get the number of selected Tracks
+            final int checkedCount = mListView.getCheckedItemCount();
+
+            // Set the title according to the number of selected Tracks
+            String text = " " + (checkedCount == 1 ? getString(R.string.selected_element) : getString(R.string.selected_elements));
+            mode.setTitle(checkedCount + text);
+
+            // Call toggleSelection method from ListViewAdapter Class
+            mTrackAdapter.toggleSelection(position);
+        }
+    };
 }

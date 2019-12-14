@@ -19,7 +19,7 @@
         android:id="@+id/length"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1.15"
+        android:layout_weight="0.9"
         android:gravity="end|center_vertical"
         android:text="18000 m"
         android:textSize="20sp" />
@@ -28,10 +28,10 @@
         android:id="@+id/time"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.95"
+        android:layout_weight="0.9"
         android:gravity="end|center_vertical"
         android:paddingEnd="20dp"
-        android:text="2019-28-11 22:48:36"
+        android:text="01:28:42"
         android:textSize="20sp" />
 
 </LinearLayout>
