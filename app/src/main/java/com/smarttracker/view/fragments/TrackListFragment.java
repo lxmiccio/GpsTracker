@@ -63,7 +63,7 @@ public class TrackListFragment extends Fragment {
                 ArrayList<Track> tracks = mTrackAdapter.getTracks();
                 Track track = tracks.get(position);
 
-                mSessionListFragment = SessionListFragment.getInstance();
+                mSessionListFragment = new SessionListFragment();
                 mSessionListFragment.setTrack(track);
 
                 FragmentManager supportFragmentManager = getFragmentManager();

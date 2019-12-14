@@ -13,11 +13,12 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.smarttracker.model.db.DatabaseHelper;
-import com.smarttracker.view.activities.MainActivity;
 import com.smarttracker.R;
 import com.smarttracker.model.Session;
+import com.smarttracker.model.db.DatabaseHelper;
+import com.smarttracker.services.GpsService;
 import com.smarttracker.utils.SettingsHandler;
+import com.smarttracker.view.activities.MainActivity;
 
 import java.util.ArrayList;
 
@@ -31,21 +32,17 @@ public class SettingsFragment extends Fragment {
     private Switch mSimulateGps;
     private TextView mDeleteData;
 
+    private GpsService mGpsService;
     private DatabaseHelper mDb;
 
     public SettingsFragment() {
-        // Required empty public constructor
-    }
-
-    public static SettingsFragment getInstance() {
-        SettingsFragment fragment = new SettingsFragment();
-        return fragment;
+        mGpsService = GpsService.getInstance();
+        mDb = DatabaseHelper.getInstance();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDb = DatabaseHelper.getInstance();
     }
 
     @Override
@@ -124,14 +121,21 @@ public class SettingsFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 SettingsHandler.setSessionToSimulate(sessions.get(id).getId());
+                                mGpsService.stopLowRateLocationUpdated();
+                                mGpsService.startLowRateLocationUpdated();
                             }
                         })
                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
+                                SettingsHandler.setGpsSimulationEnabled(false);
+                                mSimulateGps.setChecked(false);
                             }
-                        }).show();
+                        })
+                        .setCancelable(false).show();
+            } else {
+                mGpsService.stopLowRateLocationUpdated();
+                mGpsService.startLowRateLocationUpdated();
             }
         }
     };

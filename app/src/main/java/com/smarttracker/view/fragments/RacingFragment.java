@@ -28,12 +28,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.smarttracker.view.activities.MainActivity;
 import com.smarttracker.R;
-import com.smarttracker.services.GpsListener;
 import com.smarttracker.model.Session;
 import com.smarttracker.model.Track;
 import com.smarttracker.model.TrackPoint;
+import com.smarttracker.services.GpsListener;
+import com.smarttracker.view.activities.MainActivity;
 
 import java.util.ArrayList;
 
@@ -63,6 +63,7 @@ public class RacingFragment extends GoogleMapsFragment implements OnMapReadyCall
 
     public RacingFragment() {
         super();
+        mGhostLatLngs = new ArrayList<>();
     }
 
     public static RacingFragment getInstance() {

@@ -1,7 +1,6 @@
 package com.smarttracker.model;
 
 import android.location.Location;
-import android.util.Log;
 
 import org.simpleframework.xml.Element;
 
@@ -21,7 +20,7 @@ public class Session {
     @Element(name = "time")
     private Date mStartingDate;
 
-//    @Element(name = "endingDate")
+    @Element(name = "endtime")
     private Date mEndingDate;
 
     @Element(name = "trkseg")
@@ -41,6 +40,11 @@ public class Session {
         mEndingDate = endingDate;
 
         mTrackSegment = new TrackSegment();
+    }
+
+    public int getDuration() {
+        long diff = mEndingDate.getTime() - mStartingDate.getTime();
+        return (int) diff / 1000;
     }
 
     public int getLength() {
@@ -64,11 +68,6 @@ public class Session {
         }
 
         return (int) length;
-    }
-
-    public int getDuration() {
-        long diff = mEndingDate.getTime() - mStartingDate.getTime();
-        return (int) diff / 1000;
     }
 
     public int getTraveledDistance(long time) {
@@ -96,8 +95,6 @@ public class Session {
 
             length += a.distanceTo(b);
         }
-
-        Log.d("Track", "Traveled length is " + length);
 
         return (int) length;
     }

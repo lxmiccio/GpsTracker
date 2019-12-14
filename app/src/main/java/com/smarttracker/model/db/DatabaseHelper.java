@@ -19,11 +19,11 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise database won't update
-    private static final int DATABASE_VERSION = 194;
-
     // Database Name
     private static final String DATABASE_NAME = "GpsTracker";
+
+    // Database Version. Remember to change DATABASE_VERSION when adding or changing tables, otherwise database won't update
+    private static final int DATABASE_VERSION = 194;
 
     // Table Names
     private static final String TABLE_TRACK = "tracks";
@@ -46,13 +46,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_SPEED = "speed";
     private static final String KEY_TIME = "time";
 
-    // Coordinates table create statement
+    // Tracks table create statement
     private static final String CREATE_TABLE_TRACK = "CREATE TABLE "
             + TABLE_TRACK + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_NAME + " VARCHAR,"
             + KEY_CREATED_AT + " DATETIME)";
 
-    // Coordinates table create statement
+    // Sessions table create statement
     private static final String CREATE_TABLE_SESSION = "CREATE TABLE "
             + TABLE_SESSION + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_NAME + " VARCHAR,"
@@ -99,6 +99,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
+
+        // Enable Foreign Key constraints
         db.setForeignKeyConstraintsEnabled(true);
     }
 
@@ -265,7 +267,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_COORDINATE + " WHERE " + KEY_SESSION_ID + " = " + id;
         Cursor cursor = db.rawQuery(selectQuery, null);
 
-        // looping through all rows and adding to list
+        // Looping through all the Coordinates
         if (cursor.moveToFirst()) {
             do {
                 double altitude = cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE));
@@ -274,7 +276,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 double longitude = cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE));
                 float speed = cursor.getFloat(cursor.getColumnIndex(KEY_SPEED));
                 long time = cursor.getLong(cursor.getColumnIndex(KEY_TIME));
-                Date date = getDateTime(cursor.getString(cursor.getColumnIndex(KEY_CREATED_AT)));
 
                 TrackPoint coordinate = new TrackPoint(altitude, bearing, latitude, longitude, speed, time);
                 coordinates.add(coordinate);
@@ -342,7 +343,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         trackValues.put(KEY_NAME, name);
         trackValues.put(KEY_CREATED_AT, getDateTime(date));
 
-        // insert row
+        // Insert a new Track
         long trackId = db.insert(TABLE_TRACK, null, trackValues);
 
         Track newTrack = new Track(trackId, name, date);
@@ -362,7 +363,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sessionValues.put(KEY_CREATED_AT, dateFormat.format(session.getStartingDate()));
         sessionValues.put(KEY_TRACK_ID, track.getId());
 
-        // insert row
+        // Insert a new Session
         long sessionId = db.insert(TABLE_SESSION, null, sessionValues);
 
         String currentDateTime = getCurrentDateTime();
@@ -385,10 +386,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_CREATED_AT, getCurrentDateTime());
         values.put(KEY_SESSION_ID, session.getId());
 
-        // insert row
+        // Insert a new Coordinate
         long id = db.insert(TABLE_COORDINATE, null, values);
-
-        //return id;
     }
 
     private Session parseSession(Cursor cursor) {

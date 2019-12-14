@@ -23,12 +23,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.smarttracker.services.GpsService;
-import com.smarttracker.model.db.DatabaseHelper;
 import com.smarttracker.R;
 import com.smarttracker.model.Session;
-import com.smarttracker.utils.SettingsHandler;
 import com.smarttracker.model.TrackPoint;
+import com.smarttracker.model.db.DatabaseHelper;
+import com.smarttracker.services.GpsService;
+import com.smarttracker.utils.SettingsHandler;
 
 import java.util.ArrayList;
 
@@ -145,24 +145,26 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
     }
 
     public void drawMarker(TrackPoint point) {
-        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+        if (mMap != null) {
+            LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
 
-        // Remove previous marker
-        if (mMarker != null) {
-            mMarker.remove();
-            mMarker = null;
+            // Remove previous marker
+            if (mMarker != null) {
+                mMarker.remove();
+                mMarker = null;
+            }
+
+            // Draw marker at current point
+            Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_user);
+
+            Canvas canvas = new Canvas();
+            Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+            canvas.setBitmap(bitmap);
+            circleDrawable.setBounds(0, 0, 100, 100);
+            circleDrawable.draw(canvas);
+
+            mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
         }
-
-        // Draw marker at current point
-        Drawable circleDrawable = getResources().getDrawable(R.drawable.ic_user);
-
-        Canvas canvas = new Canvas();
-        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-        canvas.setBitmap(bitmap);
-        circleDrawable.setBounds(0, 0, 100, 100);
-        circleDrawable.draw(canvas);
-
-        mMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(bitmap)).position(latLng));
     }
 
     public void drawSession(Session session, int color) {
@@ -223,13 +225,17 @@ public abstract class GoogleMapsFragment extends Fragment implements OnMapReadyC
     }
 
     public void centerCamera(TrackPoint point) {
-        LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(18f));
+        if (mMap != null) {
+            LatLng latLng = new LatLng(point.getLatitude(), point.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(18f));
+        }
     }
 
     public void setZoomControls(boolean status) {
-        mMap.getUiSettings().setZoomControlsEnabled(status);
+        if (mMap != null) {
+            mMap.getUiSettings().setZoomControlsEnabled(status);
+        }
     }
 
     public void setMapType(String type) {

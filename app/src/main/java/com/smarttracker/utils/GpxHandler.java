@@ -16,12 +16,12 @@ public class GpxHandler {
     static public void saveGpx(File path, Session session) {
         Gpx gpx = new Gpx(session);
 
-        Log.d("GpxHandler", "path is " + path);
-        Log.d("GpxHandler", "name is " + session.getNameWithDate());
-        
+        Log.d("GpxHandler", "path is " + path + ", name is" + session.getNameWithDate());
+
         Serializer serializer = new Persister();
         File result = new File(path, session.getNameWithDate() + ".gpx");
         try {
+            // Serialize GPX to XML file
             serializer.write(gpx, result);
         } catch (Exception e) {
             e.printStackTrace();
@@ -34,6 +34,7 @@ public class GpxHandler {
 
         Gpx gpx = null;
         try {
+            // Deserialize GPX from XML file
             gpx = serializer.read(Gpx.class, source, false);
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,6 +47,7 @@ public class GpxHandler {
         ArrayList<String> tracksList = new ArrayList<>();
         File[] files = new File(path).listFiles();
         if (files != null) {
+            // Looping through all the files
             for (File file : files) {
                 if (file.getAbsolutePath().endsWith(".gpx")) {
                     String name = file.getAbsolutePath();

@@ -18,12 +18,12 @@ public class Track {
         return mId;
     }
 
-    public Date getCreatedAt() {
-        return mCreatedAt;
-    }
-
     public String getName() {
         return mName;
+    }
+
+    public Date getCreatedAt() {
+        return mCreatedAt;
     }
 
     @Override

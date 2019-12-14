@@ -15,16 +15,16 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 
-import com.smarttracker.utils.GpxHandler;
 import com.smarttracker.R;
-import com.smarttracker.services.GpsService;
-import com.smarttracker.view.fragments.RecordingFragment;
 import com.smarttracker.model.Gpx;
-import com.smarttracker.model.db.DatabaseHelper;
-import com.smarttracker.view.fragments.SettingsFragment;
 import com.smarttracker.model.Session;
 import com.smarttracker.model.Track;
 import com.smarttracker.model.TrackPoint;
+import com.smarttracker.model.db.DatabaseHelper;
+import com.smarttracker.services.GpsService;
+import com.smarttracker.utils.GpxHandler;
+import com.smarttracker.view.fragments.RecordingFragment;
+import com.smarttracker.view.fragments.SettingsFragment;
 import com.smarttracker.view.fragments.TrackListFragment;
 
 import java.util.ArrayList;
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     static final public int PHONE_ACCESS_COARSE_LOCATION = 5;
 
     static private Context mContext;
+
     private RecordingFragment mRecordingFragment;
     private TrackListFragment mTrackListFragment;
     private SettingsFragment mSettingsFragment;
@@ -56,11 +57,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Store context
+        // Store context
         mContext = this;
 
+        // Start low rate location updated
         mGpsService = GpsService.getInstance();
+        mGpsService.startLowRateLocationUpdated();
 
+        // Add RecordingFragment into the FragmentContainer
         if (findViewById(R.id.fragment_container) != null) {
             if (savedInstanceState == null) {
                 mRecordingFragment = RecordingFragment.getInstance();
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 DatabaseHelper db = DatabaseHelper.getInstance();
                 Track newTrack = db.saveTrack(session.getName(), session.getStartingDate());
-                Session newSession = db.saveSession(newTrack, session, session.getPoints().get(session.getPoints().size() - 1).getTime()/1000);
+                Session newSession = db.saveSession(newTrack, session, session.getPoints().get(session.getPoints().size() - 1).getTime() / 1000);
 
                 for (TrackPoint point : session.getPoints()) {
                     db.saveCoordinate(newSession, point);
@@ -94,11 +98,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+            // Close the Drawer
             drawer.closeDrawer(GravityCompat.START);
-        } else if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+        } else if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+            // Remove a Fragment except RecordingFragment
             getSupportFragmentManager().popBackStackImmediate();
         } else {
-            //Already in main page
+            // Already in MainActivity
         }
     }
 
@@ -136,20 +142,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 mTrackListFragment.refresh();
             }
 
+            // Navigate to TrackListFragment
             supportFragmentTransaction.replace(R.id.fragment_container, mTrackListFragment)
                     .addToBackStack(TrackListFragment.TAG)
                     .commit();
 
         } else if (id == R.id.nav_settings) {
             if (mSettingsFragment == null) {
-                mSettingsFragment = SettingsFragment.getInstance();
+                mSettingsFragment = new SettingsFragment();
             }
 
+            // Navigate to SettingsFragment
             supportFragmentTransaction.replace(R.id.fragment_container, mSettingsFragment)
                     .addToBackStack(SettingsFragment.TAG)
                     .commit();
         }
 
+        // Close the Drawer
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

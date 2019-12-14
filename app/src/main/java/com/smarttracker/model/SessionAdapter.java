@@ -31,9 +31,7 @@ public class SessionAdapter extends ArrayAdapter<Session> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         ViewHolder viewHolder;
-
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.session_row, null);
@@ -52,6 +50,7 @@ public class SessionAdapter extends ArrayAdapter<Session> {
         viewHolder.name.setText(session.getName());
         viewHolder.length.setText(String.valueOf(session.getLength()) + " m");
 
+        // Format the date
         String minutes = String.valueOf(session.getDuration() / 60);
         minutes = String.format("%1$" + 2 + "s", minutes).replace(' ', '0');
         String seconds = String.valueOf(session.getDuration() % 60);

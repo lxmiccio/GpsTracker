@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class TrackSegment {
 
-    @ElementList(inline = true, name = "trkpt")
+    @ElementList(entry = "trkpt", inline = true)
     private ArrayList<TrackPoint> mPoints;
 
     public TrackSegment() {

@@ -40,11 +40,6 @@ public class SessionListFragment extends Fragment {
         mDb = DatabaseHelper.getInstance();
     }
 
-    public static SessionListFragment getInstance() {
-        SessionListFragment fragment = new SessionListFragment();
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

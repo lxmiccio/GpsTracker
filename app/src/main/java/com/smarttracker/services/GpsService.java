@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.smarttracker.R;
 import com.smarttracker.model.Session;
 import com.smarttracker.model.Track;
 import com.smarttracker.model.TrackPoint;
@@ -40,7 +41,7 @@ public class GpsService {
     private Track mTrack;
     private Session mSession;
 
-    private LocationRequest mLowRateLocationRequest; // To update the current position in the map
+    private LocationRequest mLowRateLocationRequest;
     private LocationRequest mHighRateLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -57,7 +58,7 @@ public class GpsService {
         // Low rate location requests are used to update the current user position on the map
         // Since GPS has a high energy consumption, lowering the updates interval will decrease battery drain
         mLowRateLocationRequest = LocationRequest.create()
-                .setInterval(10000)
+                .setInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         // High rate location requests are used while recording to better track the user movements
@@ -66,9 +67,6 @@ public class GpsService {
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.getContext());
-
-        //Start low rate location updated
-        startLowRateLocationUpdated();
     }
 
     public static GpsService getInstance() {
@@ -91,18 +89,34 @@ public class GpsService {
     }
 
     public void startLowRateLocationUpdated() {
-        if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //Location Permission already granted
-            mFusedLocationClient.requestLocationUpdates(mLowRateLocationRequest, mLocationCallback, Looper.myLooper());
+        if (!SettingsHandler.isGpsSimulationEnabled()) {
+            if (ContextCompat.checkSelfPermission(MainActivity.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                //Location Permission already granted
+                mFusedLocationClient.requestLocationUpdates(mLowRateLocationRequest, mLocationCallback, Looper.myLooper());
+            } else {
+                //Request Location Permission
+                Log.d("GpsService", "checkLocationPermission");
+                checkLocationPermission();
+            }
         } else {
-            //Request Location Permission
-            Log.d("GpsService", "checkLocationPermission");
-            checkLocationPermission();
+            mSimulationHandler = new Handler();
+
+            long sessionId = SettingsHandler.getSessionToSimulate();
+            Session session = mDb.getSessionById(sessionId);
+            if (session != null) {
+                mSimulationPoints = session.getPoints();
+                mSimulationHandler.postDelayed(mSimulationTask, 1000);
+            }
         }
     }
 
     public void stopLowRateLocationUpdated() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        if (mSimulationHandler == null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        } else {
+            mSimulationHandler.removeCallbacks(mSimulationTask);
+            mSimulationHandler = null;
+        }
     }
 
     public void startLocationUpdates() {
@@ -201,9 +215,9 @@ public class GpsService {
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(MainActivity.getContext())
-                        .setTitle("Location Permission Needed")
-                        .setMessage("This app needs the Location permission, please accept to use location functionality")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        .setTitle(R.string.location_permission_request)
+                        .setMessage(R.string.location_permission_reason)
+                        .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
@@ -270,27 +284,36 @@ public class GpsService {
 
     private Runnable mSimulationTask = new Runnable() {
         public void run() {
-            if (mGpsListener != null) {
-                if (mSimulationPoints.size() > 0) {
-                    TrackPoint point = mSimulationPoints.get(0);
-                    mSimulationPoints.remove(0);
+            TrackPoint point = mSimulationPoints.get(0);
+            mLatestTrackPoint = point;
 
-                    if (mGpsListener != null) {
+            if (mTracking) {
+                if (mGpsListener != null) {
+                    if (mSimulationPoints.size() > 0) {
+                        mSimulationPoints.remove(0);
+
                         mGpsListener.onLocationReceived(point);
-                    }
 
-                    if (mSession != null) {
-                        mSession.appendPoint(point);
-                        mDb.createCoordinate(point, mSession.getId());
+                        if (mSession != null) {
+                            mSession.appendPoint(point);
+                            mDb.createCoordinate(point, mSession.getId());
 
-                        if (mSimulationPoints.size() > 0) {
-                            TrackPoint nextPoint = mSimulationPoints.get(0);
-                            long diffTime = nextPoint.getTime() - point.getTime();
-                            mSimulationHandler.postDelayed(mSimulationTask, diffTime);
+                            if (mSimulationPoints.size() > 0) {
+                                TrackPoint nextPoint = mSimulationPoints.get(0);
+                                long diffTime = nextPoint.getTime() - point.getTime();
+                                mSimulationHandler.postDelayed(mSimulationTask, diffTime);
+                            }
                         }
+                    } else {
+                        stopLocationUpdates();
                     }
-                } else {
-                    stopLocationUpdates();
+                }
+            } else {
+                if (mGpsListener != null) {
+                    if (mSimulationPoints.size() > 0) {
+                        mGpsListener.onLocationReceived(point);
+                        mSimulationHandler.postDelayed(mSimulationTask, 5000);
+                    }
                 }
             }
         }
